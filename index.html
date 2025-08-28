@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyTaskTon - Make Pro</title>
+    <style>
+        /* --- General Styles --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #181a1f; /* Dark background */
+            color: #e0e0e0; /* Light text */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+
+        .container {
+            flex: 1;
+            padding: 15px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        h1, h2, h3 {
+            color: #00aaff; /* Accent color */
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background-color: #00aaff;
+            color: #181a1f;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin: 5px;
+        }
+
+        button:hover {
+            background-color: #0088cc;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        input[type="text"],
+        input[type="url"],
+        textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #333;
+            border-radius: 5px;
+            background-color: #2a2d34;
+            color: #e0e0e0;
+            font-size: 16px;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* --- Navigation --- */
+        nav {
+            background-color: #2a2d34;
+            padding: 10px 0;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        nav a {
+            color: #e0e0e0;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #00aaff;
+        }
+
+        /* --- Pages --- */
+        .page {
+            display: none; /* Hide all pages by default */
+            padding: 20px 0;
+        }
+
+        .page.active {
+            display: block; /* Show active page */
+        }
+
+        /* --- Home Page --- */
+        .task-list {
+            margin-top: 20px;
+        }
+
+        .task-item {
+            background-color: #2a2d34;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .task-info h4 {
+            margin: 0 0 5px 0;
+            color: #00aaff;
+            text-align: left;
+        }
+
+        .task-info p {
+            margin: 0;
+            font-size: 14px;
+            color: #aaaaaa;
+            max-width: 400px;
+        }
+
+        .task-actions button {
+            padding: 10px 15px;
+            font-size: 14px;
+        }
+
+        /* --- Profile Page --- */
+        .profile-section, .withdrawal-section {
+            background-color: #2a2d34;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .profile-section h3, .withdrawal-section h3 {
+            text-align: left;
+        }
+
+        .profile-details p, .withdrawal-history p {
+            margin-bottom: 10px;
+            color: #aaaaaa;
+        }
+
+        .withdrawal-history {
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .withdrawal-history::-webkit-scrollbar {
+            width: 8px;
+        }
+        .withdrawal-history::-webkit-scrollbar-track {
+            background: #3a3d44;
+            border-radius: 10px;
+        }
+        .withdrawal-history::-webkit-scrollbar-thumb {
+            background: #00aaff;
+            border-radius: 10px;
+        }
+
+        .withdrawal-history::-webkit-scrollbar-thumb:hover {
+            background: #0088cc;
+        }
+
+        /* --- Add Task Page --- */
+        .add-task-form {
+            background-color: #2a2d34;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        /* --- My Tasks Page --- */
+        .my-tasks-section {
+            background-color: #2a2d34;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        /* --- Ads Page --- */
+        .ad-container {
+            background-color: #2a2d34;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .ad-container iframe, .ad-container div[data-zone] {
+            width: 100%;
+            max-width: 300px; /* Adjust as needed */
+            height: 250px; /* Adjust as needed */
+            margin: 15px auto;
+            display: block;
+            border: none; /* Remove border for iframes if needed */
+            border-radius: 8px;
+        }
+
+        /* --- Popup Styles --- */
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .popup-content {
+            background-color: #2a2d34;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .popup-content h3 {
+            margin-top: 0;
+        }
+
+        .popup-content input {
+            width: calc(100% - 20px);
+        }
+
+        .popup-content button {
+            display: inline-block;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #aaa;
+        }
+        .close-btn:hover {
+            color: #f00;
+        }
+
+        /* --- Task Timer --- */
+        .task-timer {
+            font-weight: bold;
+            color: #ffcc00;
+            margin-left: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="#" data-page="home">Home</a>
+        <a href="#" data-page="profile">Profile</a>
+        <a href="#" data-page="add-task">Add Task</a>
+        <a href="#" data-page="my-tasks">My Tasks</a>
+        <a href="#" data-page="ads">Ads</a>
+    </nav>
+
+    <div class="container">
+
+        <!-- Home Page -->
+        <div id="home" class="page active">
+            <h2>Welcome, <span id="userName">User</span>!</h2>
+            <p>Complete tasks to earn Toncoin.</p>
+            <div class="task-list" id="taskList">
+                <!-- Tasks will be loaded here -->
+            </div>
+            <div class="summary-stats">
+                <h3>Your Stats</h3>
+                <p>Total Completed: <span id="totalCompletedTasks">0</span></p>
+                <p>Total Earned: <span id="totalEarned">0.00000000</span> TON</p>
+                <p>Remaining Ads Today: <span id="remainingAds">10</span></p>
+            </div>
+        </div>
+
+        <!-- Profile Page -->
+        <div id="profile" class="page">
+            <h2>Profile</h2>
+            <div class="profile-section">
+                <h3>User Information</h3>
+                <p><strong>Username:</strong> <span id="profileUsername">N/A</span></p>
+                <p><strong>Telegram ID:</strong> <span id="profileTgId">N/A</span></p>
+                <p><strong>Balance:</strong> <span id="profileBalance">0.00000000</span> TON</p>
+                <p><strong>Total Earned:</strong> <span id="profileTotalEarned">0.00000000</span> TON</p>
+                <p><strong>Total Tasks Completed:</strong> <span id="profileTotalCompleted">0</span></p>
+            </div>
+            <div class="withdrawal-section">
+                <h3>Withdrawal</h3>
+                <p>Minimum withdrawal: 0.1 TON</p>
+                <button id="withdrawBtn">Withdraw</button>
+                <div class="withdrawal-history">
+                    <h4>Withdrawal History</h4>
+                    <p>No withdrawals yet.</p>
+                    <!-- Withdrawal history will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Task Page -->
+        <div id="add-task" class="page">
+            <h2>Add New Task</h2>
+            <div class="add-task-form">
+                <input type="text" id="taskTitle" placeholder="Task Title (e.g., Visit Website)" required>
+                <textarea id="taskDescription" placeholder="Task Description (e.g., Click the link and stay for 10 seconds)" required></textarea>
+                <input type="url" id="taskUrl" placeholder="Task URL (e.g., https://example.com)" required>
+                <input type="number" id="taskImpressions" placeholder="Minimum Impressions Required (e.g., 500)" min="1" required>
+                <input type="number" id="taskTgStars" placeholder="TG Stars Cost (e.g., 10)" min="1" required>
+                <button onclick="addTask()">Add Task</button>
+            </div>
+        </div>
+
+        <!-- My Tasks Page -->
+        <div id="my-tasks" class="page">
+            <h2>My Tasks</h2>
+            <div class="my-tasks-section">
+                <p>Here you can see tasks you have created and their completion status.</p>
+                <div id="createdTasksList">
+                    <p>You haven't created any tasks yet.</p>
+                </div>
+                <h3>Tasks Completed by Others</h3>
+                <p>Total users completed your tasks: <span id="totalUsersCompletedMyTasks">0</span></p>
+                <p>Total impressions from your tasks: <span id="totalImpressionsMyTasks">0</span></p>
+            </div>
+        </div>
+
+        <!-- Ads Page -->
+        <div id="ads" class="page">
+            <h2>Watch Ads</h2>
+            <div class="ad-container">
+                <p>Earn 0.000001 TON per ad. You can watch up to 10 ads per day.</p>
+                <div id="adDisplayArea">
+                    <button id="showAdBtn">Show Next Ad</button>
+                </div>
+                <div id="adInfo">
+                    <p>Ads remaining today: <span id="adsRemainingToday">10</span></p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Withdrawal Popup -->
+    <div id="withdrawalPopup" class="popup-overlay">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closeWithdrawalPopup()">&times;</span>
+            <h3>Withdrawal Request</h3>
+            <p>Current Balance: <strong id="popupBalance">0.00000000</strong> TON</p>
+            <input type="number" id="withdrawalAmount" placeholder="Amount (TON)" min="0.1">
+            <input type="text" id="tonAddress" placeholder="Your TON Address">
+            <button onclick="submitWithdrawal()">Submit Request</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Firebase Configuration ---
+        // IMPORTANT: For production, use Firebase Hosting or Cloud Functions
+        // to securely access your Firebase project secrets.
+        // This public key is generally safe for web apps, but avoid
+        // embedding any sensitive credentials (like private keys) here.
+        const firebaseConfig = {
+          apiKey: "AIzaSyBSj3t2ClyafHRgpN__cCnbDarhTfse3aA",
+          authDomain: "skytasktonbot.firebaseapp.com",
+          projectId: "skytasktonbot",
+          storageBucket: "skytasktonbot.firebasestorage.app",
+          messagingSenderId: "1078897344814",
+          appId: "1:1078897344814:web:166f4341b884d877d97abf"
+        };
+
+        // Initialize Firebase
+        // We'll assume Firebase is available globally if the script is loaded.
+        // In a real app, you'd typically include the Firebase SDK script tags.
+        // For this single file example, we'll mock it or assume it's there.
+        // To make this runnable, you'd need to include:
+        // <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+        // <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+        // before this script.
+
+        // Mock Firebase for demonstration if not loaded
+        if (typeof firebase === 'undefined') {
+            console.warn("Firebase SDK not loaded. Mocking Firebase for demonstration.");
+            window.firebase = {
+                initializeApp: () => ({
+                    database: () => ({
+                        ref: (path) => {
+                            const mockDB = {
+                                tasks: {},
+                                users: {},
+                                withdrawalRequests: {},
+                                createdTasks: {},
+                                userProgress: {}
+                            };
+
+                            // Simulate some initial data
+                            mockDB.tasks['task1'] = { id: 'task1', title: 'Visit SkyTaskTon', description: 'Click and stay for 10s', url: 'https://skytask.netlify.app', impressions: 500, tgStars: 10, createdBy: 'admin' };
+                            mockDB.tasks['task2'] = { id: 'task2', title: 'Check Out Our Link', description: 'Visit and confirm', url: 'https://example.com', impressions: 500, tgStars: 10, createdBy: 'user123' };
+                            mockDB.users['user123'] = { tgId: 12345, username: 'testuser', balance: 0.05, totalEarned: 0.1, totalCompleted: 2 };
+                            mockDB.userProgress['user123'] = { completedTasks: ['task2'], dailyAdCount: 10 };
+                            mockDB.createdTasks['admin'] = [
+                                { id: 'task1', title: 'Visit SkyTaskTon', description: 'Click and stay for 10s', url: 'https://skytask.netlify.app', impressions: 500, tgStars: 10, completedBy: 1 }
+                            ];
+                            mockDB.withdrawalRequests['req1'] = { userId: 'user123', amount: 0.5, address: '0x123...', status: 'Pending', timestamp: Date.now() };
+
+                            return {
+                                get: async () => {
+                                    // Simulate fetching data
+                                    const data = mockDB[path.split('/')[0]][path.split('/')[1]];
+                                    return { val: () => data || null };
+                                },
+                                once: async (eventType) => {
+                                    // Simulate listening to data changes
+                                    const data = mockDB[path.split('/')[0]][path.split('/')[1]];
+                                    return { val: () => data || null };
+                                },
+                                set: async (value) => {
+                                    // Simulate setting data
+                                    if (!mockDB[path.split('/')[0]]) mockDB[path.split('/')[0]] = {};
+                                    mockDB[path.split('/')[0]][path.split('/')[1]] = value;
+                                    console.log(`Mock DB Set: ${path} =`, value);
+                                },
+                                push: async (value) => {
+                                    // Simulate pushing data (auto-generated ID)
+                                    const newId = `mock_${Math.random().toString(36).substring(7)}`;
+                                    if (!mockDB[path.split('/')[0]]) mockDB[path.split('/')[0]] = {};
+                                    mockDB[path.split('/')[0]][newId] = { id: newId, ...value };
+                                    console.log(`Mock DB Push: ${path}/${newId} =`, value);
+                                    return { key: newId }; // Mimic push result
+                                },
+                                update: async (value) => {
+                                     // Simulate updating data
+                                    if (!mockDB[path.split('/')[0]]) mockDB[path.split('/')[0]] = {};
+                                    Object.assign(mockDB[path.split('/')[0]][path.split('/')[1]], value);
+                                    console.log(`Mock DB Update: ${path} =`, value);
+                                },
+                                remove: async () => {
+                                    // Simulate removing data
+                                    if (mockDB[path.split('/')[0]]) delete mockDB[path.split('/')[0]][path.split('/')[1]];
+                                    console.log(`Mock DB Remove: ${path}`);
+                                }
+                            };
+                        }
+                    })
+                })
+            };
+        }
+
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Telegram Web App SDK
+        window.telegram = window.Telegram.WebApps;
+        const tgUser = telegram.initDataUnsafe.user;
+
+        // --- Global Variables ---
+        let currentUser = null; // Stores user data from Firebase
+        let currentUserId = null; // Stores the Firebase key for the current user
+        let allTasks = []; // Stores all available tasks
+        let myCreatedTasks = []; // Stores tasks created by the current user
+        let remainingAdsToday = 10;
+        const MAX_ADS_PER_DAY = 10;
+        const AD_EARNING_AMOUNT = 0.000001;
+        const TASK_EARNING_AMOUNT = 0.00005;
+
+        // --- Page Navigation ---
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = link.getAttribute('data-page');
+                document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+                document.getElementById(pageId).classList.add('active');
+                // Reload data specific to the page if needed
+                if (pageId === 'home') loadHomeTasks();
+                if (pageId === 'profile') loadProfileData();
+                if (pageId === 'my-tasks') loadMyCreatedTasks();
+                if (pageId === 'ads') updateAdsCounter();
+            });
+        });
+
+        // --- Initialization ---
+        async function initializeApp() {
+            if (!tgUser) {
+                alert("Please open this app within Telegram.");
+                return;
+            }
+
+            document.getElementById('userName').textContent = tgUser.username || tgUser.first_name || 'User';
+            document.getElementById('profileUsername').textContent = tgUser.username || tgUser.first_name || 'N/A';
+            document.getElementById('profileTgId').textContent = tgUser.id || 'N/A';
+            currentUserId = `user_${tgUser.id}`; // Use TG ID as key for simplicity
+
+            await loadOrCreateUser();
+            loadHomeTasks();
+            loadProfileData();
+            updateAdsCounter();
+
+            telegram.ready(); // Inform Telegram that the app is ready
+        }
+
+        // --- User Management (Firebase) ---
+        async function loadOrCreateUser() {
+            const userRef = db.ref(`users/${currentUserId}`);
+            const snapshot = await userRef.once('value');
+            if (snapshot.exists()) {
+                currentUser = snapshot.val();
+                console.log("User loaded:", currentUser);
+            } else {
+                currentUser = {
+                    tgId: tgUser.id,
+                    username: tgUser.username || tgUser.first_name,
+                    balance: 0.00000000,
+                    totalEarned: 0.00000000,
+                    totalCompleted: 0,
+                    createdAt: Date.now()
+                };
+                await userRef.set(currentUser);
+                console.log("New user created:", currentUser);
+            }
+            updateUIBasedOnUserData();
+        }
+
+        function updateUIBasedOnUserData() {
+            if (!currentUser) return;
+            document.getElementById('profileBalance').textContent = currentUser.balance.toFixed(8);
+            document.getElementById('profileTotalEarned').textContent = currentUser.totalEarned.toFixed(8);
+            document.getElementById('profileTotalCompleted').textContent = currentUser.totalCompleted;
+
+            document.getElementById('totalCompletedTasks').textContent = currentUser.totalCompleted;
+            document.getElementById('totalEarned').textContent = currentUser.totalEarned.toFixed(8);
+        }
+
+        async function updateUserBalance(amount) {
+            if (!currentUser) return;
+            currentUser.balance = parseFloat((currentUser.balance + amount).toFixed(8));
+            currentUser.totalEarned = parseFloat((currentUser.totalEarned + amount).toFixed(8));
+            await db.ref(`users/${currentUserId}`).update({
+                balance: currentUser.balance,
+                totalEarned: currentUser.totalEarned
+            });
+            updateProfileData(); // Refresh profile display
+            console.log(`Balance updated: ${currentUser.balance}`);
+        }
+
+        async function incrementCompletedTasks() {
+            if (!currentUser) return;
+            currentUser.totalCompleted++;
+            await db.ref(`users/${currentUserId}`).update({
+                totalCompleted: currentUser.totalCompleted
+            });
+            updateProfileData();
+        }
+
+        // --- Task Management ---
+        async function loadHomeTasks() {
+            const tasksRef = db.ref('tasks');
+            const snapshot = await tasksRef.once('value');
+            allTasks = [];
+            document.getElementById('taskList').innerHTML = '';
+
+            if (snapshot.exists()) {
+                snapshot.forEach(childSnapshot => {
+                    const task = childSnapshot.val();
+                    task.id = childSnapshot.key; // Ensure task has an ID
+                    allTasks.push(task);
+                    renderTask(task);
+                });
+            } else {
+                document.getElementById('taskList').innerHTML = '<p>No tasks available yet. Add some or wait for others.</p>';
+            }
+        }
+
+        function renderTask(task) {
+            const taskList = document.getElementById('taskList');
+            const taskItem = document.createElement('div');
+            taskItem.classList.add('task-item');
+            taskItem.innerHTML = `
+                <div class="task-info">
+                    <h4>${task.title}</h4>
+                    <p>${task.description}</p>
+                    <p>Impressions: ${task.impressions} | Cost: ${task.tgStars} TG Star</p>
+                </div>
+                <div class="task-actions">
+                    <button onclick="startTask('${task.id}')">Start Task</button>
+                </div>
+            `;
+            taskList.appendChild(taskItem);
+        }
+
+        async function addTask() {
+            const title = document.getElementById('taskTitle').value;
+            const description = document.getElementById('taskDescription').value;
+            const url = document.getElementById('taskUrl').value;
+            const impressions = parseInt(document.getElementById('taskImpressions').value);
+            const tgStars = parseInt(document.getElementById('taskTgStars').value);
+
+            if (!title || !description || !url || isNaN(impressions) || isNaN(tgStars) || impressions < 500 || tgStars < 10) {
+                alert("Please fill in all fields correctly. Minimum impressions: 500, Minimum TG Stars: 10.");
+                return;
+            }
+
+            // Check if the current user has enough TG Stars (This is a simulation, real check needed)
+            // For now, we assume the user can create tasks.
+            // A real system would have a user's star balance.
+
+            const newTask = {
+                title,
+                description,
+                url,
+                impressions,
+                tgStars,
+                createdAt: Date.now(),
+                createdBy: currentUserId,
+                status: 'active', // active, completed, paused
+                completedCount: 0 // how many users completed this task
+            };
+
+            const newTaskRef = db.ref('tasks').push(newTask);
+            const taskId = newTaskRef.key;
+
+            // Add to user's created tasks list
+            if (!myCreatedTasks.find(t => t.id === taskId)) {
+                myCreatedTasks.push({ id: taskId, ...newTask });
+            }
+            await db.ref(`createdTasks/${currentUserId}`).set(myCreatedTasks);
+
+            document.getElementById('add-task').querySelector('input, textarea').value = ''; // Clear form
+            alert("Task added successfully!");
+            loadHomeTasks(); // Refresh task list on home
+        }
+
+        async function loadMyCreatedTasks() {
+            const createdTasksRef = db.ref(`createdTasks/${currentUserId}`);
+            const snapshot = await createdTasksRef.once('value');
+            myCreatedTasks = [];
+            document.getElementById('createdTasksList').innerHTML = '';
+
+            if (snapshot.exists()) {
+                snapshot.forEach(childSnapshot => {
+                    const task = childSnapshot.val();
+                    task.id = childSnapshot.key; // Ensure task has an ID
+                    myCreatedTasks.push(task);
+                });
+            }
+
+            if (myCreatedTasks.length > 0) {
+                let totalUsersCompleted = 0;
+                let totalImpressions = 0;
+                myCreatedTasks.forEach(task => {
+                    const taskItem = document.createElement('div');
+                    taskItem.classList.add('task-item');
+                    taskItem.innerHTML = `
+                        <div class="task-info">
+                            <h4>${task.title}</h4>
+                            <p>${task.description}</p>
+                            <p>Impressions Needed: ${task.impressions} | Cost: ${task.tgStars} TG Star</p>
+                            <p>Status: ${task.status} | Completed: ${task.completedCount}</p>
+                        </div>
+                        <div class="task-actions">
+                            <button onclick="deleteTask('${task.id}')">Delete</button>
+                        </div>
+                    `;
+                    document.getElementById('createdTasksList').appendChild(taskItem);
+                    totalUsersCompleted += task.completedCount;
+                    totalImpressions += task.completedCount * task.impressions; // Approximation
+                });
+                document.getElementById('totalUsersCompletedMyTasks').textContent = totalUsersCompleted;
+                document.getElementById('totalImpressionsMyTasks').textContent = totalImpressions;
+            } else {
+                document.getElementById('createdTasksList').innerHTML = '<p>You haven\'t created any tasks yet.</p>';
+            }
+        }
+
+        function deleteTask(taskId) {
+            if (!confirm("Are you sure you want to delete this task? This action cannot be undone.")) {
+                return;
+            }
+            // In a real app, you'd also remove it from the main 'tasks' node.
+            // For simplicity here, we'll just remove it from the user's list.
+            db.ref(`createdTasks/${currentUserId}/${taskId}`).remove();
+            myCreatedTasks = myCreatedTasks.filter(task => task.id !== taskId);
+            loadMyCreatedTasks(); // Refresh the list
+            alert("Task deleted.");
+        }
+
+        // --- Task Completion ---
+        let currentTaskStartTime = null;
+        let currentTaskUrl = null;
+        let currentTaskId = null;
+        let taskTimerInterval = null;
+
+        function startTask(taskId) {
+            const task = allTasks.find(t => t.id === taskId);
+            if (!task) {
+                alert("Task not found!");
+                return;
+            }
+
+            // Check if user has enough TG Stars to *initiate* this task (conceptually)
+            // Real TG Star handling is complex. This is a placeholder.
+            // Let's assume user has some stars and this is a cost.
+            // In a real scenario, you'd deduct stars here if the task requires it.
+            // For now, we'll just focus on the completion reward.
+
+            currentTaskUrl = task.url;
+            currentTaskId = taskId;
+            currentTaskStartTime = Date.now();
+
+            // Open the URL in a new tab or WebView
+            window.open(task.url, '_blank');
+            alert(`Task started! Please complete it within the next 60 seconds. Stay on the page.`);
+
+            // Update task item to show it's running and add a timer display
+            const taskList = document.getElementById('taskList');
+            const taskItems = taskList.querySelectorAll('.task-item');
+            taskItems.forEach(item => {
+                if (item.querySelector('button')?.onclick?.toString().includes(taskId)) {
+                    item.querySelector('.task-actions').innerHTML = '<span class="task-timer">10s</span>';
+                }
+            });
+
+            startTaskTimer();
+        }
+
+        function startTaskTimer() {
+            clearInterval(taskTimerInterval); // Clear any existing timer
+            let timeLeft = 10; // Hardcoded for 10 seconds verification
+            taskTimerInterval = setInterval(() => {
+                timeLeft--;
+                const timerDisplay = document.querySelector('.task-timer');
+                if (timerDisplay) {
+                    timerDisplay.textContent = `${timeLeft}s`;
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(taskTimerInterval);
+                    verifyTaskCompletion();
+                }
+            }, 1000);
+        }
+
+        async function verifyTaskCompletion() {
+            // In a real scenario, this would involve more complex verification:
+            // - Checking if the user visited the URL
+            // - Potentially checking for specific actions on the page
+            // - Using a backend to confirm completion via bot or other means.
+            // For this example, we'll assume if the timer ran out, the task is complete.
+
+            if (!currentTaskUrl || !currentTaskId || !currentTaskStartTime) return;
+
+            const task = allTasks.find(t => t.id === currentTaskId);
+            if (!task) {
+                console.error("Task not found for verification!");
+                return;
+            }
+
+            // Simulate earning and updating user data
+            const earnAmount = TASK_EARNING_AMOUNT; // 0.00005 Ton
+
+            // Check if this task has already been completed by the user
+            // This requires tracking completed tasks for each user more robustly.
+            // For simplicity, let's just reward and update counts.
+
+            // Update task stats
+            const taskRef = db.ref(`tasks/${currentTaskId}`);
+            const taskSnapshot = await taskRef.once('value');
+            if (taskSnapshot.exists()) {
+                const currentTaskData = taskSnapshot.val();
+                currentTaskData.completedCount = (currentTaskData.completedCount || 0) + 1;
+                await taskRef.update({ completedCount: currentTaskData.completedCount });
+            }
+
+            // Update user stats
+            await updateUserBalance(earnAmount);
+            await incrementCompletedTasks();
+
+            alert(`Task "${task.title}" completed! You earned ${earnAmount.toFixed(8)} TON.`);
+
+            // Reset for next task
+            currentTaskUrl = null;
+            currentTaskId = null;
+            currentTaskStartTime = null;
+
+            // Re-render the task list to show task completion or update UI
+            loadHomeTasks();
+        }
+
+
+        // --- Ads Management ---
+        async function updateAdsCounter() {
+            const adsRemainingElement = document.getElementById('adsRemainingToday');
+            if (!currentUser) { // Ensure user data is loaded
+                await loadOrCreateUser();
+            }
+
+            const userProgressRef = db.ref(`userProgress/${currentUserId}`);
+            const snapshot = await userProgressRef.once('value');
+            let progress = snapshot.exists() ? snapshot.val() : { dailyAdCount: MAX_ADS_PER_DAY, lastAdDay: null };
+
+            const today = new Date().toDateString();
+            if (progress.lastAdDay !== today) {
+                progress.dailyAdCount = MAX_ADS_PER_DAY;
+                progress.lastAdDay = today;
+                await userProgressRef.set(progress);
+            }
+            remainingAdsToday = progress.dailyAdCount;
+            adsRemainingElement.textContent = remainingAdsToday;
+
+            const adDisplayArea = document.getElementById('adDisplayArea');
+            const showAdBtn = document.getElementById('showAdBtn');
+
+            if (remainingAdsToday <= 0) {
+                showAdBtn.disabled = true;
+                showAdBtn.textContent = "No ads left today";
+            } else {
+                showAdBtn.disabled = false;
+                showAdBtn.textContent = `Show Next Ad (${remainingAdsToday}/${MAX_ADS_PER_DAY})`;
+            }
+        }
+
+        function showNextAd() {
+            if (remainingAdsToday <= 0) {
+                alert("You've reached your daily ad limit.");
+                return;
+            }
+
+            // Load the ad script dynamically or ensure it's present in HTML
+            // Using your provided script tag:
+            const adScript = document.createElement('script');
+            adScript.src = '//libtl.com/sdk.js';
+            adScript.setAttribute('data-zone', '9789409');
+            adScript.setAttribute('data-sdk', 'show_9789409');
+            document.getElementById('adDisplayArea').innerHTML = ''; // Clear previous ad or button
+            document.getElementById('adDisplayArea').appendChild(adScript);
+
+            // The libtl.com SDK might handle the display itself.
+            // If it renders an iframe, it will appear here.
+            // For programmatic control and confirmation, you'd typically
+            // interact with the SDK's API if available.
+
+            // The provided example `show_9789409().then(...)` suggests an async operation.
+            // We need to ensure that happens *after* the script is loaded and available.
+            // A common way is to poll or use `onload` if the SDK exposes it.
+            // For this example, we'll just assume the script will render something.
+
+            // Simulate the ad being shown and completed after a short delay
+            setTimeout(async () => {
+                if (typeof window.show_9789409 === 'function') {
+                    try {
+                        await window.show_9789409(); // Execute the function if available
+                        console.log("Ad SDK function called.");
+                    } catch (error) {
+                        console.error("Error executing ad SDK function:", error);
+                        // If the SDK doesn't work as expected, we'll still proceed with reward simulation
+                    }
+                }
+
+                // Decrement ad count and award points
+                remainingAdsToday--;
+                document.getElementById('adsRemainingToday').textContent = remainingAdsToday;
+
+                // Update user progress in Firebase
+                const userProgressRef = db.ref(`userProgress/${currentUserId}`);
+                await userProgressRef.update({ dailyAdCount: remainingAdsToday });
+
+                await updateUserBalance(AD_EARNING_AMOUNT);
+
+                alert(`Ad viewed! You earned ${AD_EARNING_AMOUNT.toFixed(8)} TON.`);
+                updateAdsCounter(); // Update button text/state
+
+                // Remove the ad script element after it has done its job to prevent re-loading
+                // This might be too aggressive if the SDK needs to stay active.
+                // const adScriptElement = document.querySelector('script[data-zone="9789409"]');
+                // if (adScriptElement) adScriptElement.remove();
+
+            }, 5000); // Simulate ad view time + processing
+        }
+
+        document.getElementById('showAdBtn').addEventListener('click', showNextAd);
+
+        // --- Withdrawal ---
+        function openWithdrawalPopup() {
+            if (!currentUser) {
+                alert("Please wait for user data to load.");
+                return;
+            }
+            document.getElementById('popupBalance').textContent = currentUser.balance.toFixed(8);
+            document.getElementById('withdrawalPopup').style.display = 'flex';
+        }
+
+        function closeWithdrawalPopup() {
+            document.getElementById('withdrawalPopup').style.display = 'none';
+            document.getElementById('withdrawalAmount').value = '';
+            document.getElementById('tonAddress').value = '';
+        }
+
+        async function submitWithdrawal() {
+            const amount = parseFloat(document.getElementById('withdrawalAmount').value);
+            const address = document.getElementById('tonAddress').value.trim();
+            const minWithdrawal = 0.1;
+
+            if (isNaN(amount) || amount < minWithdrawal) {
+                alert(`Please enter an amount greater than or equal to ${minWithdrawal} TON.`);
+                return;
+            }
+            if (!address) {
+                alert("Please enter your TON address.");
+                return;
+            }
+            if (amount > currentUser.balance) {
+                alert("Insufficient balance.");
+                return;
+            }
+
+            // Deduct balance immediately (subject to confirmation)
+            currentUser.balance -= amount;
+            await db.ref(`users/${currentUserId}`).update({ balance: currentUser.balance });
+            updateProfileData(); // Refresh profile display
+
+            // Save withdrawal request
+            const withdrawalRequest = {
+                userId: currentUserId,
+                tgId: currentUser.tgId,
+                username: currentUser.username,
+                amount: amount,
+                address: address,
+                status: 'Pending', // Pending, Approved, Rejected
+                timestamp: Date.now()
+            };
+
+            db.ref('withdrawalRequests').push(withdrawalRequest);
+
+            alert("Withdrawal request submitted successfully. It will be processed shortly.");
+            closeWithdrawalPopup();
+            loadWithdrawalHistory(); // Refresh history
+        }
+
+        async function loadWithdrawalHistory() {
+            const historyRef = db.ref('withdrawalRequests').orderByChild('userId').equalTo(currentUserId);
+            const snapshot = await historyRef.once('value');
+            const historyContainer = document.querySelector('.withdrawal-history');
+            historyContainer.innerHTML = '<h4>Withdrawal History</h4>'; // Clear previous
+
+            if (snapshot.exists()) {
+                snapshot.forEach(childSnapshot => {
+                    const req = childSnapshot.val();
+                    const item = document.createElement('p');
+                    item.textContent = `Amount: ${req.amount.toFixed(8)} TON | Address: ${req.address.substring(0, 10)}... | Status: ${req.status} | Date: ${new Date(req.timestamp).toLocaleDateString()}`;
+                    historyContainer.appendChild(item);
+                });
+            } else {
+                historyContainer.innerHTML += '<p>No withdrawals yet.</p>';
+            }
+        }
+
+        function loadProfileData() {
+            if (!currentUser) { // Ensure user data is loaded
+                loadOrCreateUser().then(loadWithdrawalHistory); // Load history after user is ready
+            } else {
+                updateProfileData();
+                loadWithdrawalHistory();
+            }
+        }
+
+        function updateProfileData() {
+            if (!currentUser) return;
+            document.getElementById('profileUsername').textContent = currentUser.username || 'N/A';
+            document.getElementById('profileTgId').textContent = currentUser.tgId || 'N/A';
+            document.getElementById('profileBalance').textContent = currentUser.balance.toFixed(8);
+            document.getElementById('profileTotalEarned').textContent = currentUser.totalEarned.toFixed(8);
+            document.getElementById('profileTotalCompleted').textContent = currentUser.totalCompleted;
+        }
+
+
+        // --- Event Listeners for UI buttons ---
+        document.getElementById('withdrawBtn').addEventListener('click', openWithdrawalPopup);
+
+        // --- Initialisation Call ---
+        // Use setTimeout to ensure Telegram SDK is available
+        setTimeout(() => {
+            initializeApp();
+        }, 500); // Give a small delay for Telegram SDK to initialize
+
+    </script>
+
+    <!-- Include Firebase SDKs -->
+    <!-- In a real application, place these in the <head> or before the main script -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+</body>
+</html>
