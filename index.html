@@ -8,7 +8,7 @@
     <script src='//libtl.com/sdk.js' data-zone='9789409' data-sdk='show_9789409'></script>
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-        import { getDatabase, ref, push, set, get, onValue, remove } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js';
+        import { getDatabase, ref, push, set, get, onValue, remove, update } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js';
         
         const firebaseConfig = {
             apiKey: "AIzaSyBSj3t2ClyafHRgpN__cCnbDarhTfse3aA",
@@ -21,9 +21,10 @@
         
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
-        window.firebase = { database, ref, push, set, get, onValue, remove };
+        window.firebase = { database, ref, push, set, get, onValue, remove, update };
     </script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -32,115 +33,177 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #333;
             overflow-x: hidden;
+            min-height: 100vh;
         }
 
         .container {
             max-width: 100vw;
             min-height: 100vh;
             position: relative;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
         }
 
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
+            padding: 25px 20px;
             text-align: center;
             color: white;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
         }
 
         .header h1 {
-            font-size: 2.2em;
-            font-weight: bold;
-            margin-bottom: 5px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
         }
 
         .balance {
-            font-size: 1.2em;
-            margin-top: 10px;
-            background: rgba(255,255,255,0.2);
-            padding: 10px;
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
+            font-size: 1.3em;
+            margin-top: 15px;
+            background: rgba(255,255,255,0.25);
+            padding: 15px 20px;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.2);
+            position: relative;
+            z-index: 1;
+            font-weight: 600;
         }
 
         .nav-tabs {
             display: flex;
             background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
             position: sticky;
             top: 0;
             z-index: 100;
+            border-bottom: 1px solid #f0f0f0;
         }
 
         .nav-tab {
             flex: 1;
-            padding: 15px 5px;
+            padding: 18px 8px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border: none;
             background: none;
-            font-size: 12px;
+            font-size: 11px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-tab::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-tab.active::before {
+            transform: scaleX(1);
         }
 
         .nav-tab.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            color: #667eea;
         }
 
         .nav-tab:hover {
-            background: rgba(102, 126, 234, 0.1);
+            background: rgba(102, 126, 234, 0.05);
+            transform: translateY(-1px);
         }
 
-        .nav-tab.active:hover {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .nav-tab .material-icons {
+            font-size: 20px;
         }
 
         .tab-content {
             display: none;
-            padding: 20px;
-            min-height: calc(100vh - 200px);
+            padding: 25px 20px;
+            min-height: calc(100vh - 220px);
+            animation: fadeIn 0.3s ease;
         }
 
         .tab-content.active {
             display: block;
         }
 
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .task-card {
             background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin: 15px 0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 20px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .task-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
         .task-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transform: translateY(-8px);
+            box-shadow: 0 16px 48px rgba(0,0,0,0.12);
         }
 
         .task-title {
-            font-size: 1.3em;
-            font-weight: bold;
+            font-size: 1.4em;
+            font-weight: 600;
             color: #333;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            line-height: 1.3;
         }
 
         .task-description {
             color: #666;
-            margin-bottom: 15px;
-            line-height: 1.5;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            font-size: 0.95em;
         }
 
         .task-stats {
@@ -148,189 +211,265 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 12px;
+            margin-bottom: 20px;
         }
 
         .stat {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            font-weight: bold;
+            padding: 10px 16px;
+            border-radius: 25px;
+            font-size: 0.85em;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         .btn {
-            padding: 12px 25px;
+            padding: 14px 28px;
             border: none;
-            border-radius: 25px;
+            border-radius: 30px;
             cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
             font-size: 1em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
         }
 
         .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
         }
 
         .btn-success {
             background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
             color: white;
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(76, 175, 80, 0.5);
         }
 
         .btn-warning {
             background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
             color: white;
+            box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
         }
 
         .btn-danger {
             background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
             color: white;
+            box-shadow: 0 6px 20px rgba(244, 67, 54, 0.4);
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
+            margin-bottom: 10px;
+            font-weight: 600;
             color: #333;
+            font-size: 0.95em;
         }
 
         .form-control {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
+            padding: 16px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 15px;
             font-size: 1em;
-            transition: border-color 0.3s ease;
+            transition: all 0.3s ease;
+            background: white;
+            font-family: inherit;
         }
 
         .form-control:focus {
             outline: none;
             border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
         }
 
         .profile-card {
             background: white;
-            border-radius: 20px;
-            padding: 30px;
+            border-radius: 25px;
+            padding: 35px;
             text-align: center;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
         .profile-avatar {
-            width: 100px;
-            height: 100px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 20px;
+            margin: 0 auto 25px;
             color: white;
-            font-size: 3em;
+            font-size: 3.5em;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
         }
 
         .modal {
             display: none;
             position: fixed;
-            z-index: 1000;
+            z-index: 2000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
+            background-color: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .modal-content {
             background-color: white;
             margin: 50px auto;
-            padding: 30px;
-            border-radius: 20px;
+            padding: 35px;
+            border-radius: 25px;
             width: 90%;
             max-width: 500px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            animation: modalSlideIn 0.3s ease;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
         }
 
         @keyframes modalSlideIn {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from { transform: translateY(-50px) scale(0.9); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
         }
 
         .close {
             color: #aaa;
             float: right;
-            font-size: 28px;
+            font-size: 32px;
             font-weight: bold;
             cursor: pointer;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
+            line-height: 1;
         }
 
         .close:hover {
-            color: #000;
+            color: #667eea;
+            transform: scale(1.1);
         }
 
         .progress-bar {
             width: 100%;
-            height: 20px;
+            height: 12px;
             background-color: #f0f0f0;
             border-radius: 10px;
             overflow: hidden;
-            margin: 10px 0;
+            margin: 15px 0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .progress-fill {
             height: 100%;
             background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
             width: 0%;
-            transition: width 0.3s ease;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
 
         .ad-container {
             background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin: 15px 0;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
         }
 
         .countdown {
-            font-size: 2em;
-            font-weight: bold;
+            font-size: 3em;
+            font-weight: 700;
             color: #667eea;
-            margin: 20px 0;
+            margin: 25px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
 
         .notification {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            border-radius: 10px;
+            top: 25px;
+            right: 25px;
+            padding: 18px 25px;
+            border-radius: 15px;
             color: white;
-            font-weight: bold;
-            z-index: 2000;
-            animation: slideInRight 0.3s ease;
+            font-weight: 600;
+            z-index: 3000;
+            animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            max-width: 300px;
         }
 
         .notification.success {
@@ -341,46 +480,107 @@
             background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
         }
 
+        .notification.info {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+        }
+
         @keyframes slideInRight {
-            from { transform: translateX(100%); }
-            to { transform: translateX(0); }
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
         }
 
         .stat-card {
             background: white;
-            padding: 20px;
-            border-radius: 15px;
+            padding: 25px;
+            border-radius: 20px;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
         }
 
         .stat-number {
-            font-size: 2em;
-            font-weight: bold;
+            font-size: 2.2em;
+            font-weight: 700;
             color: #667eea;
+            margin-bottom: 8px;
         }
 
         .stat-label {
             font-size: 0.9em;
             color: #666;
-            margin-top: 5px;
+            font-weight: 500;
+        }
+
+        .cost-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: 600;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .ads-remaining {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            display: inline-block;
+            margin: 15px 0;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #666;
+        }
+
+        .empty-state .material-icons {
+            font-size: 4em;
+            color: #ddd;
+            margin-bottom: 20px;
         }
 
         @media (max-width: 768px) {
             .header h1 {
-                font-size: 1.8em;
+                font-size: 2em;
             }
             
             .nav-tab {
-                font-size: 11px;
-                padding: 12px 3px;
+                font-size: 10px;
+                padding: 15px 5px;
             }
             
             .task-stats {
@@ -390,13 +590,29 @@
             
             .stat {
                 text-align: center;
+                margin: 5px 0;
             }
             
             .modal-content {
                 margin: 20px auto;
                 width: 95%;
-                padding: 20px;
+                padding: 25px;
             }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                gap: 15px;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
     </style>
 </head>
@@ -448,27 +664,31 @@
                     <div class="stat-label">Total Earnings</div>
                 </div>
             </div>
-            <h2 style="margin: 20px 0;">🚀 Available Tasks</h2>
-            <div id="allTasksList"></div>
+            <h2 style="margin: 25px 0; font-size: 1.8em; color: #333;">🚀 Available Tasks</h2>
+            <div id="allTasksList">
+                <div class="loading-spinner"></div>
+            </div>
         </div>
 
         <!-- My Tasks Tab -->
         <div id="tasks" class="tab-content">
-            <h2>📝 My Tasks</h2>
-            <div id="myTasksList"></div>
+            <h2 style="margin-bottom: 25px; font-size: 1.8em; color: #333;">📝 My Tasks</h2>
+            <div id="myTasksList">
+                <div class="loading-spinner"></div>
+            </div>
         </div>
 
         <!-- Add Task Tab -->
         <div id="add-task" class="tab-content">
-            <h2>➕ Create New Task</h2>
+            <h2 style="margin-bottom: 25px; font-size: 1.8em; color: #333;">➕ Create New Task</h2>
             <form id="addTaskForm">
                 <div class="form-group">
                     <label for="taskTitle">Task Title *</label>
-                    <input type="text" id="taskTitle" class="form-control" placeholder="Enter task title" required>
+                    <input type="text" id="taskTitle" class="form-control" placeholder="Enter an engaging task title" required>
                 </div>
                 <div class="form-group">
                     <label for="taskDescription">Task Description *</label>
-                    <textarea id="taskDescription" class="form-control" rows="4" placeholder="Describe your task" required></textarea>
+                    <textarea id="taskDescription" class="form-control" rows="4" placeholder="Describe what users need to do" required></textarea>
                 </div>
                 <div class="form-group">
                     <label for="taskUrl">Task URL *</label>
@@ -476,35 +696,51 @@
                 </div>
                 <div class="form-group">
                     <label for="totalImpressions">Total Impressions *</label>
-                    <input type="number" id="totalImpressions" class="form-control" min="500" placeholder="Minimum 500" required>
+                    <input type="number" id="totalImpressions" class="form-control" min="500" step="100" placeholder="Minimum 500 impressions" required>
                 </div>
-                <div class="form-group">
-                    <label>💰 Cost: <span id="taskCost">0</span> Telegram Stars</label>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="costProgress"></div>
+                <div class="cost-display">
+                    💰 Total Cost: <span id="taskCost">0</span> Telegram Stars
+                    <div style="font-size: 0.9em; margin-top: 8px; opacity: 0.9;">
+                        Rate: 500 impressions = 100 Stars
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary">
-                    <span class="material-icons">add_task</span>
-                    Create Task & Pay
+                <div class="progress-bar">
+                    <div class="progress-fill" id="costProgress"></div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+                    <span class="material-icons">payment</span>
+                    Create Task & Pay with Stars
                 </button>
             </form>
         </div>
 
         <!-- Ads Tab -->
         <div id="ads" class="tab-content">
-            <h2>📺 Watch Ads & Earn</h2>
+            <h2 style="margin-bottom: 25px; font-size: 1.8em; color: #333;">📺 Watch Ads & Earn</h2>
             <div class="ad-container">
-                <h3>Daily Ads Available: <span id="adsRemaining">10</span>/10</h3>
-                <p>Earn 0.000001 TON per ad!</p>
-                <button id="watchAdBtn" class="btn btn-success">
-                    <span class="material-icons">play_circle</span>
-                    Watch Ad
+                <div class="material-icons" style="font-size: 4em; color: #667eea; margin-bottom: 20px;">play_circle_filled</div>
+                <h3 style="margin-bottom: 15px;">Daily Ads Available</h3>
+                <div class="ads-remaining">
+                    <span id="adsRemaining">10</span> / 10 Ads Remaining
+                </div>
+                <p style="margin: 20px 0; color: #666; font-size: 1.1em;">
+                    Earn <strong>0.000001 TON</strong> per ad watched!
+                </p>
+                <button id="watchAdBtn" class="btn btn-success" style="font-size: 1.1em;">
+                    <span class="material-icons">play_arrow</span>
+                    Watch Ad Now
                 </button>
+                <div style="margin-top: 20px; font-size: 0.9em; color: #888;">
+                    Ads reset daily at midnight
+                </div>
             </div>
-            <div id="adDisplay" style="display: none;">
-                <div id="adContent"></div>
+            <div id="adDisplay" style="display: none;" class="ad-container">
+                <h3>Please wait while the ad loads...</h3>
+                <div id="adContent" style="min-height: 200px; margin: 20px 0;"></div>
                 <div class="countdown" id="adCountdown">5</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="adProgress"></div>
+                </div>
             </div>
         </div>
 
@@ -514,9 +750,9 @@
                 <div class="profile-avatar">
                     <span class="material-icons">person</span>
                 </div>
-                <h2 id="userName">Loading...</h2>
-                <p id="userId">ID: Loading...</p>
-                <div class="stats-grid" style="margin-top: 20px;">
+                <h2 id="userName" style="margin-bottom: 8px; font-size: 1.8em;">Loading...</h2>
+                <p id="userId" style="color: #666; margin-bottom: 25px;">ID: Loading...</p>
+                <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-number" id="profileBalance">0.00000</div>
                         <div class="stat-label">TON Balance</div>
@@ -529,8 +765,12 @@
                         <div class="stat-number" id="profileEarnings">0.00000</div>
                         <div class="stat-label">Total Earned</div>
                     </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="profileAdsWatched">0</div>
+                        <div class="stat-label">Ads Watched</div>
+                    </div>
                 </div>
-                <button id="withdrawBtn" class="btn btn-warning">
+                <button id="withdrawBtn" class="btn btn-warning" style="margin-top: 20px; font-size: 1.1em;">
                     <span class="material-icons">account_balance_wallet</span>
                     Withdraw TON
                 </button>
@@ -542,19 +782,19 @@
     <div id="withdrawModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('withdrawModal')">&times;</span>
-            <h2>💰 Withdraw TON</h2>
+            <h2 style="margin-bottom: 25px; color: #333;">💰 Withdraw TON</h2>
             <form id="withdrawForm">
                 <div class="form-group">
                     <label for="withdrawAmount">Amount (TON) *</label>
-                    <input type="number" id="withdrawAmount" class="form-control" step="0.00001" min="0.001" placeholder="Minimum 0.001" required>
+                    <input type="number" id="withdrawAmount" class="form-control" step="0.00001" min="0.001" placeholder="Minimum 0.001 TON" required>
                 </div>
                 <div class="form-group">
                     <label for="tonAddress">TON Wallet Address *</label>
                     <input type="text" id="tonAddress" class="form-control" placeholder="Enter your TON wallet address" required>
                 </div>
-                <button type="submit" class="btn btn-success">
+                <button type="submit" class="btn btn-success" style="width: 100%;">
                     <span class="material-icons">send</span>
-                    Submit Withdrawal
+                    Submit Withdrawal Request
                 </button>
             </form>
         </div>
@@ -562,14 +802,25 @@
 
     <!-- Task Verification Modal -->
     <div id="verifyModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" style="text-align: center;">
             <span class="close" onclick="closeModal('verifyModal')">&times;</span>
-            <h2>⏳ Task Verification</h2>
-            <p>Please wait while we verify your task completion...</p>
+            <div class="material-icons" style="font-size: 4em; color: #667eea; margin-bottom: 20px;">hourglass_empty</div>
+            <h2 style="margin-bottom: 20px; color: #333;">⏳ Task Verification</h2>
+            <p style="margin-bottom: 25px; color: #666;">Please wait while we verify your task completion...</p>
             <div class="countdown" id="verifyCountdown">10</div>
             <div class="progress-bar">
                 <div class="progress-fill" id="verifyProgress"></div>
             </div>
+        </div>
+    </div>
+
+    <!-- Payment Processing Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content" style="text-align: center;">
+            <div class="material-icons pulse" style="font-size: 4em; color: #667eea; margin-bottom: 20px;">payment</div>
+            <h2 style="margin-bottom: 20px; color: #333;">💳 Processing Payment</h2>
+            <p style="margin-bottom: 25px; color: #666;">Please complete the payment to create your task...</p>
+            <div class="loading-spinner"></div>
         </div>
     </div>
 
@@ -579,31 +830,39 @@
         let userTasks = {};
         let allTasks = {};
         let userBalance = 0;
-        let userStats = { tasksCreated: 0, tasksCompleted: 0, totalEarnings: 0 };
+        let userStats = { tasksCreated: 0, tasksCompleted: 0, totalEarnings: 0, adsWatched: 0 };
         let adsWatchedToday = 0;
+        let isProcessingPayment = false;
         const BOT_TOKEN = '8418101664:AAGUUWpQVhrueHoP97W5laKOOlJ1LNKGQm8';
 
         // Initialize Telegram Web App
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.expand();
+        window.Telegram.WebApp.enableClosingConfirmation();
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
             initializeUser();
             loadUserData();
             updateTaskCost();
+            initializeDailyReset();
         });
 
         function initializeUser() {
             if (window.Telegram.WebApp.initDataUnsafe.user) {
                 currentUser = window.Telegram.WebApp.initDataUnsafe.user;
-                document.getElementById('userName').textContent = currentUser.first_name + ' ' + (currentUser.last_name || '');
+                document.getElementById('userName').textContent = 
+                    (currentUser.first_name || '') + ' ' + (currentUser.last_name || '');
                 document.getElementById('userId').textContent = 'ID: ' + currentUser.id;
             } else {
                 // For testing purposes
-                currentUser = { id: 123456789, first_name: 'Test', username: 'testuser' };
+                currentUser = { 
+                    id: Date.now(), 
+                    first_name: 'Test', 
+                    username: 'testuser' + Math.floor(Math.random() * 1000)
+                };
                 document.getElementById('userName').textContent = 'Test User';
-                document.getElementById('userId').textContent = 'ID: 123456789';
+                document.getElementById('userId').textContent = 'ID: ' + currentUser.id;
             }
         }
 
@@ -614,7 +873,7 @@
             firebase.onValue(userRef, (snapshot) => {
                 const userData = snapshot.val() || {};
                 userBalance = userData.balance || 0;
-                userStats = userData.stats || { tasksCreated: 0, tasksCompleted: 0, totalEarnings: 0 };
+                userStats = userData.stats || { tasksCreated: 0, tasksCompleted: 0, totalEarnings: 0, adsWatched: 0 };
                 adsWatchedToday = userData.adsWatchedToday || 0;
                 
                 updateUI();
@@ -640,10 +899,23 @@
             document.getElementById('profileBalance').textContent = userBalance.toFixed(5);
             document.getElementById('profileTasks').textContent = userStats.tasksCreated;
             document.getElementById('profileEarnings').textContent = userStats.totalEarnings.toFixed(5);
+            document.getElementById('profileAdsWatched').textContent = userStats.adsWatched;
             document.getElementById('totalTasks').textContent = Object.keys(allTasks).length;
             document.getElementById('completedTasks').textContent = userStats.tasksCompleted;
             document.getElementById('totalEarnings').textContent = userStats.totalEarnings.toFixed(5);
             document.getElementById('adsRemaining').textContent = Math.max(0, 10 - adsWatchedToday);
+            
+            // Update ads button state
+            const watchAdBtn = document.getElementById('watchAdBtn');
+            if (adsWatchedToday >= 10) {
+                watchAdBtn.disabled = true;
+                watchAdBtn.innerHTML = '<span class="material-icons">block</span>Daily Limit Reached';
+                watchAdBtn.style.opacity = '0.6';
+            } else {
+                watchAdBtn.disabled = false;
+                watchAdBtn.innerHTML = '<span class="material-icons">play_arrow</span>Watch Ad Now';
+                watchAdBtn.style.opacity = '1';
+            }
         }
 
         function switchTab(tabName) {
@@ -666,10 +938,11 @@
             
             impressionsInput.addEventListener('input', function() {
                 const impressions = parseInt(this.value) || 0;
-                const cost = Math.ceil(impressions / 100); // 100 impressions = 1 star
+                // Fixed calculation: 500 impressions = 100 Stars
+                const cost = Math.ceil((impressions / 500) * 100);
                 costSpan.textContent = cost;
                 
-                const progress = Math.min((impressions / 1000) * 100, 100);
+                const progress = Math.min((impressions / 2000) * 100, 100);
                 progressBar.style.width = progress + '%';
             });
         }
@@ -678,9 +951,14 @@
         document.getElementById('addTaskForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const title = document.getElementById('taskTitle').value;
-            const description = document.getElementById('taskDescription').value;
-            const url = document.getElementById('taskUrl').value;
+            if (isProcessingPayment) {
+                showNotification('Payment already in progress...', 'info');
+                return;
+            }
+            
+            const title = document.getElementById('taskTitle').value.trim();
+            const description = document.getElementById('taskDescription').value.trim();
+            const url = document.getElementById('taskUrl').value.trim();
             const impressions = parseInt(document.getElementById('totalImpressions').value);
             
             if (impressions < 500) {
@@ -688,54 +966,86 @@
                 return;
             }
             
-            const cost = Math.ceil(impressions / 100);
+            const cost = Math.ceil((impressions / 500) * 100);
             
-            // Create Telegram Stars payment
             try {
-                const paymentResult = await createStarsPayment(cost, `Task: ${title}`);
-                if (paymentResult.success) {
+                isProcessingPayment = true;
+                document.getElementById('paymentModal').style.display = 'block';
+                
+                const paymentResult = await createStarsPayment(cost, `Task: ${title} (${impressions} impressions)`);
+                
+                if (paymentResult) {
                     await createTask(title, description, url, impressions, cost);
-                    showNotification('Task created successfully!', 'success');
+                    showNotification('Task created successfully! 🎉', 'success');
                     this.reset();
                     document.getElementById('taskCost').textContent = '0';
                     document.getElementById('costProgress').style.width = '0%';
+                } else {
+                    throw new Error('Payment was not completed');
                 }
             } catch (error) {
+                console.error('Payment error:', error);
                 showNotification('Payment failed. Please try again.', 'error');
+            } finally {
+                isProcessingPayment = false;
+                closeModal('paymentModal');
             }
         });
 
         async function createStarsPayment(amount, description) {
-            try {
-                const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/createInvoiceLink`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        title: 'SkyTaskTon Payment',
+            return new Promise((resolve, reject) => {
+                try {
+                    // Create invoice using Telegram WebApp
+                    const invoice = {
+                        title: 'SkyTaskTon - Task Creation',
                         description: description,
-                        payload: `task_payment_${Date.now()}`,
+                        payload: `task_payment_${currentUser.id}_${Date.now()}`,
                         provider_token: '',
                         currency: 'XTR',
                         prices: [{ label: 'Task Cost', amount: amount }]
-                    })
-                });
-                
-                const data = await response.json();
-                if (data.ok) {
-                    window.Telegram.WebApp.openInvoice(data.result, (status) => {
-                        if (status === 'paid') {
-                            return { success: true };
-                        } else {
-                            throw new Error('Payment cancelled');
-                        }
-                    });
-                } else {
-                    throw new Error('Failed to create payment');
+                    };
+
+                    // Use Telegram WebApp to handle payment
+                    if (window.Telegram.WebApp.openInvoice) {
+                        // Create invoice link first
+                        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/createInvoiceLink`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(invoice)
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.ok) {
+                                window.Telegram.WebApp.openInvoice(data.result, (status) => {
+                                    if (status === 'paid') {
+                                        resolve(true);
+                                    } else if (status === 'cancelled') {
+                                        reject(new Error('Payment cancelled by user'));
+                                    } else {
+                                        reject(new Error('Payment failed'));
+                                    }
+                                });
+                            } else {
+                                reject(new Error('Failed to create invoice'));
+                            }
+                        })
+                        .catch(error => {
+                            reject(error);
+                        });
+                    } else {
+                        // Fallback for testing
+                        setTimeout(() => {
+                            if (confirm(`Pay ${amount} Telegram Stars for this task?`)) {
+                                resolve(true);
+                            } else {
+                                reject(new Error('Payment cancelled'));
+                            }
+                        }, 2000);
+                    }
+                } catch (error) {
+                    reject(error);
                 }
-            } catch (error) {
-                console.error('Payment error:', error);
-                throw error;
-            }
+            });
         }
 
         async function createTask(title, description, url, impressions, cost) {
@@ -759,36 +1069,59 @@
             await firebase.set(firebase.ref(firebase.database, `userTasks/${currentUser.id}/${taskId}`), taskData);
             
             // Update user stats
-            userStats.tasksCreated++;
-            await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/stats`), userStats);
+            const newStats = {
+                ...userStats,
+                tasksCreated: userStats.tasksCreated + 1
+            };
+            await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/stats`), newStats);
         }
 
         function displayAllTasks() {
             const container = document.getElementById('allTasksList');
             container.innerHTML = '';
             
-            Object.values(allTasks).forEach(task => {
-                if (task.status === 'active' && task.currentImpressions < task.totalImpressions) {
-                    container.appendChild(createTaskCard(task, 'all'));
-                }
-            });
+            const activeTasks = Object.values(allTasks).filter(task => 
+                task.status === 'active' && 
+                task.currentImpressions < task.totalImpressions &&
+                !task.completedBy?.includes(currentUser.id)
+            );
             
-            if (container.innerHTML === '') {
-                container.innerHTML = '<p style="text-align: center; color: #666;">No tasks available at the moment.</p>';
+            if (activeTasks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="material-icons">assignment</div>
+                        <h3>No tasks available</h3>
+                        <p>Check back later for new tasks to complete!</p>
+                    </div>
+                `;
+                return;
             }
+            
+            activeTasks.forEach(task => {
+                container.appendChild(createTaskCard(task, 'all'));
+            });
         }
 
         function displayMyTasks() {
             const container = document.getElementById('myTasksList');
             container.innerHTML = '';
             
-            Object.values(userTasks).forEach(task => {
+            const myTasksList = Object.values(userTasks);
+            
+            if (myTasksList.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="material-icons">add_circle_outline</div>
+                        <h3>No tasks created yet</h3>
+                        <p>Create your first task to get started!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            myTasksList.forEach(task => {
                 container.appendChild(createTaskCard(task, 'my'));
             });
-            
-            if (container.innerHTML === '') {
-                container.innerHTML = '<p style="text-align: center; color: #666;">You haven\'t created any tasks yet.</p>';
-            }
         }
 
         function createTaskCard(task, type) {
@@ -797,6 +1130,7 @@
             
             const progress = (task.currentImpressions / task.totalImpressions) * 100;
             const remaining = task.totalImpressions - task.currentImpressions;
+            const isCompleted = task.completedBy?.includes(currentUser.id);
             
             card.innerHTML = `
                 <div class="task-title">${task.title}</div>
@@ -809,22 +1143,22 @@
                 <div class="progress-bar">
                     <div class="progress-fill" style="width: ${progress}%"></div>
                 </div>
-                <div style="margin-top: 15px;">
-                    ${type === 'all' && !task.completedBy?.includes(currentUser.id) ? 
-                        `<button class="btn btn-primary" onclick="startTask('${task.id}', '${task.url}')">
+                <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    ${type === 'all' && !isCompleted ? 
+                        `<button class="btn btn-primary" onclick="startTask('${task.id}', '${task.url}')" style="flex: 1;">
                             <span class="material-icons">play_arrow</span>
                             Start Task
                         </button>` : ''}
                     ${type === 'my' ? 
-                        `<button class="btn btn-danger" onclick="deleteTask('${task.id}')">
+                        `<button class="btn btn-danger" onclick="deleteTask('${task.id}')" style="flex: 1;">
                             <span class="material-icons">delete</span>
                             Delete Task
                         </button>` : ''}
-                    ${task.completedBy?.includes(currentUser.id) ? 
-                        `<span class="btn btn-success" style="cursor: default;">
+                    ${isCompleted ? 
+                        `<div class="btn btn-success" style="cursor: default; flex: 1;">
                             <span class="material-icons">check_circle</span>
                             Completed
-                        </span>` : ''}
+                        </div>` : ''}
                 </div>
             `;
             
@@ -832,33 +1166,45 @@
         }
 
         async function startTask(taskId, url) {
-            // Open task URL
-            window.open(url, '_blank');
-            
-            // Show verification modal
-            document.getElementById('verifyModal').style.display = 'block';
-            
-            let countdown = 10;
-            const countdownElement = document.getElementById('verifyCountdown');
-            const progressElement = document.getElementById('verifyProgress');
-            
-            const interval = setInterval(() => {
-                countdown--;
-                countdownElement.textContent = countdown;
-                progressElement.style.width = ((10 - countdown) / 10) * 100 + '%';
+            try {
+                // Open task URL
+                window.open(url, '_blank');
                 
-                if (countdown <= 0) {
-                    clearInterval(interval);
-                    completeTask(taskId);
-                    closeModal('verifyModal');
-                }
-            }, 1000);
+                // Show verification modal
+                document.getElementById('verifyModal').style.display = 'block';
+                
+                let countdown = 10;
+                const countdownElement = document.getElementById('verifyCountdown');
+                const progressElement = document.getElementById('verifyProgress');
+                
+                const interval = setInterval(() => {
+                    countdown--;
+                    countdownElement.textContent = countdown;
+                    progressElement.style.width = ((10 - countdown) / 10) * 100 + '%';
+                    
+                    if (countdown <= 0) {
+                        clearInterval(interval);
+                        completeTask(taskId);
+                        closeModal('verifyModal');
+                    }
+                }, 1000);
+            } catch (error) {
+                showNotification('Error starting task. Please try again.', 'error');
+            }
         }
 
         async function completeTask(taskId) {
             try {
                 const task = allTasks[taskId];
-                if (!task) return;
+                if (!task) {
+                    showNotification('Task not found!', 'error');
+                    return;
+                }
+                
+                if (task.completedBy?.includes(currentUser.id)) {
+                    showNotification('Task already completed!', 'error');
+                    return;
+                }
                 
                 // Update task completion
                 const updatedTask = {
@@ -880,17 +1226,22 @@
                 await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/balance`), newBalance);
                 await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/stats`), newStats);
                 
-                showNotification('Task completed! +0.00005 TON earned!', 'success');
+                showNotification('Task completed! +0.00005 TON earned! 🎉', 'success');
             } catch (error) {
+                console.error('Error completing task:', error);
                 showNotification('Error completing task. Please try again.', 'error');
             }
         }
 
         async function deleteTask(taskId) {
-            if (confirm('Are you sure you want to delete this task?')) {
-                await firebase.remove(firebase.ref(firebase.database, `tasks/${taskId}`));
-                await firebase.remove(firebase.ref(firebase.database, `userTasks/${currentUser.id}/${taskId}`));
-                showNotification('Task deleted successfully!', 'success');
+            if (confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
+                try {
+                    await firebase.remove(firebase.ref(firebase.database, `tasks/${taskId}`));
+                    await firebase.remove(firebase.ref(firebase.database, `userTasks/${currentUser.id}/${taskId}`));
+                    showNotification('Task deleted successfully!', 'success');
+                } catch (error) {
+                    showNotification('Error deleting task. Please try again.', 'error');
+                }
             }
         }
 
@@ -903,7 +1254,7 @@
             e.preventDefault();
             
             const amount = parseFloat(document.getElementById('withdrawAmount').value);
-            const address = document.getElementById('tonAddress').value;
+            const address = document.getElementById('tonAddress').value.trim();
             
             if (amount > userBalance) {
                 showNotification('Insufficient balance!', 'error');
@@ -915,76 +1266,111 @@
                 return;
             }
             
-            // Create withdrawal request
-            const withdrawalData = {
-                userId: currentUser.id,
-                amount: amount,
-                address: address,
-                status: 'pending',
-                createdAt: new Date().toISOString()
-            };
-            
-            const withdrawalRef = firebase.push(firebase.ref(firebase.database, 'withdrawals'));
-            await firebase.set(withdrawalRef, withdrawalData);
-            
-            showNotification('Withdrawal request submitted!', 'success');
-            closeModal('withdrawModal');
-            this.reset();
+            try {
+                // Create withdrawal request
+                const withdrawalData = {
+                    userId: currentUser.id,
+                    userName: document.getElementById('userName').textContent,
+                    amount: amount,
+                    address: address,
+                    status: 'pending',
+                    createdAt: new Date().toISOString()
+                };
+                
+                const withdrawalRef = firebase.push(firebase.ref(firebase.database, 'withdrawals'));
+                await firebase.set(withdrawalRef, withdrawalData);
+                
+                showNotification('Withdrawal request submitted successfully! 🎉', 'success');
+                closeModal('withdrawModal');
+                this.reset();
+            } catch (error) {
+                showNotification('Error submitting withdrawal request. Please try again.', 'error');
+            }
         });
 
         // Ads functionality
         document.getElementById('watchAdBtn').addEventListener('click', async function() {
             if (adsWatchedToday >= 10) {
-                showNotification('Daily ad limit reached!', 'error');
+                showNotification('Daily ad limit reached! Come back tomorrow.', 'error');
                 return;
             }
             
             try {
-                // Show ad using the provided ad network
+                // Show ad display
                 document.getElementById('adDisplay').style.display = 'block';
-                document.getElementById('adContent').innerHTML = '<div id="show_9789409"></div>';
+                this.disabled = true;
                 
-                // Initialize ad
-                if (typeof show_9789409 === 'function') {
-                    show_9789409().then(() => {
-                        // Ad completed
-                        setTimeout(async () => {
-                            await earnFromAd();
-                            document.getElementById('adDisplay').style.display = 'none';
-                        }, 5000);
-                    });
-                }
+                // Initialize ad content
+                const adContent = document.getElementById('adContent');
+                adContent.innerHTML = '<div id="show_9789409"></div>';
                 
-                // Countdown
+                // Start countdown
                 let countdown = 5;
                 const countdownElement = document.getElementById('adCountdown');
+                const progressElement = document.getElementById('adProgress');
+                
                 const interval = setInterval(() => {
                     countdown--;
                     countdownElement.textContent = countdown;
+                    progressElement.style.width = ((5 - countdown) / 5) * 100 + '%';
                     
                     if (countdown <= 0) {
                         clearInterval(interval);
+                        earnFromAd();
+                        document.getElementById('adDisplay').style.display = 'none';
+                        this.disabled = false;
                     }
                 }, 1000);
                 
+                // Try to show ad using the provided SDK
+                if (typeof show_9789409 === 'function') {
+                    try {
+                        await show_9789409();
+                    } catch (adError) {
+                        console.log('Ad SDK error:', adError);
+                        // Continue with countdown even if ad fails to load
+                    }
+                } else {
+                    // Fallback ad content
+                    adContent.innerHTML = `
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                                    color: white; padding: 40px; border-radius: 15px; text-align: center;">
+                            <h3>🎯 Sample Advertisement</h3>
+                            <p>This is where the ad content would appear</p>
+                            <p style="font-size: 0.9em; opacity: 0.8; margin-top: 15px;">
+                                Thank you for supporting SkyTaskTon!
+                            </p>
+                        </div>
+                    `;
+                }
+                
             } catch (error) {
+                console.error('Ad error:', error);
                 showNotification('Error loading ad. Please try again.', 'error');
+                this.disabled = false;
+                document.getElementById('adDisplay').style.display = 'none';
             }
         });
 
         async function earnFromAd() {
-            const newBalance = userBalance + 0.000001;
-            const newAdsCount = adsWatchedToday + 1;
-            const newStats = {
-                ...userStats,
-                totalEarnings: userStats.totalEarnings + 0.000001
-            };
-            
-            await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/balance`), newBalance);
-            await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/adsWatchedToday`), newAdsCount);
-            await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/stats`), newStats);
-            
-            showNotification('Ad completed! +0.000001 TON earned!', 'success');
+            try {
+                const newBalance = userBalance + 0.000001;
+                const newAdsCount = adsWatchedToday + 1;
+                const newStats = {
+                    ...userStats,
+                    totalEarnings: userStats.totalEarnings + 0.000001,
+                    adsWatched: userStats.adsWatched + 1
+                };
+                
+                await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/balance`), newBalance);
+                await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/adsWatchedToday`), newAdsCount);
+                await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/stats`), newStats);
+                
+                showNotification('Ad completed! +0.000001 TON earned! 🎉', 'success');
+            } catch (error) {
+                console.error('Error earning from ad:', error);
+                showNotification('Error processing ad reward. Please try again.', 'error');
+            }
         }
 
         function closeModal(modalId) {
@@ -999,7 +1385,10 @@
             document.body.appendChild(notification);
             
             setTimeout(() => {
-                notification.remove();
+                notification.style.animation = 'slideInRight 0.3s reverse';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
             }, 3000);
         }
 
@@ -1013,8 +1402,8 @@
             });
         });
 
-        // Reset daily ads at midnight
-        function resetDailyAds() {
+        // Initialize daily ads reset
+        function initializeDailyReset() {
             const now = new Date();
             const tomorrow = new Date(now);
             tomorrow.setDate(tomorrow.getDate() + 1);
@@ -1023,15 +1412,37 @@
             const msUntilMidnight = tomorrow.getTime() - now.getTime();
             
             setTimeout(async () => {
-                await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/adsWatchedToday`), 0);
-                setInterval(async () => {
+                if (currentUser) {
                     await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/adsWatchedToday`), 0);
+                    showNotification('Daily ads reset! You can watch 10 more ads today.', 'info');
+                }
+                
+                // Set up daily reset interval
+                setInterval(async () => {
+                    if (currentUser) {
+                        await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/adsWatchedToday`), 0);
+                        showNotification('Daily ads reset! You can watch 10 more ads today.', 'info');
+                    }
                 }, 24 * 60 * 60 * 1000); // Reset every 24 hours
             }, msUntilMidnight);
         }
 
-        // Initialize daily ads reset
-        resetDailyAds();
+        // Handle Telegram WebApp events
+        window.Telegram.WebApp.onEvent('mainButtonClicked', function() {
+            // Handle main button clicks if needed
+        });
+
+        window.Telegram.WebApp.onEvent('backButtonClicked', function() {
+            // Handle back button clicks
+            const activeTab = document.querySelector('.tab-content.active');
+            if (activeTab && activeTab.id !== 'home') {
+                switchTab('home');
+            }
+        });
+
+        // Set up main button
+        window.Telegram.WebApp.MainButton.setText('Home');
+        window.Telegram.WebApp.MainButton.show();
     </script>
 </body>
 </html>
