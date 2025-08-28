@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyTaskTon</title>
+    <title>SkyTaskTon - Earn with Tasks</title>
+    <!-- Google Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        /* Basic Reset */
+        /* Basic Reset & Global Styles */
         * {
             margin: 0;
             padding: 0;
@@ -14,611 +15,723 @@
         }
 
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f4f6f8;
-            color: #333;
+            font-family: 'Roboto', sans-serif; /* Google Fonts Roboto */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
             line-height: 1.6;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            overflow-x: hidden; /* Prevent horizontal scroll */
         }
 
         /* Header */
         header {
-            background-color: #007bff;
-            color: white;
-            padding: 1rem 0;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
             text-align: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
         header .logo {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: bold;
+            color: #f0f0f0;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
         }
 
-        nav ul {
-            list-style: none;
-            display: flex;
-        }
-
-        nav ul li {
-            margin-left: 20px;
-        }
-
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-            padding: 10px;
+        header nav button {
+            background: none;
+            border: none;
+            color: #e0e0e0;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin: 0 0.5rem;
+            padding: 0.5rem 1rem;
             border-radius: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
-        nav ul li a:hover,
-        nav ul li a.active {
+        header nav button:hover {
             background-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
         }
 
         /* Main Content Area */
         main {
             flex: 1;
+            padding: 1.5rem;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Align items to the top */
-            padding: 20px;
-            max-width: 1200px;
-            margin: 20px auto;
-            width: 100%;
+            align-items: flex-start; /* Align content to the top */
+            text-align: center;
+            overflow-y: auto; /* Allow scrolling within main content */
         }
 
-        section {
+        .content-section {
             display: none; /* Hidden by default */
             width: 100%;
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 600px; /* Limit width for better readability */
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px); /* Glassmorphism effect */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeIn 0.5s ease-in-out; /* Fade-in animation */
         }
 
-        section.active {
-            display: block;
+        .content-section.active {
+            display: block; /* Show the active section */
         }
 
-        /* Home Page */
-        .task-card {
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            background-color: #ffffff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            transition: transform 0.3s ease;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .task-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .task-details h3 {
-            margin-bottom: 10px;
-            color: #007bff;
-        }
-
-        .task-details p {
-            font-size: 0.9rem;
-            color: #555;
-            margin-bottom: 5px;
-        }
-
-        .task-details .impression-count {
-            font-size: 0.8rem;
-            color: #777;
-            margin-top: 10px;
-        }
-
-        .task-actions button {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s ease;
-        }
-
-        .task-actions button:hover {
-            background-color: #218838;
-        }
-
-        .task-actions button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
-        .timer {
-            font-size: 0.9rem;
-            color: #6c757d;
-            margin-top: 5px;
-        }
-
-        /* Add Task Page */
-        .add-task-form {
+        /* Home Page Specifics */
+        .task-list {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
         }
 
+        .task-item {
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .task-item:hover {
+            transform: translateY(-5px);
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .task-item h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: #e0e0e0;
+        }
+
+        .task-item p {
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            color: #ccc;
+        }
+
+        .task-item .details {
+            font-size: 0.85rem;
+            color: #aaa;
+            margin-bottom: 1rem;
+        }
+
+        .task-item .details .star-cost {
+            font-weight: bold;
+            color: #ffd700; /* Gold color for stars */
+        }
+
+        .task-item button {
+            background: linear-gradient(45deg, #4CAF50, #8BC34A);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: background 0.3s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .task-item button:hover {
+            background: linear-gradient(45deg, #8BC34A, #4CAF50);
+            transform: translateY(-2px);
+        }
+
+        /* Add Task Page Specifics */
         .add-task-form label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 0.8rem;
             font-weight: bold;
+            text-align: left;
+            color: #e0e0e0;
         }
 
         .add-task-form input[type="text"],
         .add-task-form textarea {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
             font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .add-task-form input[type="text"]:focus,
+        .add-task-form textarea:focus {
+            outline: none;
+            border-color: #81c784; /* Light green */
+            box-shadow: 0 0 0 3px rgba(129, 199, 132, 0.3);
         }
 
         .add-task-form textarea {
-            min-height: 100px;
+            min-height: 120px;
             resize: vertical;
         }
 
-        .add-task-form button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            transition: background-color 0.3s ease;
-            width: fit-content;
+        .add-task-form .input-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
         }
 
-        .add-task-form button:hover {
-            background-color: #0056b3;
+        .add-task-form .input-group label {
+            margin-bottom: 0.5rem;
         }
 
-        /* Profile Page */
-        .profile-section h2 {
-            margin-bottom: 20px;
-            color: #007bff;
-        }
-
-        .profile-info p {
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-        }
-
-        .profile-info span {
-            font-weight: bold;
-            color: #333;
-        }
-
-        .balance-info {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #e9ecef;
+        .add-task-form .input-group .currency-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
             border-radius: 8px;
-            border: 1px solid #dee2e6;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        .balance-info h3 {
-            margin-bottom: 10px;
-            color: #007bff;
-        }
-
-        .balance-info p {
+        .add-task-form .input-group .currency-input span.currency-symbol {
             font-size: 1.2rem;
             font-weight: bold;
-            color: #28a745; /* Green for balance */
+            color: #ffd700;
         }
 
-        .withdraw-section {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
+        .add-task-form .input-group .currency-input input {
+            flex: 1;
+            border: none;
+            padding: 0;
+            margin: 0;
+            background: none;
+            box-shadow: none;
         }
 
-        .withdraw-section h3 {
-            margin-bottom: 15px;
-            color: #dc3545; /* Red for withdrawal */
+        .add-task-form .input-group .currency-input input:focus {
+            box-shadow: none;
         }
 
-        .withdraw-form {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            align-items: flex-end;
+        .add-task-form .impressions-info {
+            font-size: 0.85rem;
+            color: #bbb;
+            margin-top: 0.5rem;
+            display: block;
+            text-align: left;
         }
 
-        .withdraw-form div {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .withdraw-form label {
-            margin-bottom: 5px;
+        .add-task-form .impressions-info.star-cost-info {
+            color: #ffd700;
             font-weight: bold;
         }
 
-        .withdraw-form input[type="number"],
-        .withdraw-form input[type="text"] {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-
-        .withdraw-form button {
-            background-color: #dc3545;
+        .add-task-form button[type="submit"] {
+            background: linear-gradient(45deg, #007bff, #00bcd4);
             color: white;
+            padding: 1rem 2rem;
             border: none;
-            padding: 12px 25px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            transition: background-color 0.3s ease;
-            height: 42px; /* Match input height */
-        }
-
-        .withdraw-form button:hover {
-            background-color: #c82333;
-        }
-
-        /* My Tasks Page */
-        .task-list-container {
-            margin-top: 20px;
-        }
-
-        .task-list-container h3 {
-            margin-bottom: 15px;
-            color: #007bff;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-
-        .task-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            border: 1px solid #e0e0e0;
             border-radius: 8px;
-            margin-bottom: 10px;
-            background-color: #f8f9fa;
-        }
-
-        .task-item span {
-            flex-grow: 1;
-            margin-right: 10px;
-        }
-
-        .task-item .status {
-            font-style: italic;
-            color: #6c757d;
-            font-size: 0.9rem;
-            margin-right: 15px;
-        }
-
-        .task-item .delete-btn {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
             cursor: pointer;
-            font-size: 0.8rem;
-            transition: background-color 0.3s ease;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: background 0.3s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 1rem;
         }
 
-        .task-item .delete-btn:hover {
-            background-color: #c82333;
+        .add-task-form button[type="submit"]:hover {
+            background: linear-gradient(45deg, #00bcd4, #007bff);
+            transform: translateY(-2px);
         }
 
-        /* Ads Page */
-        .ads-container {
+        /* Profile Page Specifics */
+        .profile-card {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             text-align: center;
-            padding: 30px;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .profile-card .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+            border: 3px solid #81c784; /* Light green border */
+            object-fit: cover; /* Ensure image covers the circle */
+        }
+
+        .profile-card h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: #f0f0f0;
+        }
+
+        .profile-card .username {
+            font-size: 1.1rem;
+            color: #ccc;
+            margin-bottom: 1.5rem;
+            font-weight: 300;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .profile-stats .stat-box {
+            background-color: rgba(255, 255, 255, 0.08);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            text-align: center;
+        }
+
+        .profile-stats .stat-box .stat-label {
+            font-size: 0.9rem;
+            color: #bbb;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-stats .stat-box .stat-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #ffd700; /* Gold for values */
+        }
+
+        .profile-card .action-button {
+            background: linear-gradient(45deg, #ff8c00, #ffc107); /* Orange-yellow gradient */
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: background 0.3s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 auto; /* Center the button */
+        }
+
+        .profile-card .action-button:hover {
+            background: linear-gradient(45deg, #ffc107, #ff8c00);
+            transform: translateY(-2px);
+        }
+
+        /* Ads Page Specifics */
+        .ads-container {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            width: 100%;
+            max-width: 450px;
         }
 
         .ads-container h2 {
-            margin-bottom: 20px;
-            color: #007bff;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #f0f0f0;
         }
 
         .ads-container p {
-            margin-bottom: 20px;
-            font-size: 1.1rem;
-            color: #555;
+            font-size: 1rem;
+            color: #ccc;
+            margin-bottom: 2rem;
         }
 
-        .ads-container button {
-            background-color: #ffc107; /* Warning yellow for ads */
-            color: #212529;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-        }
-
-        .ads-container button:hover {
-            background-color: #e0a800;
-        }
-
-        .ads-container button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
-        .ad-placeholder {
-            width: 100%;
-            height: 150px;
-            background-color: #e9ecef;
-            border-radius: 8px;
-            margin-top: 20px;
+        .ads-container .ad-placeholder {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px dashed rgba(255, 255, 255, 0.3);
+            min-height: 200px; /* Placeholder height */
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #6c757d;
+            margin-bottom: 2rem;
+        }
+
+        .ads-container .ad-placeholder span {
+            color: #aaa;
             font-size: 1.2rem;
+        }
+
+        .ads-container .daily-limit-info {
+            font-size: 0.9rem;
+            color: #bbb;
+            margin-top: 0.5rem;
+        }
+
+        .ads-container button {
+            background: linear-gradient(45deg, #e91e63, #f44336); /* Pink-red gradient */
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
             font-weight: bold;
+            font-size: 1.1rem;
+            transition: background 0.3s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-                padding: 1rem;
-            }
-            nav ul {
-                margin-top: 10px;
-            }
-            nav ul li {
-                margin: 0 10px;
-            }
-            main {
-                padding: 10px;
-            }
-            .task-card {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .task-actions {
-                margin-top: 15px;
-                width: 100%;
-                display: flex;
-                justify-content: flex-end;
-            }
-            .withdraw-form {
-                grid-template-columns: 1fr;
-            }
-            .withdraw-form button {
-                width: 100%;
-            }
+        .ads-container button:hover {
+            background: linear-gradient(45deg, #f44336, #e91e63);
+            transform: translateY(-2px);
         }
 
-        /* Popup for withdrawal */
-        .popup-overlay {
+        /* Withdraw Popup */
+        .withdraw-popup {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
             justify-content: center;
             align-items: center;
         }
 
-        .popup-content {
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        .withdraw-popup-content {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: 100%;
+            max-width: 450px;
             text-align: center;
-            width: 90%;
-            max-width: 400px;
+            position: relative;
         }
 
-        .popup-content h3 {
-            margin-bottom: 20px;
-            color: #007bff;
+        .withdraw-popup-content h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: #f0f0f0;
         }
 
-        .popup-content .popup-input {
-            width: calc(100% - 20px); /* Account for padding */
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+        .withdraw-popup-content .input-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .withdraw-popup-content .input-group label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: bold;
+            color: #e0e0e0;
+        }
+
+        .withdraw-popup-content input[type="text"],
+        .withdraw-popup-content input[type="number"] {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
             font-size: 1rem;
         }
 
-        .popup-content .popup-actions button {
-            background-color: #007bff;
+        .withdraw-popup-content input[type="text"]:focus,
+        .withdraw-popup-content input[type="number"]:focus {
+            outline: none;
+            border-color: #81c784;
+            box-shadow: 0 0 0 3px rgba(129, 199, 132, 0.3);
+        }
+
+        .withdraw-popup-content button {
+            background: linear-gradient(45deg, #673ab7, #9c27b0); /* Purple gradient */
             color: white;
+            padding: 1rem 2rem;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            margin: 0 5px;
-            transition: background-color 0.3s ease;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: background 0.3s ease, transform 0.2s ease;
+            width: 100%;
+            margin-top: 1rem;
         }
 
-        .popup-content .popup-actions button:hover {
-            background-color: #0056b3;
+        .withdraw-popup-content button:hover {
+            background: linear-gradient(45deg, #9c27b0, #673ab7);
+            transform: translateY(-2px);
         }
 
-        .popup-content .close-btn {
-            background-color: #6c757d;
+        .withdraw-popup-content .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: #aaa;
+            cursor: pointer;
+            transition: color 0.3s ease;
         }
 
-        .popup-content .close-btn:hover {
-            background-color: #5a6268;
+        .withdraw-popup-content .close-btn:hover {
+            color: #ff4081;
         }
+
+        /* Footer */
+        footer {
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #ccc;
+            margin-top: auto; /* Pushes footer to the bottom */
+        }
+
+        /* Tooltip for task details */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Position the tooltip above the element */
+            left: 50%;
+            margin-left: -100px; /* Center the tooltip */
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%; /* At the bottom of the tooltip */
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #555 transparent transparent transparent;
+        }
+
     </style>
 </head>
 <body>
-
     <header>
         <div class="logo">SkyTaskTon</div>
         <nav>
-            <ul>
-                <li><a href="#" id="nav-home" class="active">Home</a></li>
-                <li><a href="#" id="nav-profile">Profile</a></li>
-                <li><a href="#" id="nav-add-task">Add Task</a></li>
-                <li><a href="#" id="nav-my-tasks">My Tasks</a></li>
-                <li><a href="#" id="nav-ads">Ads</a></li>
-            </ul>
+            <button id="home-btn"><span class="material-icons">home</span> Home</button>
+            <button id="profile-btn"><span class="material-icons">account_circle</span> Profile</button>
+            <button id="add-task-btn"><span class="material-icons">add_task</span> Add Task</button>
+            <button id="ads-btn"><span class="material-icons">ads_click</span> Ads</button>
         </nav>
     </header>
 
     <main>
         <!-- Home Section -->
-        <section id="home-section" class="active">
-            <h2>Available Tasks</h2>
-            <div id="task-list">
-                <!-- Task cards will be loaded here -->
+        <section id="home-section" class="content-section active">
+            <h2>Welcome to SkyTaskTon!</h2>
+            <p>Complete tasks and earn Toncoin. Explore available tasks below.</p>
+            <div class="task-list">
+                <!-- Task items will be loaded here dynamically -->
+                <div class="task-item">
+                    <h3>Website Visit</h3>
+                    <p>Visit our partner website and stay for 10 seconds.</p>
+                    <div class="details">
+                        Impressions: <span class="tooltip">500 <span class="tooltiptext">Minimum required impressions for this task.</span></span> | Cost: <span class="star-cost tooltip">10 TG Star <span class="tooltiptext">10 TG Star will be deducted from your balance upon starting the task.</span></span>
+                    </div>
+                    <button class="start-task-btn" data-task-url="https://example.com/target-page" data-task-id="1" data-task-cost="10">
+                        <span class="material-icons">play_circle_filled</span> Start Task
+                    </button>
+                </div>
+                <div class="task-item">
+                    <h3>Watch Video Ad</h3>
+                    <p>Watch a short video ad and earn rewards.</p>
+                    <div class="details">
+                        Impressions: <span class="tooltip">200 <span class="tooltiptext">Minimum required impressions for this task.</span></span> | Cost: <span class="star-cost tooltip">5 TG Star <span class="tooltiptext">5 TG Star will be deducted from your balance upon starting the task.</span></span>
+                    </div>
+                    <button class="start-task-btn" data-task-id="2" data-task-cost="5">
+                        <span class="material-icons">play_circle_filled</span> Start Task
+                    </button>
+                </div>
+                <!-- More tasks can be added here -->
             </div>
         </section>
 
         <!-- Profile Section -->
-        <section id="profile-section">
-            <h2>User Profile</h2>
-            <div class="profile-info">
-                <p>Telegram ID: <span id="profile-telegram-id">N/A</span></p>
-                <p>Username: <span id="profile-username">N/A</span></p>
-                <p>Total Tasks Completed: <span id="profile-tasks-completed">0</span></p>
-                <p>Total Impressions Earned: <span id="profile-total-impressions">0</span></p>
-            </div>
-            <div class="balance-info">
-                <h3>Your Balance</h3>
-                <p id="profile-balance">0.00000 TON</p>
-            </div>
-
-            <div class="withdraw-section">
-                <h3>Withdrawal</h3>
-                <div class="withdraw-form">
-                    <div>
-                        <label for="withdraw-amount">Amount (TON)</label>
-                        <input type="number" id="withdraw-amount" placeholder="Enter amount" min="0.1" step="0.00001">
+        <section id="profile-section" class="content-section">
+            <div class="profile-card">
+                <img src="https://via.placeholder.com/120" alt="User Avatar" class="profile-avatar" id="profile-avatar">
+                <h2 id="profile-username">User Name</h2>
+                <p class="username">@user_handle</p>
+                <div class="profile-stats">
+                    <div class="stat-box">
+                        <div class="stat-label">Balance</div>
+                        <div class="stat-value" id="user-balance">0.00000 TON</div>
                     </div>
-                    <div>
-                        <label for="withdraw-address">TON Address</label>
-                        <input type="text" id="withdraw-address" placeholder="Your TON wallet address">
+                    <div class="stat-box">
+                        <div class="stat-label">TG Stars</div>
+                        <div class="stat-value" id="user-stars">0</div>
                     </div>
-                    <button id="request-withdraw-btn">Request Withdrawal</button>
+                    <div class="stat-box">
+                        <div class="stat-label">Tasks Completed</div>
+                        <div class="stat-value" id="user-completed-tasks">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Total Impressions</div>
+                        <div class="stat-value" id="user-total-impressions">0</div>
+                    </div>
                 </div>
-                <div class="history-section">
-                    <h3>Withdrawal History</h3>
-                    <ul id="withdrawal-history">
-                        <!-- Withdrawal history will be loaded here -->
-                    </ul>
-                </div>
+                <button class="action-button" id="withdraw-btn">
+                    <span class="material-icons">payments</span> Withdraw
+                </button>
             </div>
         </section>
 
         <!-- Add Task Section -->
-        <section id="add-task-section">
-            <h2>Add New Task</h2>
-            <form id="add-task-form" class="add-task-form">
-                <div>
-                    <label for="task-title">Task Title:</label>
-                    <input type="text" id="task-title" required>
-                </div>
-                <div>
-                    <label for="task-description">Task Description:</label>
-                    <textarea id="task-description" required></textarea>
-                </div>
-                <div>
-                    <label for="task-url">Task URL:</label>
-                    <input type="text" id="task-url" required>
-                </div>
-                <div>
-                    <label for="task-impressions">Minimum Impressions (e.g., 500):</label>
-                    <input type="number" id="task-impressions" value="500" min="1" required>
-                </div>
-                <div>
-                    <label for="task-star-cost">TG Stars Cost (e.g., 100):</label>
-                    <input type="number" id="task-star-cost" value="100" min="1" required>
-                </div>
-                <button type="submit">Add Task</button>
-            </form>
-        </section>
+        <section id="add-task-section" class="content-section">
+            <div class="add-task-form">
+                <h2>Create a New Task</h2>
+                <p>Set up your task for others to complete.</p>
 
-        <!-- My Tasks Section -->
-        <section id="my-tasks-section">
-            <h2>My Tasks</h2>
-            <div class="task-list-container">
-                <h3>Running Tasks</h3>
-                <ul id="running-tasks-list">
-                    <!-- Running tasks will be loaded here -->
-                </ul>
-                <h3>Completed Tasks</h3>
-                <ul id="completed-tasks-list">
-                    <!-- Completed tasks will be loaded here -->
-                </ul>
-                <div class="summary-stats">
-                    <p>Total Users Completed: <span id="total-users-completed">0</span></p>
-                    <p>Total Impressions Completed: <span id="total-impressions-completed">0</span></p>
+                <div class="input-group">
+                    <label for="task-title">Task Title</label>
+                    <input type="text" id="task-title" placeholder="e.g., Visit our new website">
                 </div>
+
+                <div class="input-group">
+                    <label for="task-description">Task Description</label>
+                    <textarea id="task-description" placeholder="e.g., Browse our site for 10 seconds and click on at least one link."></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label for="task-url">Task URL</label>
+                    <input type="text" id="task-url" placeholder="e.g., https://your-website.com">
+                </div>
+
+                <div class="input-group">
+                    <label for="task-impressions">Minimum Impressions Required</label>
+                    <input type="number" id="task-impressions" value="500" min="100">
+                    <span class="impressions-info">Minimum 100 impressions.</span>
+                    <span class="impressions-info star-cost-info">Estimated TG Star Cost: <span id="estimated-star-cost">0</span> Stars</span>
+                </div>
+
+                <button type="submit" id="submit-task-btn">
+                    <span class="material-icons">save</span> Create Task
+                </button>
             </div>
         </section>
 
         <!-- Ads Section -->
-        <section id="ads-section">
-            <h2>Earn with Ads</h2>
-            <p>Watch ads to earn a small amount of TON.</p>
-            <p>You can watch up to 10 ads per day.</p>
-            <button id="watch-ad-btn">Watch Ad</button>
-            <div class="ad-placeholder">
-                <span id="ad-status">No ad loaded yet. Click 'Watch Ad'.</span>
-                <!-- Ad content will be dynamically loaded here -->
+        <section id="ads-section" class="content-section">
+            <div class="ads-container">
+                <h2>Watch Ads to Earn</h2>
+                <p>Earn small amounts of Toncoin by watching ads.</p>
+                <div class="ads-placeholder">
+                    <span class="material-icons">play_circle_outline</span><br>Your Ad Will Appear Here
+                </div>
+                <div class="daily-limit-info">You can watch 10 ads per day.</div>
+                <button id="watch-ad-btn">
+                    <span class="material-icons">local_movies</span> Watch Ad
+                </button>
+                <p style="margin-top: 1rem; font-size: 0.9rem; color: #ffd700;">Current Ad Reward: 0.000001 TON</p>
             </div>
-            <p id="daily-ad-limit-message" style="color: red; display: none;">You have reached your daily ad limit.</p>
         </section>
     </main>
 
-    <!-- Withdrawal Confirmation Popup -->
-    <div id="withdraw-confirm-popup" class="popup-overlay">
-        <div class="popup-content">
-            <h3>Confirm Withdrawal</h3>
-            <p>Amount: <span id="popup-amount"></span> TON</p>
-            <p>Address: <span id="popup-address"></span></p>
-            <div class="popup-actions">
-                <button id="confirm-withdraw-btn">Confirm</button>
-                <button id="cancel-withdraw-btn" class="close-btn">Cancel</button>
+    <footer>
+        &copy; 2023 SkyTaskTon. All rights reserved.
+    </footer>
+
+    <!-- Withdraw Popup -->
+    <div id="withdraw-popup" class="withdraw-popup">
+        <div class="withdraw-popup-content">
+            <button class="close-btn" onclick="closeWithdrawPopup()">&times;</button>
+            <h3>Request Withdrawal</h3>
+            <div class="input-group">
+                <label for="withdraw-amount">Amount (TON)</label>
+                <input type="number" id="withdraw-amount" placeholder="Enter amount">
             </div>
+            <div class="input-group">
+                <label for="withdraw-address">Toncoin Address</label>
+                <input type="text" id="withdraw-address" placeholder="Your Toncoin wallet address">
+            </div>
+            <button id="submit-withdraw-request-btn">Submit Request</button>
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!-- Ad SDK -->
     <script src='//libtl.com/sdk.js' data-zone='9789409' data-sdk='show_9789409'></script>
 
     <script>
-        // --- Firebase Configuration ---
+        // --- Firebase Configuration (Placeholder - Needs actual setup) ---
+        // THIS IS CLIENT-SIDE ONLY. Real Firebase operations need a backend for security.
+        // For now, this is just to show where the SDK would be initialized.
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+        import { getDatabase, ref, set, get, push, update, remove } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
+
         const firebaseConfig = {
-            apiKey: "AIzaSyBSj3t2ClyafHRgpN__cCnbDarhTfse3aA", // **IMPORTANT: DO NOT SHARE THIS PUBLICLY IN PRODUCTION!**
+            apiKey: "YOUR_FIREBASE_API_KEY", // Replace with your actual API key
             authDomain: "skytasktonbot.firebaseapp.com",
             projectId: "skytasktonbot",
             storageBucket: "skytasktonbot.firebasestorage.app",
@@ -626,487 +739,348 @@
             appId: "1:1078897344814:web:166f4341b884d877d97abf"
         };
 
-        // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        // Initialize Firebase (This will likely fail without proper backend setup for security)
+        // let app;
+        // let database;
+        // try {
+        //     app = initializeApp(firebaseConfig);
+        //     database = getDatabase(app);
+        //     console.log("Firebase initialized successfully.");
+        // } catch (error) {
+        //     console.error("Error initializing Firebase:", error);
+        // }
 
-        // --- Telegram Web App Integration (Simulated) ---
-        // In a real Telegram Bot Web App, you would get this from the Telegram SDK.
-        // For this single HTML file, we'll simulate it.
-        const telegramUser = {
-            id: 123456789, // Example Telegram User ID
-            username: "example_user", // Example Username
-            first_name: "Example",
-            last_name: "User"
-        };
+        // --- Telegram Web App Initialization ---
+        const tg = window.Telegram.WebApp;
 
-        // --- DOM Elements ---
-        const navLinks = document.querySelectorAll('nav a');
-        const sections = document.querySelectorAll('section');
-        const taskListDiv = document.getElementById('task-list');
-        const addTaskForm = document.getElementById('add-task-form');
-        const profileTelegramIdSpan = document.getElementById('profile-telegram-id');
-        const profileUsernameSpan = document.getElementById('profile-username');
-        const profileTasksCompletedSpan = document.getElementById('profile-tasks-completed');
-        const profileTotalImpressionsSpan = document.getElementById('profile-total-impressions');
-        const profileBalanceSpan = document.getElementById('profile-balance');
-        const withdrawAmountInput = document.getElementById('withdraw-amount');
-        const withdrawAddressInput = document.getElementById('withdraw-address');
-        const requestWithdrawBtn = document.getElementById('request-withdraw-btn');
-        const withdrawalHistoryList = document.getElementById('withdrawal-history');
-        const watchAdBtn = document.getElementById('watch-ad-btn');
-        const adStatusSpan = document.getElementById('ad-status');
-        const dailyAdLimitMessage = document.getElementById('daily-ad-limit-message');
+        let userTelegramId = null;
+        let userUsername = null;
 
-        // Profile and task related elements
-        const runningTasksList = document.getElementById('running-tasks-list');
-        const completedTasksList = document.getElementById('completed-tasks-list');
-        const totalUsersCompletedSpan = document.getElementById('total-users-completed');
-        const totalImpressionsCompletedSpan = document.getElementById('total-impressions-completed');
+        tg.ready(); // Mark the app as ready
 
-        // Withdrawal Popup elements
-        const withdrawConfirmPopup = document.getElementById('withdraw-confirm-popup');
-        const popupAmountSpan = document.getElementById('popup-amount');
-        const popupAddressSpan = document.getElementById('popup-address');
-        const confirmWithdrawBtn = document.getElementById('confirm-withdraw-btn');
-        const cancelWithdrawBtn = document.getElementById('cancel-withdraw-btn');
+        // You can customize the header button styles and close behavior
+        tg.setHeaderColor('#667eea'); // Match the gradient
+        tg.setBackgroundColor('#764ba2'); // Match the gradient
 
-        // --- State Variables ---
-        let currentBalance = 0;
-        let tasks = []; // Array to hold all tasks
-        let userTasks = []; // Array to hold tasks assigned to the current user
-        let dailyAdCount = 0;
-        const MAX_DAILY_ADS = 10;
-        const AD_EARNING = 0.000001;
-        const TASK_EARNING = 0.000005; // 0.000005 TON per task
-
-        // --- Initialization ---
-        document.addEventListener('DOMContentLoaded', () => {
-            // Simulate loading user data on load
-            loadUserData();
-            loadTasks();
-            loadUserTasks();
-            loadWithdrawalHistory();
-            // Initialize TG Stars payment system (conceptually)
-            // In a real scenario, this would involve more complex API calls.
-            console.log("TG Stars payment system initialized (conceptually).");
-
-            // Setup ad timer and daily limit check
-            checkDailyAdLimit();
-        });
-
-        // --- Navigation ---
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const targetId = e.target.id.replace('nav-', '');
-                const targetSection = document.getElementById(`${targetId}-section`);
-
-                sections.forEach(section => section.classList.remove('active'));
-                navLinks.forEach(nav => nav.classList.remove('active'));
-
-                targetSection.classList.add('active');
-                e.target.classList.add('active');
-            });
-        });
-
-        // --- User Data Management ---
-        function loadUserData() {
-            profileTelegramIdSpan.textContent = telegramUser.id;
-            profileUsernameSpan.textContent = telegramUser.username || 'N/A';
-
-            // Load user-specific data from Firebase
-            const userRef = database.ref(`users/${telegramUser.id}`);
-            userRef.once('value', (snapshot) => {
-                const userData = snapshot.val();
-                if (userData) {
-                    currentBalance = userData.balance || 0;
-                    profileTasksCompletedSpan.textContent = userData.tasksCompleted || 0;
-                    profileTotalImpressionsSpan.textContent = userData.totalImpressions || 0;
-                    updateBalanceDisplay();
-                } else {
-                    // Initialize user data if not exists
-                    userRef.set({
-                        telegramId: telegramUser.id,
-                        username: telegramUser.username,
-                        balance: 0,
-                        tasksCompleted: 0,
-                        totalImpressions: 0,
-                        joinedAt: Date.now()
-                    });
-                }
-            });
+        // Get user info (if available from Telegram)
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            userTelegramId = tg.initDataUnsafe.user.id;
+            userUsername = tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name;
+            document.getElementById('profile-username').innerText = userUsername;
+            // You might want to fetch user's avatar from Telegram if available or use a placeholder
+            // document.getElementById('profile-avatar').src = tg.initDataUnsafe.user.photo_url || 'https://via.placeholder.com/120';
+            console.log("Telegram User ID:", userTelegramId);
+            console.log("Telegram Username:", userUsername);
+            // TODO: Sync with backend/Firebase using userTelegramId and userUsername
+        } else {
+            console.log("Telegram user data not available.");
+            // Handle case where user data is not provided by Telegram (e.g., direct link to web app)
+            // You might prompt for login or show a default state.
         }
 
-        function updateBalanceDisplay() {
-            profileBalanceSpan.textContent = `${currentBalance.toFixed(5)} TON`;
-        }
+        // --- Navigation Logic ---
+        const navButtons = document.querySelectorAll('header nav button');
+        const contentSections = document.querySelectorAll('.content-section');
 
-        // --- Task Management ---
-        function loadTasks() {
-            const tasksRef = database.ref('tasks');
-            tasksRef.on('value', (snapshot) => {
-                tasks = []; // Clear previous tasks
-                snapshot.forEach((childSnapshot) => {
-                    tasks.push({ id: childSnapshot.key, ...childSnapshot.val() });
+        navButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetId = button.id.replace('-btn', '-section');
+                contentSections.forEach(section => {
+                    section.classList.remove('active');
                 });
-                renderTasks();
+                document.getElementById(targetId).classList.add('active');
             });
-        }
+        });
 
-        function renderTasks() {
-            taskListDiv.innerHTML = ''; // Clear existing tasks
-            tasks.forEach(task => {
-                const taskCard = document.createElement('div');
-                taskCard.classList.add('task-card');
-                taskCard.innerHTML = `
-                    <div class="task-details">
-                        <h3>${task.title}</h3>
-                        <p>${task.description}</p>
-                        <p>Impressions: ${task.impressions}</p>
-                        <p>Cost: ${task.starCost} TG Stars</p>
-                    </div>
-                    <div class="task-actions">
-                        <button onclick="startTask('${task.id}')" ${userTasks.some(ut => ut.taskId === task.id && ut.status === 'running') ? 'disabled' : ''}>
-                            Start
-                        </button>
-                        <div class="timer" id="timer-${task.id}"></div>
-                    </div>
-                `;
-                taskListDiv.appendChild(taskCard);
-            });
-        }
+        // --- Task Completion Logic (Demonstration) ---
+        const startTaskButtons = document.querySelectorAll('.start-task-btn');
 
-        function startTask(taskId) {
-            const task = tasks.find(t => t.id === taskId);
-            if (!task) return;
+        startTaskButtons.forEach(button => {
+            button.addEventListener('click', async () => {
+                const taskUrl = button.getAttribute('data-task-url');
+                const taskId = button.getAttribute('data-task-id');
+                const taskCost = parseInt(button.getAttribute('data-task-cost'));
 
-            // Check if user already has a running task or enough stars (conceptually)
-            // In a real system, you'd interact with TG bot for star balance.
-
-            const userTaskRef = database.ref(`userTasks/${telegramUser.id}/${taskId}`);
-            userTaskRef.set({
-                taskId: taskId,
-                status: 'running',
-                startTime: Date.now(),
-                taskDetails: { // Store task details to avoid frequent lookups
-                    title: task.title,
-                    url: task.url,
-                    impressions: task.impressions,
-                    starCost: task.starCost
-                }
-            });
-
-            // Visually disable the start button and show timer
-            const startButton = taskListDiv.querySelector(`button[onclick="startTask('${taskId}')"]`);
-            if (startButton) {
-                startButton.disabled = true;
-                const timerDiv = document.getElementById(`timer-${taskId}`);
-                startTimer(taskId, 10, timerDiv, task.url); // 10 seconds for verification
-            }
-        }
-
-        function startTimer(taskId, seconds, timerElement, taskUrl) {
-            let remainingSeconds = seconds;
-            timerElement.textContent = `Verify in ${remainingSeconds}s`;
-
-            const interval = setInterval(() => {
-                remainingSeconds--;
-                timerElement.textContent = `Verify in ${remainingSeconds}s`;
-
-                if (remainingSeconds <= 0) {
-                    clearInterval(interval);
-                    timerElement.textContent = ''; // Clear timer text
-
-                    // Open task URL
+                if (taskUrl) {
+                    // Open URL in a new tab for the user to complete
                     window.open(taskUrl, '_blank');
 
-                    // After 5 seconds of viewing, simulate completion
-                    setTimeout(() => {
-                        completeTask(taskId);
-                    }, 5000); // Simulate 5s viewing time
-                }
-            }, 1000);
-        }
+                    // This is where you'd integrate with your backend for verification.
+                    // For demonstration, we'll simulate a wait and then call a mock completion function.
+                    tg.showAlert('Task opened in a new tab. Please complete it and come back.');
 
-        function completeTask(taskId) {
-            const userTaskRef = database.ref(`userTasks/${telegramUser.id}/${taskId}`);
-            userTaskRef.update({ status: 'completed', completedAt: Date.now() });
+                    // --- IMPORTANT ---
+                    // The verification and crediting of Toncoin needs to happen server-side.
+                    // You'd typically send a "task started" event to your backend,
+                    // and when the user confirms completion (or your backend detects it),
+                    // it would deduct stars and credit Toncoin.
 
-            // Update user's balance and stats
-            currentBalance += TASK_EARNING;
-            const userStatsRef = database.ref(`users/${telegramUser.id}`);
-            userStatsRef.once('value', (snapshot) => {
-                const userData = snapshot.val();
-                userStatsRef.update({
-                    balance: currentBalance,
-                    tasksCompleted: (userData.tasksCompleted || 0) + 1,
-                    totalImpressions: (userData.totalImpressions || 0) + tasks.find(t => t.id === taskId).impressions
-                });
-                loadUserData(); // Refresh displayed data
-            });
-
-            alert(`Task ${taskId} completed! You earned ${TASK_EARNING} TON.`);
-        }
-
-        function loadUserTasks() {
-            const userTasksRef = database.ref(`userTasks/${telegramUser.id}`);
-            userTasksRef.on('value', (snapshot) => {
-                userTasks = [];
-                snapshot.forEach((childSnapshot) => {
-                    userTasks.push({ id: childSnapshot.key, ...childSnapshot.val() });
-                });
-                renderMyTasks();
-            });
-        }
-
-        function renderMyTasks() {
-            runningTasksList.innerHTML = '';
-            completedTasksList.innerHTML = '';
-            let totalCompleted = 0;
-            let totalImpressions = 0;
-
-            userTasks.forEach(userTask => {
-                const task = tasks.find(t => t.id === userTask.taskId);
-                if (!task) return; // Skip if task details aren't loaded yet
-
-                const taskItem = document.createElement('li');
-                taskItem.classList.add('task-item');
-                taskItem.innerHTML = `
-                    <span>${task.title}</span>
-                    <span class="status">${userTask.status}</span>
-                    ${userTask.status === 'completed' ? '<button class="delete-btn" onclick="deleteTask(\'' + userTask.id + '\', \'' + userTask.taskId + '\')">Delete</button>' : ''}
-                `;
-
-                if (userTask.status === 'running') {
-                    runningTasksList.appendChild(taskItem);
-                } else if (userTask.status === 'completed') {
-                    completedTasksList.appendChild(taskItem);
-                    totalCompleted++;
-                    totalImpressions += task.impressions;
+                    // Simulate task completion after a delay and backend processing
+                    setTimeout(async () => {
+                        // This part is highly simplified. Real implementation requires backend logic.
+                        // For this demo, let's assume the user has 100 TG Stars.
+                        const userStars = 100; // Mock user stars
+                        if (userStars >= taskCost) {
+                            // Call a mock function to handle completion and payment
+                            // This function would involve:
+                            // 1. Deducting taskCost from user's TG Stars (backend)
+                            // 2. Verifying task completion (backend)
+                            // 3. Crediting 0.000005 TON to user's balance (backend)
+                            // 4. Updating total completed tasks and impressions (backend)
+                            await mockTaskCompletion(taskId, taskCost);
+                        } else {
+                            tg.showAlert('Not enough TG Stars to start this task!');
+                        }
+                    }, 10000); // Simulate a 10-second delay before checking completion (highly simplified)
+                } else {
+                    // Handle tasks that don't require visiting a URL (e.g., social media interaction)
+                    tg.showAlert('Task initiated. Please complete it as per instructions.');
+                    setTimeout(async () => {
+                        await mockTaskCompletion(taskId, taskCost);
+                    }, 5000); // Shorter delay for non-URL tasks
                 }
             });
+        });
 
-            totalUsersCompletedSpan.textContent = totalCompleted;
-            totalImpressionsCompletedSpan.textContent = totalImpressions;
+        async function mockTaskCompletion(taskId, taskCost) {
+            console.log(`Simulating completion of task ${taskId} and deducting ${taskCost} stars.`);
+            // In a real app, this would be an API call to your backend:
+            // const response = await fetch('/api/complete-task', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify({ taskId: taskId, telegramId: userTelegramId })
+            // });
+            // const result = await response.json();
+            // if (result.success) {
+            //     tg.showAlert(`Task completed! Earned 0.000005 TON.`);
+            //     // Update UI with new balance/stats
+            // } else {
+            //     tg.showAlert(`Error completing task: ${result.message}`);
+            // }
+
+            // For this demo, we'll just update the UI with mock values
+            tg.showAlert(`Task completed! Earned 0.000005 TON.`);
+            updateUserStats({
+                balance: 0.000005, // Add to current balance
+                completedTasks: 1,
+                totalImpressions: 500 // Assuming this task gave 500 impressions
+            });
         }
 
-        function deleteTask(userTaskId, taskId) {
-            // In a real scenario, you might want to confirm this action.
-            database.ref(`userTasks/${telegramUser.id}/${userTaskId}`).remove()
-                .then(() => {
-                    alert('Task deleted.');
-                })
-                .catch(error => {
-                    console.error("Error deleting task:", error);
-                    alert('Failed to delete task.');
-                });
-        }
+        // --- Add Task Logic ---
+        const taskTitleInput = document.getElementById('task-title');
+        const taskDescriptionInput = document.getElementById('task-description');
+        const taskUrlInput = document.getElementById('task-url');
+        const taskImpressionsInput = document.getElementById('task-impressions');
+        const estimatedStarCostSpan = document.getElementById('estimated-star-cost');
+        const submitTaskBtn = document.getElementById('submit-task-btn');
 
-        // --- Add Task Form Submission ---
-        addTaskForm.addEventListener('submit', (e) => {
-            e.preventDefault();
+        // Update estimated star cost as impressions change
+        taskImpressionsInput.addEventListener('input', () => {
+            const impressions = parseInt(taskImpressionsInput.value) || 0;
+            const starCost = Math.ceil(impressions / 50) * 10; // Example calculation: 10 stars per 50 impressions, rounded up
+            estimatedStarCostSpan.textContent = starCost;
+        });
 
-            const title = document.getElementById('task-title').value;
-            const description = document.getElementById('task-description').value;
-            const url = document.getElementById('task-url').value;
-            const impressions = parseInt(document.getElementById('task-impressions').value, 10);
-            const starCost = parseInt(document.getElementById('task-star-cost').value, 10);
+        submitTaskBtn.addEventListener('click', () => {
+            const title = taskTitleInput.value.trim();
+            const description = taskDescriptionInput.value.trim();
+            const url = taskUrlInput.value.trim();
+            const impressions = parseInt(taskImpressionsInput.value);
+            const starCost = parseInt(estimatedStarCostSpan.textContent);
 
-            // Basic URL validation
-            try {
-                new URL(url);
-            } catch (_) {
-                alert('Please enter a valid URL.');
+            if (!title || !description || !url || isNaN(impressions) || impressions < 100 || isNaN(starCost)) {
+                tg.showAlert('Please fill in all fields correctly and ensure minimum 100 impressions.');
                 return;
             }
 
-            const newTaskRef = database.ref('tasks').push();
-            newTaskRef.set({
+            const newTask = {
                 title: title,
                 description: description,
                 url: url,
                 impressions: impressions,
                 starCost: starCost,
-                createdBy: telegramUser.id,
-                createdAt: Date.now(),
-                status: 'active' // 'active', 'paused', 'deleted'
-            }).then(() => {
-                alert('Task added successfully!');
-                addTaskForm.reset();
-            }).catch(error => {
-                console.error("Error adding task:", error);
-                alert('Failed to add task.');
-            });
+                ownerId: userTelegramId // Associate task with the creator
+            };
+
+            // --- IMPORTANT ---
+            // This task needs to be sent to your backend to be stored in Firebase.
+            // Client-side JavaScript cannot securely write data to Firebase without proper authorization.
+            // The backend would then add this task to the Firebase Realtime Database.
+            console.log('New task to submit:', newTask);
+            tg.showAlert('Task created! (Requires backend to save to Firebase)');
+
+            // Clear form after submission (or after successful backend save)
+            taskTitleInput.value = '';
+            taskDescriptionInput.value = '';
+            taskUrlInput.value = '';
+            taskImpressionsInput.value = '500';
+            estimatedStarCostSpan.textContent = '10';
         });
 
-        // --- Ads Management ---
+        // --- Ads Logic ---
+        const watchAdBtn = document.getElementById('watch-ad-btn');
+        let adsWatchedToday = 0; // This should be persisted and managed by backend
+        const maxDailyAds = 10;
+
         watchAdBtn.addEventListener('click', () => {
-            if (dailyAdCount >= MAX_DAILY_ADS) {
-                dailyAdLimitMessage.style.display = 'block';
+            if (adsWatchedToday >= maxDailyAds) {
+                tg.showAlert('You have reached your daily ad limit.');
                 return;
             }
 
-            // Show the libtl ad (this script needs to be loaded properly)
+            // Show the ad using the libtl SDK
             if (window.show_9789409) {
-                adStatusSpan.textContent = 'Loading Ad...';
-                watchAdBtn.disabled = true;
-
-                // The libtl script will likely handle ad display.
-                // You would need to find a way to know when the ad is viewed.
-                // For simulation, we'll just assume it plays and gives earnings.
-
-                // Simulate ad watching and earning
-                setTimeout(() => {
-                    const earnedAmount = AD_EARNING;
-                    currentBalance += earnedAmount;
-                    dailyAdCount++;
-
-                    const userStatsRef = database.ref(`users/${telegramUser.id}`);
-                    userStatsRef.update({
-                        balance: currentBalance
-                    });
-                    updateBalanceDisplay();
-
-                    adStatusSpan.textContent = `Ad watched! Earned ${earnedAmount} TON.`;
-                    checkDailyAdLimit();
-                }, 5000); // Simulate a 5 second ad
+                window.show_9789409().then(() => {
+                    // This callback fires after the ad is shown and closed.
+                    // IMPORTANT: The crediting of 0.000001 TON should be handled by your backend
+                    // after it receives a signal (e.g., from the ad SDK, or a confirmation callback)
+                    // that the ad was successfully viewed.
+                    tg.showAlert('Ad viewed! Earning 0.000001 TON credited soon.');
+                    adsWatchedToday++;
+                    // Update UI or notify backend to credit user
+                    updateUserStats({ balance: 0.000001 }); // Mock credit
+                }).catch((error) => {
+                    console.error("Error showing ad:", error);
+                    tg.showAlert('Failed to load ad.');
+                });
             } else {
-                alert("Ad service not available. Please try again later.");
+                tg.showAlert('Ad system not initialized correctly.');
             }
         });
 
-        function checkDailyAdLimit() {
-            const today = new Date().toDateString();
-            const lastAdDate = localStorage.getItem('lastAdDate');
-            const storedDailyAdCount = parseInt(localStorage.getItem('dailyAdCount') || '0');
+        // --- Withdrawal Logic ---
+        const withdrawBtn = document.getElementById('withdraw-btn');
+        const withdrawPopup = document.getElementById('withdraw-popup');
+        const submitWithdrawRequestBtn = document.getElementById('submit-withdraw-request-btn');
+        const withdrawAmountInput = document.getElementById('withdraw-amount');
+        const withdrawAddressInput = document.getElementById('withdraw-address');
 
-            if (lastAdDate === today) {
-                dailyAdCount = storedDailyAdCount;
-            } else {
-                dailyAdCount = 0;
-                localStorage.setItem('lastAdDate', today);
-                localStorage.setItem('dailyAdCount', '0');
-            }
+        withdrawBtn.addEventListener('click', () => {
+            // TODO: Fetch current user balance from backend/Firebase and display it
+            // For now, assume we have a mock balance from updateUserStats
+            const currentBalance = parseFloat(document.getElementById('user-balance').innerText.replace(' TON', ''));
+            withdrawAmountInput.placeholder = `Max: ${currentBalance.toFixed(6)} TON`;
+            withdrawPopup.style.display = 'flex';
+        });
 
-            if (dailyAdCount >= MAX_DAILY_ADS) {
-                watchAdBtn.disabled = true;
-                dailyAdLimitMessage.style.display = 'block';
-            } else {
-                watchAdBtn.disabled = false;
-                dailyAdLimitMessage.style.display = 'none';
-            }
-            console.log(`Daily ad count: ${dailyAdCount}/${MAX_DAILY_ADS}`);
+        function closeWithdrawPopup() {
+            withdrawPopup.style.display = 'none';
         }
 
-        // --- Withdrawal Functionality ---
-        requestWithdrawBtn.addEventListener('click', () => {
+        submitWithdrawRequestBtn.addEventListener('click', () => {
             const amount = parseFloat(withdrawAmountInput.value);
             const address = withdrawAddressInput.value.trim();
+            const currentBalance = parseFloat(document.getElementById('user-balance').innerText.replace(' TON', ''));
 
             if (isNaN(amount) || amount <= 0) {
-                alert('Please enter a valid amount.');
+                tg.showAlert('Please enter a valid amount.');
                 return;
             }
-            if (!address) {
-                alert('Please enter your TON wallet address.');
-                return;
-            }
-
-            // Basic TON address validation (you might want a more robust one)
-            if (!address.startsWith('EQ') || address.length < 47) {
-                alert('Please enter a valid TON wallet address.');
-                return;
-            }
-
             if (amount > currentBalance) {
-                alert('Insufficient balance.');
+                tg.showAlert('Insufficient balance.');
+                return;
+            }
+            if (!address || address.length < 10) { // Basic check for TON address
+                tg.showAlert('Please enter a valid Toncoin address.');
                 return;
             }
 
-            // Show confirmation popup
-            popupAmountSpan.textContent = amount.toFixed(5);
-            popupAddressSpan.textContent = address;
-            withdrawConfirmPopup.style.display = 'flex';
+            // --- IMPORTANT ---
+            // Send withdrawal request to your backend.
+            // Backend will:
+            // 1. Save request to Firebase (user, amount, address, status: pending).
+            // 2. Initiate Toncoin transaction (using your API key).
+            // 3. Update user balance on success/failure.
+            console.log(`Withdrawal request: Amount=${amount}, Address=${address}`);
+            tg.showAlert('Withdrawal request submitted! Processing may take time.');
+
+            // TODO: Subtract the amount from the displayed balance immediately for better UX
+            updateUserStats({ balance: -amount });
+
+            closeWithdrawPopup();
+            // Clear inputs
+            withdrawAmountInput.value = '';
+            withdrawAddressInput.value = '';
         });
 
-        confirmWithdrawBtn.addEventListener('click', () => {
-            const amount = parseFloat(popupAmountSpan.textContent);
-            const address = popupAddressSpan.textContent;
+        // --- Helper to update user stats (mocked for now) ---
+        function updateUserStats(updates) {
+            const currentBalance = parseFloat(document.getElementById('user-balance').innerText.replace(' TON', ''));
+            const currentStars = parseInt(document.getElementById('user-stars').innerText);
+            const currentCompletedTasks = parseInt(document.getElementById('user-completed-tasks').innerText);
+            const currentTotalImpressions = parseInt(document.getElementById('user-total-impressions').innerText);
 
-            // Deduct from balance
-            currentBalance -= amount;
-            updateBalanceDisplay();
-
-            // Save withdrawal request to Firebase
-            const withdrawalRequestRef = database.ref('withdrawalRequests').push();
-            withdrawalRequestRef.set({
-                userId: telegramUser.id,
-                username: telegramUser.username,
-                amount: amount,
-                address: address,
-                status: 'pending', // pending, approved, rejected
-                requestedAt: Date.now()
-            }).then(() => {
-                // Update user's balance in Firebase
-                const userStatsRef = database.ref(`users/${telegramUser.id}`);
-                userStatsRef.update({ balance: currentBalance });
-
-                alert('Withdrawal request submitted. It will be processed soon.');
-                withdrawConfirmPopup.style.display = 'none';
-                withdrawAmountInput.value = '';
-                withdrawAddressInput.value = '';
-                loadWithdrawalHistory(); // Refresh history
-            }).catch(error => {
-                console.error("Error submitting withdrawal request:", error);
-                alert('Failed to submit withdrawal request.');
-                // Revert balance deduction if submission failed
-                currentBalance += amount;
-                updateBalanceDisplay();
-                withdrawConfirmPopup.style.display = 'none';
-            });
-        });
-
-        cancelWithdrawBtn.addEventListener('click', () => {
-            withdrawConfirmPopup.style.display = 'none';
-        });
-
-        function loadWithdrawalHistory() {
-            const historyRef = database.ref('withdrawalRequests').orderByChild('userId').equalTo(telegramUser.id);
-            historyRef.on('value', (snapshot) => {
-                withdrawalHistoryList.innerHTML = '';
-                snapshot.forEach((childSnapshot) => {
-                    const request = childSnapshot.val();
-                    const listItem = document.createElement('li');
-                    listItem.innerHTML = `
-                        Amount: ${request.amount.toFixed(5)} TON,
-                        Address: ${request.address.substring(0, 10)}...,
-                        Status: <span style="color: ${request.status === 'pending' ? 'orange' : request.status === 'approved' ? 'green' : 'red'};">${request.status}</span>
-                    `;
-                    withdrawalHistoryList.appendChild(listItem);
-                });
-            });
+            if (updates.balance !== undefined) {
+                document.getElementById('user-balance').innerText = (currentBalance + updates.balance).toFixed(5) + ' TON';
+            }
+            if (updates.stars !== undefined) {
+                document.getElementById('user-stars').innerText = currentStars + updates.stars;
+            }
+            if (updates.completedTasks !== undefined) {
+                document.getElementById('user-completed-tasks').innerText = currentCompletedTasks + updates.completedTasks;
+            }
+            if (updates.totalImpressions !== undefined) {
+                document.getElementById('user-total-impressions').innerText = currentTotalImpressions + updates.totalImpressions;
+            }
         }
 
-        // --- TG Stars Payment System (Conceptual) ---
-        // This is highly simplified and would require actual Telegram Bot API calls
-        // via a backend to check user's TG Star balance and deduct them.
-        function checkUserStars(userId) {
-            // In a real app, you'd call your bot's backend API here.
-            console.log(`Checking TG Stars for user ${userId}...`);
-            // Mock return value for demonstration
-            return 150; // Example: user has 150 TG Stars
+        // --- Initial Load (fetch user data if available) ---
+        // This function would fetch data from your backend/Firebase
+        function loadUserData() {
+            if (userTelegramId) {
+                // Example: Fetch data from Firebase (requires backend setup for security)
+                // const userRef = ref(database, `users/${userTelegramId}`);
+                // get(userRef).then((snapshot) => {
+                //     if (snapshot.exists()) {
+                //         const userData = snapshot.val();
+                //         document.getElementById('profile-username').innerText = userData.username || userUsername;
+                //         document.getElementById('user-balance').innerText = userData.balance ? userData.balance.toFixed(5) + ' TON' : '0.00000 TON';
+                //         document.getElementById('user-stars').innerText = userData.stars || 0;
+                //         document.getElementById('user-completed-tasks').innerText = userData.completedTasks || 0;
+                //         document.getElementById('user-total-impressions').innerText = userData.totalImpressions || 0;
+                //         // Load profile avatar if available
+                //     } else {
+                //         // User not found in DB, save initial details
+                //         saveUserData();
+                //     }
+                // }).catch((error) => {
+                //     console.error("Error fetching user data:", error);
+                // });
+                console.log("Loading user data for:", userTelegramId);
+                // For this demo, we'll just show the initial mock values.
+                // If you have a backend, this is where you'd call an API.
+            } else {
+                console.log("No Telegram user ID found. Displaying default.");
+                // Potentially show a login prompt or offer to save data manually
+            }
         }
 
-        function deductUserStars(userId, amount) {
-            // In a real app, you'd call your bot's backend API here.
-            console.log(`Deducting ${amount} TG Stars from user ${userId}...`);
-            // Mock return value
-            return true; // Successfully deducted
+        // Save initial user data if it's a new user (backend action)
+        function saveUserData() {
+            if (userTelegramId && userUsername) {
+                // const userRef = ref(database, `users/${userTelegramId}`);
+                // set(userRef, {
+                //     telegramId: userTelegramId,
+                //     username: userUsername,
+                //     balance: 0,
+                //     stars: 0,
+                //     completedTasks: 0,
+                //     totalImpressions: 0,
+                //     joinedAt: new Date().toISOString()
+                // }).then(() => {
+                //     console.log("Initial user data saved.");
+                // }).catch((error) => {
+                //     console.error("Error saving user data:", error);
+                // });
+                console.log(`Saving initial data for user: ${userUsername} (${userTelegramId})`);
+                // This should be done via a secure backend API call.
+            }
         }
 
-        // --- End of Script ---
+        // Load data on page load
+        loadUserData();
+
     </script>
-
 </body>
 </html>
