@@ -197,7 +197,7 @@
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 16px;
             margin-bottom: 24px;
         }
@@ -650,6 +650,94 @@
             font-size: 24px;
         }
 
+        .ads-progress {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .ads-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 12px;
+        }
+
+        .stat-item .material-icons {
+            font-size: 2rem;
+            color: #4CAF50;
+        }
+
+        .stat-number {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #4CAF50;
+        }
+
+        .ad-loading, .ad-success {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .ad-loading .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #4CAF50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        .ad-success .material-icons {
+            font-size: 4rem;
+            color: #4CAF50;
+            margin-bottom: 1rem;
+        }
+
+        .ad-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .ad-frame {
+            min-height: 200px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+        }
+
+        .ad-timer {
+            text-align: center;
+        }
+
+        .timer-circle {
+            width: 80px;
+            height: 80px;
+            border: 4px solid #4CAF50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
         @media (max-width: 480px) {
             .app-container {
                 max-width: 100%;
@@ -690,7 +778,7 @@
                 <div class="user-avatar" id="userAvatar">👤</div>
                 <div>
                     <div id="userName">Loading...</div>
-                    <div class="balance" id="userBalance">0.000000 TON</div>
+                    <div class="balance" id="userBalance">0.00000000 TON</div>
                 </div>
             </div>
         </div>
@@ -727,12 +815,8 @@
                         <span class="stat-label">Completed</span>
                     </div>
                     <div class="stat-card">
-                        <span class="stat-value" id="runningTasks">0</span>
-                        <span class="stat-label">In Progress</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-value" id="totalEarnings">0.000000</span>
-                        <span class="stat-label">Total TON Earned</span>
+                        <span class="stat-value" id="adsWatched">0</span>
+                        <span class="stat-label">Ads Today</span>
                     </div>
                 </div>
 
@@ -772,7 +856,7 @@
                     </div>
                     
                     <div class="earnings-card">
-                        <div class="earnings-amount" id="profileBalance">0.000000 TON</div>
+                        <div class="earnings-amount" id="profileBalance">0.00000000 TON</div>
                         <p>Total Earnings</p>
                     </div>
 
@@ -792,29 +876,45 @@
 
             <!-- Ads Page -->
             <div id="ads" class="page">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <span class="stat-value" id="adsWatched">0</span>
-                        <span class="stat-label">Ads Watched Today</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-value" id="adsRemaining">10</span>
-                        <span class="stat-label">Ads Remaining</span>
+                <div class="ads-header">
+                    <h2>Watch Ads & Earn</h2>
+                    <p>Earn 0.000001 TON per ad • Daily limit: 10 ads</p>
+                    <div class="ads-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="adsProgress"></div>
+                        </div>
+                        <span id="adsCount">0/10</span>
                     </div>
                 </div>
-
-                <div class="ad-container">
-                    <h3 style="margin-bottom: 16px;">Watch Ads to Earn</h3>
-                    <p style="color: var(--text-secondary); margin-bottom: 20px;">
-                        Earn 0.000001 TON per ad. Maximum 10 ads per day.
-                    </p>
-                    <button class="btn" id="watchAdBtn" onclick="watchAd()" style="width: 100%;">
-                        <span class="material-icons">play_circle</span>
-                        Watch Ad (0.000001 TON)
-                    </button>
+                
+                <div class="ad-container" id="adContainer">
+                    <div class="ad-placeholder">
+                        <span class="material-icons">play_circle_filled</span>
+                        <h3>Ready to Watch Ads?</h3>
+                        <p>Click the button below to start earning</p>
+                        <button class="btn btn-primary" id="watchAdBtn" onclick="watchAd()">
+                            <span class="material-icons">play_arrow</span>
+                            Watch Ad
+                        </button>
+                    </div>
                 </div>
-
-                <div id="adSpace" style="min-height: 250px; background: var(--neutral-100); border-radius: var(--border-radius); display: none;"></div>
+                
+                <div class="ads-stats">
+                    <div class="stat-item">
+                        <span class="material-icons">today</span>
+                        <div>
+                            <div class="stat-number" id="todayEarnings">0.000000</div>
+                            <div class="stat-text">Today's Earnings</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="material-icons">history</span>
+                        <div>
+                            <div class="stat-number" id="totalAdsWatched">0</div>
+                            <div class="stat-text">Total Ads Watched</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -855,8 +955,9 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Total Impressions</label>
-                    <input type="number" class="form-input" id="taskImpressions" min="500" value="500" required oninput="updateTaskCost()">
+                    <label class="form-label">Task Impressions Required</label>
+                    <input type="number" class="form-input" id="taskImpressions" min="500" step="500" value="500" required oninput="updateTaskCost()">
+                    <small>500 impressions = 100 Stars | 1000 impressions = 200 Stars</small>
                 </div>
 
                 <div style="display: flex; gap: 12px;">
@@ -913,7 +1014,7 @@
     <script type="module">
         // Firebase Configuration
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, get, push, onValue, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, get, push, onValue, child, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBSj3t2ClyafHRgpN__cCnbDarhTfse3aA",
@@ -931,6 +1032,7 @@
         // Telegram Bot API Configuration
         const BOT_TOKEN = '8418101664:AAGUUWpQVhrueHoP97W5laKOOlJ1LNKGQm8';
         const BOT_API_URL = `https://api.telegram.org/bot${BOT_TOKEN}`;
+        const DEVELOPER_USERNAME = 'Abstudioseo'; // Free testing for developer
 
         // Global State
         let currentUser = null;
@@ -941,6 +1043,9 @@
             tasksCompleted: 0,
             adsWatchedToday: 0
         };
+        let adsWatched = 0;
+        let dailyAdsLimit = 10;
+        let lastAdDate = null;
 
         // Initialize Telegram Web App
         window.Telegram.WebApp.ready();
@@ -975,6 +1080,7 @@
             await loadUserData();
             await loadTasks();
             updateStats();
+            loadUserAdsData();
         }
 
         function updateUserDisplay() {
@@ -1022,8 +1128,8 @@
 
         function updateBalance() {
             const balance = userStats.balance || 0;
-            document.getElementById('userBalance').textContent = `${balance.toFixed(6)} TON`;
-            document.getElementById('profileBalance').textContent = `${balance.toFixed(6)} TON`;
+            document.getElementById('userBalance').textContent = `${balance.toFixed(8)} TON`;
+            document.getElementById('profileBalance').textContent = `${balance.toFixed(8)} TON`;
         }
 
         // Load tasks from Firebase
@@ -1119,8 +1225,7 @@
         function updateStats() {
             document.getElementById('totalTasks').textContent = allTasks.length;
             document.getElementById('completedTasks').textContent = userTasks.filter(t => t.status === 'completed').length;
-            document.getElementById('runningTasks').textContent = userTasks.filter(t => t.status === 'running').length;
-            document.getElementById('totalEarnings').textContent = (userStats.balance || 0).toFixed(6);
+            document.getElementById('adsWatched').textContent = adsWatched;
         }
 
         // Navigation
@@ -1143,46 +1248,53 @@
 
         function updateTaskCost() {
             const impressions = parseInt(document.getElementById('taskImpressions').value) || 500;
-            const cost = Math.max(500, impressions);
+            const cost = Math.ceil(impressions / 5); // 500 impressions = 100 stars
             document.getElementById('taskCost').textContent = cost;
+        }
+
+        // Calculate task cost in stars
+        function calculateTaskCost(impressions) {
+            return Math.ceil(impressions / 5); // 500 impressions = 100 stars
         }
 
         // Add Task Form Handler
         document.getElementById('addTaskForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            await addTask();
+        });
+
+        // Add task function
+        async function addTask() {
+            if (!currentUser) return;
             
             const title = document.getElementById('taskTitle').value;
             const description = document.getElementById('taskDescription').value;
             const url = document.getElementById('taskUrl').value;
             const impressions = parseInt(document.getElementById('taskImpressions').value);
-            const cost = Math.max(500, impressions);
-
+            
+            if (!title || !description || !url || impressions < 500) {
+                showNotification('Please fill all fields correctly', 'error');
+                return;
+            }
+            
+            const cost = calculateTaskCost(impressions);
+            
+            // Free testing for developer
+            if (currentUser.username === DEVELOPER_USERNAME) {
+                await saveTaskToFirebase(title, description, url, impressions, 0);
+                showNotification('Task added successfully (Developer Mode)', 'success');
+                document.getElementById('addTaskForm').reset();
+                return;
+            }
+            
             try {
-                // Process Telegram Stars payment
-                const paymentResult = await processTelegramStarsPayment(cost);
+                const paymentResult = await makePayment(cost, `Create task: ${title}`);
                 
-                if (paymentResult.success) {
-                    const taskId = push(child(ref(database), 'tasks')).key;
-                    const newTask = {
-                        id: taskId,
-                        title,
-                        description,
-                        url,
-                        totalImpressions: impressions,
-                        currentImpressions: 0,
-                        createdBy: currentUser.id,
-                        createdAt: new Date().toISOString(),
-                        status: 'running'
-                    };
-
-                    // Save to Firebase
-                    await set(ref(database, `tasks/${taskId}`), newTask);
-                    await set(ref(database, `userTasks/${currentUser.id}/${taskId}`), newTask);
-
-                    showNotification('Task created successfully!', 'success');
-                    closeModal('addTaskModal');
+                if (paymentResult) {
+                    await saveTaskToFirebase(title, description, url, impressions, cost);
+                    showNotification('Task added successfully!', 'success');
                     document.getElementById('addTaskForm').reset();
-                    updateTaskCost();
+                    loadTasks();
                 } else {
                     showNotification('Payment failed. Please try again.', 'error');
                 }
@@ -1190,48 +1302,29 @@
                 console.error('Error creating task:', error);
                 showNotification('Error creating task', 'error');
             }
-        });
+        }
 
-        // Telegram Stars Payment
-        async function processTelegramStarsPayment(amount) {
-            try {
-                const invoice = {
-                    title: 'SkyTaskTon - Create Task',
-                    description: `Create task with ${amount} impressions`,
-                    payload: JSON.stringify({
-                        type: 'create_task',
-                        impressions: amount,
-                        userId: currentUser.id
-                    }),
-                    currency: 'XTR',
-                    prices: [{ label: 'Task Creation', amount: amount }]
-                };
+        // Save task to Firebase
+        async function saveTaskToFirebase(title, description, url, impressions, cost) {
+            if (!currentUser) return;
+            
+            const taskData = {
+                title: title,
+                description: description,
+                url: url,
+                impressions: impressions,
+                currentImpressions: 0,
+                cost: cost,
+                status: 'active',
+                createdAt: new Date().toISOString(),
+                createdBy: currentUser.id
+            };
 
-                const response = await fetch(`${BOT_API_URL}/createInvoiceLink`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(invoice)
-                });
-
-                const result = await response.json();
-                
-                if (result.ok) {
-                    window.Telegram.WebApp.openInvoice(result.result, (status) => {
-                        if (status === 'paid') {
-                            return { success: true };
-                        } else {
-                            return { success: false };
-                        }
-                    });
-                } else {
-                    return { success: false };
-                }
-            } catch (error) {
-                console.error('Payment error:', error);
-                return { success: false };
-            }
+            const taskRef = push(ref(database, 'tasks'));
+            await set(taskRef, taskData);
+            
+            const userTaskRef = ref(database, `userTasks/${currentUser.id}/${taskRef.key}`);
+            await set(userTaskRef, taskData);
         }
 
         // Start Task
@@ -1260,43 +1353,210 @@
             }, 1000);
         }
 
+        // Complete task function
         async function completeTask(taskId) {
+            if (!currentUser) return;
+            
             try {
-                // Update task impressions
+                // Get task details
                 const taskRef = ref(database, `tasks/${taskId}`);
                 const snapshot = await get(taskRef);
+                const task = snapshot.val();
                 
-                if (snapshot.exists()) {
-                    const task = snapshot.val();
-                    const updatedImpressions = (task.currentImpressions || 0) + 1;
-                    
-                    await set(ref(database, `tasks/${taskId}/currentImpressions`), updatedImpressions);
-                    
-                    // Award user
-                    const reward = 0.00005;
-                    userStats.balance += reward;
-                    userStats.tasksCompleted++;
-                    
-                    await set(ref(database, `users/${currentUser.id}`), userStats);
-                    
-                    // Record completion
-                    const completionId = push(child(ref(database), 'completions')).key;
-                    await set(ref(database, `completions/${completionId}`), {
-                        userId: currentUser.id,
-                        taskId: taskId,
-                        reward: reward,
-                        completedAt: new Date().toISOString()
-                    });
-
-                    updateBalance();
-                    closeModal('verificationModal');
-                    showNotification(`Task completed! Earned ${reward.toFixed(6)} TON`, 'success');
+                if (!task) {
+                    showNotification('Task not found', 'error');
+                    return;
                 }
+                
+                const reward = 0.00005;
+                
+                // Free testing for developer
+                if (currentUser.username === DEVELOPER_USERNAME) {
+                    await finishTaskCompletion(taskId, task, reward);
+                    return;
+                }
+                
+                await finishTaskCompletion(taskId, task, reward);
+                
             } catch (error) {
                 console.error('Error completing task:', error);
                 closeModal('verificationModal');
                 showNotification('Error completing task', 'error');
             }
+        }
+
+        // Finish task completion
+        async function finishTaskCompletion(taskId, task, reward) {
+            try {
+                // Update user balance
+                const userRef = ref(database, `users/${currentUser.id}`);
+                const userSnapshot = await get(userRef);
+                const userData = userSnapshot.val() || {};
+                const newBalance = (parseFloat(userData.balance) || 0) + reward;
+                
+                await update(userRef, {
+                    balance: newBalance.toFixed(8),
+                    completedTasks: (userData.completedTasks || 0) + 1
+                });
+                
+                // Update task impressions
+                await update(ref(database, `tasks/${taskId}`), {
+                    currentImpressions: (task.currentImpressions || 0) + 1
+                });
+                
+                // Update UI
+                document.getElementById('userBalance').textContent = newBalance.toFixed(8);
+                
+                closeModal('verificationModal');
+                showNotification(`Task completed! Earned ${reward} TON`, 'success');
+                
+                // Reload tasks after a delay
+                setTimeout(() => {
+                    loadTasks();
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error completing task:', error);
+                closeModal('verificationModal');
+                showNotification('Error completing task', 'error');
+            }
+        }
+
+        // Watch ad function
+        async function watchAd() {
+            if (!currentUser) return;
+            
+            // Check daily limit
+            const today = new Date().toDateString();
+            if (lastAdDate !== today) {
+                adsWatched = 0;
+                lastAdDate = today;
+            }
+            
+            if (adsWatched >= dailyAdsLimit) {
+                showNotification('Daily ad limit reached. Come back tomorrow!', 'error');
+                return;
+            }
+            
+            // Show ad loading
+            const adContainer = document.getElementById('adContainer');
+            adContainer.innerHTML = `
+                <div class="ad-loading">
+                    <div class="loading-spinner"></div>
+                    <h3>Loading Advertisement...</h3>
+                    <p>Please wait while we prepare your ad</p>
+                </div>
+            `;
+            
+            // Simulate ad loading and display
+            setTimeout(() => {
+                adContainer.innerHTML = `
+                    <div class="ad-content">
+                        <div class="ad-frame">
+                            <script src='//libtl.com/sdk.js' data-zone='9789409' data-sdk='show_9789409'></script>
+                            <div id="ad-display-9789409"></div>
+                        </div>
+                        <div class="ad-timer">
+                            <div class="timer-circle">
+                                <span id="adTimer">10</span>
+                            </div>
+                            <p>Watch the ad to earn rewards</p>
+                        </div>
+                    </div>
+                `;
+                
+                // Initialize ad
+                if (typeof show_9789409 === 'function') {
+                    show_9789409().then(() => {
+                        startAdTimer();
+                    }).catch(() => {
+                        startAdTimer(); // Start timer even if ad fails
+                    });
+                } else {
+                    startAdTimer();
+                }
+            }, 2000);
+        }
+        
+        // Start ad timer
+        function startAdTimer() {
+            let timeLeft = 10;
+            const timerElement = document.getElementById('adTimer');
+            
+            const timer = setInterval(() => {
+                timeLeft--;
+                if (timerElement) {
+                    timerElement.textContent = timeLeft;
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    completeAdWatch();
+                }
+            }, 1000);
+        }
+        
+        // Complete ad watch
+        async function completeAdWatch() {
+            adsWatched++;
+            const earnings = 0.000001;
+            
+            // Update user balance
+            const userRef = ref(database, `users/${currentUser.id}`);
+            const snapshot = await get(userRef);
+            const userData = snapshot.val() || {};
+            const newBalance = (parseFloat(userData.balance) || 0) + earnings;
+            
+            await update(userRef, {
+                balance: newBalance.toFixed(8),
+                adsWatched: (userData.adsWatched || 0) + 1,
+                lastAdDate: new Date().toDateString()
+            });
+            
+            // Update UI
+            document.getElementById('userBalance').textContent = newBalance.toFixed(8);
+            document.getElementById('adsWatched').textContent = adsWatched;
+            document.getElementById('todayEarnings').textContent = (earnings * adsWatched).toFixed(6);
+            document.getElementById('totalAdsWatched').textContent = (userData.adsWatched || 0) + 1;
+            
+            // Update progress bar
+            const progressFill = document.getElementById('adsProgress');
+            const progressPercent = (adsWatched / dailyAdsLimit) * 100;
+            progressFill.style.width = `${progressPercent}%`;
+            
+            // Reset ad container
+            const adContainer = document.getElementById('adContainer');
+            adContainer.innerHTML = `
+                <div class="ad-success">
+                    <span class="material-icons">check_circle</span>
+                    <h3>Ad Completed!</h3>
+                    <p>You earned ${earnings.toFixed(6)} TON</p>
+                    <button class="btn btn-primary" onclick="resetAdContainer()" ${adsWatched >= dailyAdsLimit ? 'disabled' : ''}>
+                        <span class="material-icons">play_arrow</span>
+                        ${adsWatched >= dailyAdsLimit ? 'Daily Limit Reached' : 'Watch Another Ad'}
+                    </button>
+                </div>
+            `;
+            
+            showNotification(`Ad completed! Earned ${earnings.toFixed(6)} TON`, 'success');
+        }
+        
+        // Reset ad container
+        function resetAdContainer() {
+            if (adsWatched >= dailyAdsLimit) return;
+            
+            const adContainer = document.getElementById('adContainer');
+            adContainer.innerHTML = `
+                <div class="ad-placeholder">
+                    <span class="material-icons">play_circle_filled</span>
+                    <h3>Ready to Watch Ads?</h3>
+                    <p>Click the button below to start earning</p>
+                    <button class="btn btn-primary" onclick="watchAd()">
+                        <span class="material-icons">play_arrow</span>
+                        Watch Ad
+                    </button>
+                </div>
+            `;
         }
 
         // Withdraw functionality
@@ -1372,59 +1632,97 @@
             }
         }
 
-        // Ads functionality
-        async function watchAd() {
-            const today = new Date().toDateString();
-            
-            if (userStats.adsWatchedToday >= 10) {
-                showNotification('Daily ad limit reached', 'error');
-                return;
+        // Make payment function
+        async function makePayment(amount, description) {
+            // Free testing for developer
+            if (currentUser && currentUser.username === DEVELOPER_USERNAME) {
+                showNotification('Payment successful (Developer Mode)', 'success');
+                return true;
             }
-
-            if (userStats.lastAdDate !== today) {
-                userStats.adsWatchedToday = 0;
-                userStats.lastAdDate = today;
+            
+            if (!window.Telegram?.WebApp) {
+                showNotification('Telegram WebApp not available', 'error');
+                return false;
             }
 
             try {
-                // Show ad
-                document.getElementById('adSpace').style.display = 'block';
-                document.getElementById('watchAdBtn').disabled = true;
-                document.getElementById('watchAdBtn').innerHTML = '<div class="loading"></div> Loading Ad...';
+                const invoice = {
+                    title: 'SkyTaskTon - Task Creation',
+                    description: description,
+                    payload: JSON.stringify({
+                        type: 'create_task',
+                        userId: currentUser.id,
+                        amount: amount
+                    }),
+                    currency: 'XTR',
+                    prices: [{ label: 'Task Creation', amount: amount }]
+                };
 
-                // Simulate ad display
-                await show_9789409();
+                const response = await fetch(`${BOT_API_URL}/createInvoiceLink`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(invoice)
+                });
 
-                // Award user after ad
-                setTimeout(async () => {
-                    const adReward = 0.000001;
-                    userStats.balance += adReward;
-                    userStats.adsWatchedToday++;
-                    
-                    await set(ref(database, `users/${currentUser.id}`), userStats);
-                    
-                    updateBalance();
-                    document.getElementById('adsWatched').textContent = userStats.adsWatchedToday;
-                    document.getElementById('adsRemaining').textContent = 10 - userStats.adsWatchedToday;
-                    
-                    document.getElementById('adSpace').style.display = 'none';
-                    document.getElementById('watchAdBtn').disabled = false;
-                    document.getElementById('watchAdBtn').innerHTML = `
-                        <span class="material-icons">play_circle</span>
-                        Watch Ad (0.000001 TON)
-                    `;
-                    
-                    showNotification(`Ad completed! Earned ${adReward.toFixed(6)} TON`, 'success');
-                }, 3000);
-
+                const result = await response.json();
+                
+                if (result.ok) {
+                    return new Promise((resolve) => {
+                        window.Telegram.WebApp.openInvoice(result.result, (status) => {
+                            resolve(status === 'paid');
+                        });
+                    });
+                } else {
+                    return false;
+                }
             } catch (error) {
-                console.error('Error watching ad:', error);
-                showNotification('Error loading ad', 'error');
-                document.getElementById('watchAdBtn').disabled = false;
-                document.getElementById('watchAdBtn').innerHTML = `
-                    <span class="material-icons">play_circle</span>
-                    Watch Ad (0.000001 TON)
-                `;
+                console.error('Payment error:', error);
+                return false;
+            }
+        }
+        
+        // Load user ads data
+        async function loadUserAdsData() {
+            if (!currentUser) return;
+            
+            try {
+                const userRef = ref(database, `users/${currentUser.id}`);
+                const snapshot = await get(userRef);
+                const userData = snapshot.val() || {};
+                
+                const today = new Date().toDateString();
+                if (userData.lastAdDate === today) {
+                    adsWatched = userData.dailyAdsWatched || 0;
+                } else {
+                    adsWatched = 0;
+                }
+                
+                lastAdDate = userData.lastAdDate;
+                
+                // Update UI
+                document.getElementById('adsWatched').textContent = adsWatched;
+                document.getElementById('totalAdsWatched').textContent = userData.adsWatched || 0;
+                document.getElementById('todayEarnings').textContent = ((userData.todayEarnings || 0)).toFixed(6);
+                
+                // Update progress bar
+                const progressFill = document.getElementById('adsProgress');
+                const progressPercent = (adsWatched / dailyAdsLimit) * 100;
+                progressFill.style.width = `${progressPercent}%`;
+                
+                // Update ads count
+                document.getElementById('adsCount').textContent = `${adsWatched}/${dailyAdsLimit}`;
+                
+                // Disable watch ad button if limit reached
+                const watchAdBtn = document.getElementById('watchAdBtn');
+                if (adsWatched >= dailyAdsLimit && watchAdBtn) {
+                    watchAdBtn.disabled = true;
+                    watchAdBtn.innerHTML = '<span class="material-icons">block</span> Daily Limit Reached';
+                }
+                
+            } catch (error) {
+                console.error('Error loading ads data:', error);
             }
         }
 
@@ -1468,21 +1766,8 @@
             }, 3000);
         }
 
-        // Initialize ads counter
-        function initializeAdsCounter() {
-            const today = new Date().toDateString();
-            if (userStats.lastAdDate !== today) {
-                userStats.adsWatchedToday = 0;
-                userStats.lastAdDate = today;
-            }
-            
-            document.getElementById('adsWatched').textContent = userStats.adsWatchedToday;
-            document.getElementById('adsRemaining').textContent = 10 - userStats.adsWatchedToday;
-        }
-
         // Initialize everything when page loads
         document.addEventListener('DOMContentLoaded', () => {
-            initializeAdsCounter();
             loadWithdrawHistory();
         });
 
@@ -1493,6 +1778,7 @@
         window.updateTaskCost = updateTaskCost;
         window.startTask = startTask;
         window.watchAd = watchAd;
+        window.resetAdContainer = resetAdContainer;
         window.filterTasks = filterTasks;
         window.filterMyTasks = filterMyTasks;
         window.deleteTask = deleteTask;
