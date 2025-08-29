@@ -3,13 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyTaskTon - Earn TON by Completing Tasks</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src='//libtl.com/sdk.js' data-zone='9789409' data-sdk='show_9789409'></script>
+    <title>SkyTaskTon</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
     <style>
+        /* Basic Reset & Global Styles */
         * {
             margin: 0;
             padding: 0;
@@ -17,1288 +14,905 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f7f6;
             color: #333;
-            overflow-x: hidden;
-        }
-
-        .container {
-            max-width: 400px;
-            margin: 0 auto;
-            background: #fff;
+            display: flex;
+            flex-direction: column;
             min-height: 100vh;
-            position: relative;
-            box-shadow: 0 0 30px rgba(0,0,0,0.1);
+            overflow-x: hidden; /* Prevent horizontal scroll */
         }
 
         /* Header */
-        .header {
-            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+        header {
+            background-color: #007bff;
             color: white;
-            padding: 20px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            animation: shimmer 3s ease-in-out infinite;
-        }
-
-        @keyframes shimmer {
-            0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-            50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-        }
-
-        .header h1 {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 5px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .balance-display {
-            background: rgba(255,255,255,0.2);
-            border-radius: 15px;
-            padding: 15px;
-            margin-top: 15px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .balance {
-            font-size: 28px;
-            font-weight: 700;
-            color: #fff;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        /* Navigation */
-        .nav-tabs {
+            padding: 15px 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             display: flex;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
-        .nav-tab {
-            flex: 1;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: none;
-            background: none;
+        .logo {
+            font-size: 1.5em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo .material-icons {
+            margin-right: 10px;
+            font-size: 2em;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+        }
+
+        nav ul li {
+            margin-left: 25px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
             font-weight: 500;
-            position: relative;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
         }
 
-        .nav-tab.active {
-            color: #4285f4;
-            background: white;
+        nav ul li a:hover,
+        nav ul li a.active {
+            background-color: rgba(255, 255, 255, 0.2);
         }
 
-        .nav-tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 30px;
-            height: 3px;
-            background: #4285f4;
-            border-radius: 3px 3px 0 0;
-        }
-
-        /* Content Pages */
-        .page {
-            display: none;
+        /* Main Content Area */
+        main {
+            flex: 1;
             padding: 20px;
-            min-height: calc(100vh - 200px);
+            max-width: 900px;
+            margin: 20px auto;
+            width: 100%;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
         }
 
-        .page.active {
-            display: block;
-            animation: fadeIn 0.3s ease-in-out;
+        h1, h2 {
+            color: #007bff;
+            margin-bottom: 20px;
+            text-align: center;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        h1 {
+            font-size: 2em;
+            margin-top: 0;
         }
 
-        /* Task Cards */
+        h2 {
+            font-size: 1.6em;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+        }
+
+        /* Section Styling */
+        .section {
+            margin-bottom: 40px;
+            padding: 25px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Home Page - Task Display */
+        .task-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
         .task-card {
-            background: white;
-            border-radius: 15px;
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
             padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border-left: 5px solid #4285f4;
-            transition: all 0.3s ease;
-            cursor: pointer;
+            text-align: center;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.07);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .task-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
-        .task-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .task-card h3 {
+            color: #007bff;
             margin-bottom: 10px;
+            font-size: 1.2em;
         }
 
-        .task-title {
-            font-weight: 600;
-            font-size: 16px;
+        .task-card p {
+            font-size: 0.9em;
+            color: #555;
+            margin-bottom: 15px;
+            flex-grow: 1; /* Allows description to take available space */
+        }
+
+        .task-card .impressions {
+            font-size: 0.85em;
+            color: #777;
+            margin-bottom: 15px;
+        }
+
+        .task-card .impressions strong {
+            color: #28a745;
+        }
+
+        .task-card .start-button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+            display: block; /* Make it a block element */
+            width: 100%; /* Full width within the card */
+            margin-top: auto; /* Pushes button to the bottom */
+        }
+
+        .task-card .start-button:hover {
+            background-color: #218838;
+        }
+
+        /* Add Task Page */
+        .add-task-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .add-task-form input,
+        .add-task-form textarea {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .add-task-form textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .add-task-form button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+            align-self: flex-start; /* Align button to the left */
+        }
+
+        .add-task-form button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Profile Page */
+        .profile-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-picture {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 3px solid #007bff;
+        }
+
+        .profile-info h2 {
+            margin-bottom: 5px;
+        }
+
+        .profile-info p {
+            color: #555;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .stat-box {
+            background-color: #e9ecef;
+            padding: 15px 25px;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 150px;
+        }
+
+        .stat-box .material-icons {
+            font-size: 2em;
+            color: #007bff;
+            margin-bottom: 5px;
+        }
+
+        .stat-box p {
+            font-size: 1.2em;
+            font-weight: bold;
             color: #333;
         }
 
-        .task-reward {
-            background: linear-gradient(135deg, #34a853, #4285f4);
-            color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .task-description {
+        .stat-box span {
+            font-size: 0.9em;
             color: #666;
-            font-size: 14px;
-            margin-bottom: 15px;
-            line-height: 1.4;
         }
 
-        .task-progress {
+        .withdraw-button {
+            background-color: #ffc107;
+            color: #212529;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+            margin-top: 30px;
+        }
+
+        .withdraw-button:hover {
+            background-color: #e0a800;
+        }
+
+        /* My Tasks Tab */
+        .my-tasks-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .my-task-item {
+            background-color: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
-        .progress-bar {
-            flex: 1;
-            height: 6px;
-            background: #e9ecef;
-            border-radius: 3px;
-            margin-right: 10px;
-            overflow: hidden;
+        .my-task-item-details {
+            flex-grow: 1;
+            margin-right: 15px;
         }
 
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4285f4, #34a853);
-            border-radius: 3px;
-            transition: width 0.3s ease;
+        .my-task-item-details h4 {
+            margin-bottom: 5px;
+            font-size: 1.1em;
         }
 
-        .start-btn {
-            background: linear-gradient(135deg, #4285f4, #34a853);
-            color: white;
+        .my-task-item-details p {
+            font-size: 0.9em;
+            color: #555;
+            margin-bottom: 0;
+        }
+
+        .my-task-item-status {
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .status-running { color: #17a2b8; background-color: rgba(23, 162, 184, 0.1); }
+        .status-completed { color: #28a745; background-color: rgba(40, 167, 69, 0.1); }
+        .status-pending { color: #ffc107; background-color: rgba(255, 193, 7, 0.1); }
+
+        .delete-button {
+            background: none;
             border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
-            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
+            color: #dc3545;
+            font-size: 1.3em;
+            margin-left: 15px;
+            transition: color 0.3s ease;
         }
 
-        .start-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(66, 133, 244, 0.4);
+        .delete-button:hover {
+            color: #c82333;
         }
 
-        .start-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
+        /* Ads Page */
+        .ads-container {
+            text-align: center;
+            padding: 30px 0;
         }
 
-        /* Forms */
-        .form-group {
+        .ads-container h2 {
+            margin-bottom: 30px;
+        }
+
+        .ad-wrapper {
             margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #4285f4;
-        }
-
-        .submit-btn {
-            background: linear-gradient(135deg, #4285f4, #34a853);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 25px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(66, 133, 244, 0.4);
-        }
-
-        /* Profile Cards */
-        .profile-card {
-            background: white;
-            border-radius: 15px;
             padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-
-        .profile-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #4285f4, #34a853);
+            background-color: #e9ecef;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
             display: flex;
+            flex-direction: column;
             align-items: center;
+        }
+
+        .ad-placeholder {
+            width: 100%;
+            max-width: 300px;
+            height: 150px;
+            background-color: #ccc;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: flex;
             justify-content: center;
-            margin: 0 auto 15px;
+            align-items: center;
+            color: #555;
+            font-weight: bold;
+            font-size: 1.1em;
+            position: relative; /* For ad count */
+        }
+
+        .ad-placeholder .ad-count-indicator {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(0,0,0,0.5);
             color: white;
-            font-size: 32px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8em;
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .stat-item {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 20px;
-            font-weight: 700;
-            color: #4285f4;
-        }
-
-        .stat-label {
-            font-size: 12px;
+        .ad-wrapper p {
+            margin-bottom: 15px;
+            font-size: 1em;
             color: #666;
-            margin-top: 5px;
         }
 
-        /* Modal */
-        .modal {
-            display: none;
+        .ads-container .start-button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+        }
+
+        .ads-container .start-button:hover {
+            background-color: #0056b3;
+        }
+
+        .ads-container .earn-info {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #777;
+        }
+
+        /* Withdrawal Popup */
+        .withdraw-popup-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-        }
-
-        .modal.active {
-            display: flex;
-            align-items: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
             justify-content: center;
-            animation: fadeIn 0.3s ease;
+            align-items: center;
+            z-index: 1100;
         }
 
-        .modal-content {
-            background: white;
+        .withdraw-popup {
+            background-color: white;
             padding: 30px;
-            border-radius: 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
             width: 90%;
-            max-width: 350px;
+            max-width: 450px;
             text-align: center;
             position: relative;
-            animation: slideUp 0.3s ease;
         }
 
-        @keyframes slideUp {
-            from { transform: translateY(30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .close-modal {
+        .withdraw-popup .close-btn {
             position: absolute;
             top: 15px;
             right: 15px;
-            background: none;
-            border: none;
-            font-size: 24px;
+            font-size: 1.8em;
+            color: #aaa;
             cursor: pointer;
-            color: #999;
+            transition: color 0.3s ease;
         }
 
-        /* Loading States */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #4285f4;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        .withdraw-popup .close-btn:hover {
+            color: #777;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .withdraw-popup h3 {
+            margin-bottom: 20px;
+            color: #007bff;
         }
 
-        /* Status Messages */
-        .status-message {
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 10px;
-            font-weight: 500;
-        }
-
-        .status-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .status-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .status-warning {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
-        }
-
-        /* Ads Container */
-        .ads-container {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
+        .withdraw-popup input {
+            width: 100%;
+            padding: 12px;
             margin-bottom: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            text-align: center;
-            min-height: 150px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
         }
 
-        .ad-counter {
-            background: #e3f2fd;
-            color: #1976d2;
-            padding: 10px;
-            border-radius: 10px;
-            margin: 10px 0;
-            font-weight: 600;
-        }
-
-        /* Withdrawal Form */
-        .withdrawal-form {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        /* Task Timer */
-        .task-timer {
-            background: #fff3e0;
-            color: #e65100;
-            padding: 10px;
-            border-radius: 10px;
-            margin: 10px 0;
-            text-align: center;
-            font-weight: 600;
-        }
-
-        /* Responsive */
-        @media (max-width: 480px) {
-            .container {
-                margin: 0;
-                border-radius: 0;
-            }
-            
-            .header {
-                padding: 15px;
-            }
-            
-            .page {
-                padding: 15px;
-            }
-        }
-
-        /* Animations */
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        .bounce {
-            animation: bounce 0.5s ease;
-        }
-
-        @keyframes bounce {
-            0%, 20%, 60%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-10px); }
-            80% { transform: translateY(-5px); }
-        }
-
-        .task-completion-animation {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+        .withdraw-popup button {
+            background-color: #28a745;
             color: white;
-            padding: 20px;
-            border-radius: 15px;
-            font-size: 18px;
-            font-weight: 600;
-            z-index: 1001;
-            animation: completionPop 0.5s ease;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
         }
 
-        @keyframes completionPop {
-            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
-            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        .withdraw-popup button:hover {
+            background-color: #218838;
+        }
+
+        /* Animations (Subtle) */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .section, .task-card, .my-task-item, .ad-wrapper, .withdraw-popup {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .task-card, .my-task-item, .ad-wrapper, .withdraw-popup {
+            animation-delay: 0.1s; /* Stagger animations */
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1>🚀 SkyTaskTon</h1>
-            <p>Earn TON by Completing Tasks</p>
-            <div class="balance-display">
-                <div class="balance" id="userBalance">0.00000 TON</div>
-                <div style="font-size: 14px; margin-top: 5px;">
-                    <span id="totalStars">0</span> ⭐ Stars Available
-                </div>
-            </div>
+
+    <header>
+        <div class="logo">
+            <i class="material-icons">task_alt</i> SkyTaskTon
         </div>
+        <nav>
+            <ul>
+                <li><a href="#home" class="active">Home</a></li>
+                <li><a href="#profile">Profile</a></li>
+                <li><a href="#add-task">Add Task</a></li>
+                <li><a href="#my-tasks">My Tasks</a></li>
+                <li><a href="#ads">Ads</a></li>
+            </ul>
+        </nav>
+    </header>
 
-        <!-- Navigation -->
-        <div class="nav-tabs">
-            <button class="nav-tab active" onclick="showPage('home')">
-                <span class="material-icons" style="font-size: 18px;">home</span>
-                Home
-            </button>
-            <button class="nav-tab" onclick="showPage('tasks')">
-                <span class="material-icons" style="font-size: 18px;">assignment</span>
-                My Tasks
-            </button>
-            <button class="nav-tab" onclick="showPage('add-task')">
-                <span class="material-icons" style="font-size: 18px;">add_circle</span>
-                Add Task
-            </button>
-            <button class="nav-tab" onclick="showPage('ads')">
-                <span class="material-icons" style="font-size: 18px;">play_circle</span>
-                Ads
-            </button>
-            <button class="nav-tab" onclick="showPage('profile')">
-                <span class="material-icons" style="font-size: 18px;">person</span>
-                Profile
-            </button>
-        </div>
-
-        <!-- Home Page -->
-        <div id="home" class="page active">
-            <h2 style="margin-bottom: 20px; color: #333;">🎯 Available Tasks</h2>
-            <div id="availableTasks">
-                <div class="status-message status-warning">
-                    <span class="material-icons" style="vertical-align: middle;">info</span>
-                    Loading tasks from Firebase...
+    <main id="app">
+        <!-- Home Section -->
+        <section id="home" class="section">
+            <h1>Welcome to SkyTaskTon!</h1>
+            <p style="text-align: center; font-size: 1.1em; color: #555;">Complete tasks and earn rewards.</p>
+            <div class="task-list">
+                <!-- Task Cards will be populated here by JavaScript -->
+                <div class="task-card">
+                    <h3>Task Title 1</h3>
+                    <p>A brief description of the task. Users need to visit a URL, stay for 10 seconds, and confirm completion.</p>
+                    <div class="impressions">Required Impressions: <strong>500</strong></div>
+                    <button class="start-button" onclick="startTask('task1')">Start Task</button>
                 </div>
+                <div class="task-card">
+                    <h3>Task Title 2</h3>
+                    <p>Another interesting task requiring user engagement and verification for rewards.</p>
+                    <div class="impressions">Required Impressions: <strong>750</strong></div>
+                    <button class="start-button" onclick="startTask('task2')">Start Task</button>
+                </div>
+                <!-- More task cards can be added here -->
             </div>
-        </div>
+        </section>
 
-        <!-- My Tasks Page -->
-        <div id="tasks" class="page">
-            <h2 style="margin-bottom: 20px; color: #333;">📋 My Tasks</h2>
-            
-            <div class="nav-tabs" style="margin-bottom: 20px;">
-                <button class="nav-tab active" onclick="filterTasks('all')">All</button>
-                <button class="nav-tab" onclick="filterTasks('running')">Running</button>
-                <button class="nav-tab" onclick="filterTasks('completed')">Completed</button>
+        <!-- Profile Section -->
+        <section id="profile" class="section" style="display: none;">
+            <h2>Your Profile</h2>
+            <div class="profile-section">
+                <img src="https://via.placeholder.com/120/007bff/ffffff?text=User" alt="Profile Picture" class="profile-picture">
+                <div class="profile-info">
+                    <h2 id="profile-username">Username Not Loaded</h2>
+                    <p id="profile-chatid">Chat ID: Not Loaded</p>
+                    <p>Total Tasks Completed: <span id="profile-tasks-completed">0</span></p>
+                    <p>Total Impressions Earned: <span id="profile-impressions-earned">0</span></p>
+                </div>
+                <div class="stats-container">
+                    <div class="stat-box">
+                        <i class="material-icons">paid</i>
+                        <p id="profile-balance">0.00000 TON</p>
+                        <span>Current Balance</span>
+                    </div>
+                    <div class="stat-box">
+                        <i class="material-icons">star</i>
+                        <p id="profile-tgstars">100</p>
+                        <span>TG Stars</span>
+                    </div>
+                    <div class="stat-box">
+                        <i class="material-icons">star_border</i>
+                        <p id="profile-pending-withdrawals">0.00000 TON</p>
+                        <span>Pending Withdrawals</span>
+                    </div>
+                </div>
+                <button class="withdraw-button" onclick="openWithdrawPopup()">Withdraw Funds</button>
             </div>
+        </section>
 
-            <div id="myTasksList">
-                <div class="status-message status-warning">
-                    <span class="material-icons" style="vertical-align: middle;">info</span>
-                    Loading your tasks...
-                </div>
-            </div>
-        </div>
-
-        <!-- Add Task Page -->
-        <div id="add-task" class="page">
-            <h2 style="margin-bottom: 20px; color: #333;">➕ Create New Task</h2>
-            
-            <form id="addTaskForm">
-                <div class="form-group">
-                    <label class="form-label">Task Title</label>
-                    <input type="text" class="form-input" id="taskTitle" required placeholder="Enter task title">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Task Description</label>
-                    <textarea class="form-input" id="taskDescription" rows="3" required placeholder="Describe what users need to do"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Task URL</label>
-                    <input type="url" class="form-input" id="taskUrl" required placeholder="https://example.com">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Total Impressions Required</label>
-                    <input type="number" class="form-input" id="taskImpressions" min="500" value="500" required>
-                    <small style="color: #666; font-size: 12px;">Minimum 500 impressions (Cost: 100 Stars)</small>
-                </div>
-
-                <button type="submit" class="submit-btn">
-                    <span class="material-icons" style="font-size: 18px; margin-right: 8px;">add_task</span>
-                    Create Task (100 ⭐)
-                </button>
+        <!-- Add Task Section -->
+        <section id="add-task" class="section" style="display: none;">
+            <h2>Add New Task</h2>
+            <form id="add-task-form" class="add-task-form">
+                <input type="text" id="task-title" placeholder="Task Title (e.g., Visit Website)" required>
+                <textarea id="task-description" placeholder="Task Description (e.g., Visit link, stay for 10s, confirm)" required></textarea>
+                <input type="url" id="task-url" placeholder="Task URL (e.g., https://example.com)" required>
+                <input type="number" id="task-impressions" placeholder="Minimum Impressions Required (e.g., 500)" required min="1">
+                <input type="number" id="task-tgstars-cost" placeholder="TG Stars Cost (e.g., 100)" required min="1">
+                <button type="submit">Add Task</button>
             </form>
-        </div>
+        </section>
 
-        <!-- Ads Page -->
-        <div id="ads" class="page">
-            <h2 style="margin-bottom: 20px; color: #333;">📺 Watch Ads to Earn</h2>
-            
-            <div class="ad-counter">
-                Daily Ads Watched: <span id="adsWatched">0</span>/10
+        <!-- My Tasks Section -->
+        <section id="my-tasks" class="section" style="display: none;">
+            <h2>My Tasks</h2>
+            <div class="my-tasks-list">
+                <!-- My tasks will be listed here -->
+                <div class="my-task-item">
+                    <div class="my-task-item-details">
+                        <h4>Task Title 1</h4>
+                        <p>Status: <span class="status-running">Running</span></p>
+                    </div>
+                    <span class="my-task-item-status status-running">Running</span>
+                    <button class="delete-button" onclick="deleteTask('task1')">
+                        <i class="material-icons">delete</i>
+                    </button>
+                </div>
+                <div class="my-task-item">
+                    <div class="my-task-item-details">
+                        <h4>Task Title 2</h4>
+                        <p>Status: <span class="status-completed">Completed</span></p>
+                    </div>
+                    <span class="my-task-item-status status-completed">Completed</span>
+                    <button class="delete-button" onclick="deleteTask('task2')">
+                        <i class="material-icons">delete</i>
+                    </button>
+                </div>
+                <!-- More tasks -->
             </div>
+        </section>
 
+        <!-- Ads Section -->
+        <section id="ads" class="section" style="display: none;">
+            <h2>Watch Ads to Earn</h2>
             <div class="ads-container">
-                <div id="adContent">
-                    <span class="material-icons" style="font-size: 48px; color: #4285f4;">play_circle_filled</span>
-                    <h3 style="margin: 15px 0;">Ready to Watch Ads?</h3>
-                    <p style="color: #666; margin-bottom: 20px;">Earn 0.000001 TON per ad</p>
-                    <button class="start-btn" onclick="watchAd()" id="watchAdBtn">
-                        <span class="material-icons">play_arrow</span>
-                        Watch Ad
-                    </button>
+                <p>You can watch up to 10 ads per day.</p>
+                <div class="ad-wrapper">
+                    <div class="ad-placeholder">
+                        <span class="ad-count-indicator">Ad 1/10</span>
+                        Ad Content Placeholder
+                    </div>
+                    <p>Earn 0.000001 TON per ad.</p>
+                    <button class="start-button" onclick="showAd(1)">Watch Ad</button>
                 </div>
+                 <div class="ad-wrapper">
+                    <div class="ad-placeholder">
+                        <span class="ad-count-indicator">Ad 2/10</span>
+                        Ad Content Placeholder
+                    </div>
+                    <p>Earn 0.000001 TON per ad.</p>
+                    <button class="start-button" onclick="showAd(2)">Watch Ad</button>
+                </div>
+                <!-- More ads will be dynamically loaded/managed by JS -->
+                <p class="earn-info">Daily Limit: 10 Ads</p>
             </div>
-        </div>
+        </section>
+    </main>
 
-        <!-- Profile Page -->
-        <div id="profile" class="page">
-            <div class="profile-card">
-                <div class="profile-avatar">
-                    <span class="material-icons">person</span>
-                </div>
-                <h3 id="userName">Loading...</h3>
-                <p style="color: #666;" id="userInfo">Telegram User</p>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-value" id="totalEarned">0.00000</div>
-                    <div class="stat-label">TON Earned</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="tasksCompleted">0</div>
-                    <div class="stat-label">Tasks Done</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="tasksCreated">0</div>
-                    <div class="stat-label">Tasks Created</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="adsWatchedProfile">0</div>
-                    <div class="stat-label">Ads Watched</div>
-                </div>
-            </div>
-
-            <button class="submit-btn" style="margin-top: 30px;" onclick="showWithdrawModal()">
-                <span class="material-icons" style="margin-right: 8px;">account_balance_wallet</span>
-                Withdraw TON
-            </button>
-
-            <div style="margin-top: 20px; text-align: center;">
-                <h3 style="color: #333; margin-bottom: 15px;">Withdrawal History</h3>
-                <div id="withdrawalHistory">
-                    <p style="color: #666;">No withdrawals yet</p>
-                </div>
-            </div>
+    <!-- Withdrawal Popup -->
+    <div class="withdraw-popup-overlay" id="withdraw-popup-overlay">
+        <div class="withdraw-popup">
+            <i class="material-icons close-btn" onclick="closeWithdrawPopup()">close</i>
+            <h3>Withdraw Funds</h3>
+            <p>Available Balance: <strong id="popup-balance">0.00000 TON</strong></p>
+            <input type="text" id="withdraw-amount" placeholder="Enter amount (e.g., 0.5 TON)" required>
+            <input type="text" id="withdraw-address" placeholder="Enter TON Address" required>
+            <button onclick="requestWithdrawal()">Request Withdrawal</button>
         </div>
     </div>
 
-    <!-- Withdrawal Modal -->
-    <div id="withdrawModal" class="modal">
-        <div class="modal-content">
-            <button class="close-modal" onclick="closeWithdrawModal()">×</button>
-            <h3 style="margin-bottom: 20px; color: #333;">💰 Withdraw TON</h3>
-            
-            <form id="withdrawForm">
-                <div class="form-group">
-                    <label class="form-label">Amount (TON)</label>
-                    <input type="number" class="form-input" id="withdrawAmount" step="0.000001" min="0.001" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">TON Wallet Address</label>
-                    <input type="text" class="form-input" id="tonAddress" required placeholder="EQD...">
-                </div>
+    <!-- Scripts -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script> -->
+    <!-- <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script> -->
+    <!-- <script src='//libtl.com/sdk.js' data-zone='9789409' data-sdk='show_9789409'></script> -->
 
-                <button type="submit" class="submit-btn">
-                    <span class="material-icons" style="margin-right: 8px;">send</span>
-                    Request Withdrawal
-                </button>
-            </form>
-        </div>
-    </div>
+    <script>
+        // Placeholder for Firebase Initialization (You need to uncomment and configure)
+        // const firebaseConfig = {
+        //     apiKey: "YOUR_API_KEY",
+        //     authDomain: "your-auth-domain.firebaseapp.com",
+        //     projectId: "your-project-id",
+        //     storageBucket: "your-storage-bucket.appspot.com",
+        //     messagingSenderId: "your-messaging-sender-id",
+        //     appId: "your-app-id"
+        // };
+        // const app = initializeApp(firebaseConfig);
+        // const database = getDatabase(app); // For Realtime Database
 
-    <!-- Task Execution Modal -->
-    <div id="taskModal" class="modal">
-        <div class="modal-content">
-            <button class="close-modal" onclick="closeTaskModal()">×</button>
-            <h3 style="margin-bottom: 20px; color: #333;">🚀 Complete Task</h3>
-            
-            <div id="taskModalContent">
-                <div class="task-timer" id="taskTimer">
-                    Verification in: <span id="countdown">10</span>s
-                </div>
-                <p style="margin: 15px 0; color: #666;">Please complete the task and wait for verification.</p>
-                <button class="submit-btn" id="completeTaskBtn" disabled>
-                    <span class="material-icons" style="margin-right: 8px;">check_circle</span>
-                    <span class="loading" style="margin-right: 8px;"></span>
-                    Verifying...
-                </button>
-            </div>
-        </div>
-    </div>
+        // --- Telegram Web App Integration ---
+        let tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
 
-    <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-        import { getDatabase, ref, push, set, onValue, update, remove } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js';
+        // Accessing Telegram User Info (requires TWA context)
+        const userId = tg.initDataUnsafe?.user?.id || 'N/A'; // Unique Telegram User ID
+        const username = tg.initDataUnsafe?.user?.username || 'N/A';
+        const chatId = tg.initDataUnsafe?.chat?.id || 'N/A'; // If opened in a group/channel
 
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBSj3t2ClyafHRgpN__cCnbDarhTfse3aA",
-            authDomain: "skytasktonbot.firebaseapp.com",
-            projectId: "skytasktonbot",
-            storageBucket: "skytasktonbot.firebasestorage.app",
-            messagingSenderId: "1078897344814",
-            appId: "1:1078897344814:web:166f4341b884d877d97abf",
-            databaseURL: "https://skytasktonbot-default-rtdb.firebaseio.com/"
-        };
+        // Update profile section with Telegram info
+        document.getElementById('profile-username').innerText = username;
+        document.getElementById('profile-chatid').innerText = `Chat ID: ${chatId}`;
 
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
+        // --- Navigation ---
+        const navLinks = document.querySelectorAll('nav ul li a');
+        const sections = document.querySelectorAll('section');
 
-        // Global Variables
-        window.firebaseDB = database;
-        window.dbRef = ref;
-        window.dbPush = push;
-        window.dbSet = set;
-        window.dbOnValue = onValue;
-        window.dbUpdate = update;
-        window.dbRemove = remove;
-
-        // User Data
-        let currentUser = null;
-        let userStats = {
-            balance: 0,
-            stars: 0,
-            tasksCompleted: 0,
-            tasksCreated: 0,
-            adsWatched: 0,
-            totalEarned: 0
-        };
-
-        // Initialize Telegram WebApp
-        function initTelegramWebApp() {
-            if (window.Telegram && window.Telegram.WebApp) {
-                const tg = window.Telegram.WebApp;
-                tg.ready();
-                
-                // Get user data
-                const user = tg.initDataUnsafe?.user;
-                if (user) {
-                    currentUser = {
-                        id: user.id,
-                        username: user.username || `user_${user.id}`,
-                        first_name: user.first_name || 'User',
-                        last_name: user.last_name || ''
-                    };
-                } else {
-                    // Fallback for testing
-                    currentUser = {
-                        id: '@Abstudioseo' === '@Abstudioseo' ? 'dev_user' : Date.now(),
-                        username: '@Abstudioseo',
-                        first_name: 'Developer',
-                        last_name: 'User'
-                    };
-                }
-                
-                // Initialize user in Firebase
-                initializeUser();
-                setupRealtimeListeners();
-            } else {
-                // Fallback for testing outside Telegram
-                currentUser = {
-                    id: 'dev_user',
-                    username: '@Abstudioseo',
-                    first_name: 'Developer',
-                    last_name: 'User'
-                };
-                initializeUser();
-                setupRealtimeListeners();
-            }
-        }
-
-        // Initialize User in Firebase
-        function initializeUser() {
-            if (!currentUser) return;
-
-            const userRef = window.dbRef(window.firebaseDB, `users/${currentUser.id}`);
-            window.dbOnValue(userRef, (snapshot) => {
-                if (snapshot.exists()) {
-                    userStats = { ...userStats, ...snapshot.val() };
-                } else {
-                    // Create new user
-                    const newUser = {
-                        username: currentUser.username,
-                        firstName: currentUser.first_name,
-                        lastName: currentUser.last_name,
-                        balance: 0,
-                        stars: currentUser.username === '@Abstudioseo' ? 10000 : 0, // Free testing stars
-                        tasksCompleted: 0,
-                        tasksCreated: 0,
-                        adsWatched: 0,
-                        totalEarned: 0,
-                        joinDate: Date.now()
-                    };
-                    window.dbSet(userRef, newUser);
-                    userStats = newUser;
-                }
-                updateUI();
-            });
-        }
-
-        // Setup Realtime Listeners
-        function setupRealtimeListeners() {
-            // Listen to all tasks
-            const tasksRef = window.dbRef(window.firebaseDB, 'tasks');
-            window.dbOnValue(tasksRef, (snapshot) => {
-                const tasks = snapshot.val() || {};
-                displayAvailableTasks(tasks);
-                displayMyTasks(tasks);
-            });
-
-            // Listen to user's ads count
-            const adsRef = window.dbRef(window.firebaseDB, `userAds/${currentUser.id}`);
-            window.dbOnValue(adsRef, (snapshot) => {
-                const adsData = snapshot.val() || { count: 0, lastReset: Date.now() };
-                
-                // Reset daily counter
-                const now = new Date();
-                const lastReset = new Date(adsData.lastReset);
-                if (now.getDate() !== lastReset.getDate()) {
-                    adsData.count = 0;
-                    adsData.lastReset = Date.now();
-                    window.dbSet(adsRef, adsData);
-                }
-                
-                document.getElementById('adsWatched').textContent = adsData.count;
-                updateWatchAdButton(adsData.count >= 10);
-            });
-        }
-
-        // Update UI
-        function updateUI() {
-            document.getElementById('userBalance').textContent = `${userStats.balance.toFixed(6)} TON`;
-            document.getElementById('totalStars').textContent = userStats.stars;
-            document.getElementById('userName').textContent = `${currentUser.first_name} ${currentUser.last_name}`;
-            document.getElementById('userInfo').textContent = `@${currentUser.username}`;
-            document.getElementById('totalEarned').textContent = userStats.totalEarned.toFixed(6);
-            document.getElementById('tasksCompleted').textContent = userStats.tasksCompleted;
-            document.getElementById('tasksCreated').textContent = userStats.tasksCreated;
-            document.getElementById('adsWatchedProfile').textContent = userStats.adsWatched;
-        }
-
-        // Display Available Tasks
-        function displayAvailableTasks(tasks) {
-            const container = document.getElementById('availableTasks');
-            const taskArray = Object.entries(tasks || {}).filter(([id, task]) => 
-                task.creatorId !== currentUser.id && 
-                !task.completedBy?.[currentUser.id] &&
-                task.impressions < task.totalImpressions
-            );
-
-            if (taskArray.length === 0) {
-                container.innerHTML = '<div class="status-message status-warning">No available tasks at the moment. Check back later!</div>';
-                return;
-            }
-
-            container.innerHTML = taskArray.map(([id, task]) => `
-                <div class="task-card" data-task-id="${id}">
-                    <div class="task-header">
-                        <div class="task-title">${task.title}</div>
-                        <div class="task-reward">+0.00005 TON</div>
-                    </div>
-                    <div class="task-description">${task.description}</div>
-                    <div class="task-progress">
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${(task.impressions / task.totalImpressions) * 100}%"></div>
-                        </div>
-                        <span style="font-size: 12px; color: #666;">${task.impressions}/${task.totalImpressions}</span>
-                    </div>
-                    <button class="start-btn" onclick="startTask('${id}', '${task.url}')">
-                        <span class="material-icons">play_arrow</span>
-                        Start Task
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        // Display My Tasks
-        function displayMyTasks(tasks) {
-            const container = document.getElementById('myTasksList');
-            const myTasks = Object.entries(tasks || {}).filter(([id, task]) => task.creatorId === currentUser.id);
-
-            if (myTasks.length === 0) {
-                container.innerHTML = '<div class="status-message status-warning">You haven\'t created any tasks yet.</div>';
-                return;
-            }
-
-            container.innerHTML = myTasks.map(([id, task]) => {
-                const isCompleted = task.impressions >= task.totalImpressions;
-                const statusColor = isCompleted ? '#4CAF50' : '#FF9800';
-                const statusText = isCompleted ? 'Completed' : 'Running';
-
-                return `
-                    <div class="task-card">
-                        <div class="task-header">
-                            <div class="task-title">${task.title}</div>
-                            <div class="task-reward" style="background: ${statusColor};">${statusText}</div>
-                        </div>
-                        <div class="task-description">${task.description}</div>
-                        <div class="task-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: ${(task.impressions / task.totalImpressions) * 100}%"></div>
-                            </div>
-                            <span style="font-size: 12px; color: #666;">${task.impressions}/${task.totalImpressions}</span>
-                        </div>
-                        ${isCompleted ? 
-                            `<button class="start-btn" onclick="deleteTask('${id}')" style="background: #f44336;">
-                                <span class="material-icons">delete</span>
-                                Delete Task
-                            </button>` : 
-                            `<a href="${task.url}" target="_blank" class="start-btn" style="text-decoration: none; color: white;">
-                                <span class="material-icons">link</span>
-                                View Task
-                            </a>`
-                        }
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Start Task
-        window.startTask = function(taskId, taskUrl) {
-            // Open task URL
-            window.open(taskUrl, '_blank');
-            
-            // Show verification modal
-            document.getElementById('taskModal').classList.add('active');
-            
-            let countdown = 10;
-            const countdownEl = document.getElementById('countdown');
-            const completeBtn = document.getElementById('completeTaskBtn');
-            
-            const timer = setInterval(() => {
-                countdown--;
-                countdownEl.textContent = countdown;
-                
-                if (countdown <= 0) {
-                    clearInterval(timer);
-                    completeBtn.disabled = false;
-                    completeBtn.innerHTML = `
-                        <span class="material-icons" style="margin-right: 8px;">check_circle</span>
-                        Complete Task (+0.00005 TON)
-                    `;
-                    completeBtn.onclick = () => completeTask(taskId);
-                }
-            }, 1000);
-        };
-
-        // Complete Task
-        window.completeTask = function(taskId) {
-            const taskRef = window.dbRef(window.firebaseDB, `tasks/${taskId}`);
-            const userRef = window.dbRef(window.firebaseDB, `users/${currentUser.id}`);
-            
-            // Update task impressions
-            window.dbOnValue(taskRef, (snapshot) => {
-                const task = snapshot.val();
-                if (task) {
-                    const updates = {
-                        impressions: task.impressions + 1,
-                        [`completedBy/${currentUser.id}`]: Date.now()
-                    };
-                    window.dbUpdate(taskRef, updates);
-                }
-            }, { once: true });
-
-            // Update user stats
-            userStats.balance += 0.00005;
-            userStats.tasksCompleted += 1;
-            userStats.totalEarned += 0.00005;
-            
-            window.dbUpdate(userRef, {
-                balance: userStats.balance,
-                tasksCompleted: userStats.tasksCompleted,
-                totalEarned: userStats.totalEarned
-            });
-
-            // Show completion animation
-            showTaskCompletion();
-            closeTaskModal();
-        };
-
-        // Add Task
-        document.getElementById('addTaskForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            if (userStats.stars < 100) {
-                alert('Insufficient stars! You need 100 stars to create a task.');
-                return;
-            }
-
-            const taskData = {
-                title: document.getElementById('taskTitle').value,
-                description: document.getElementById('taskDescription').value,
-                url: document.getElementById('taskUrl').value,
-                totalImpressions: parseInt(document.getElementById('taskImpressions').value),
-                impressions: 0,
-                createdAt: Date.now(),
-                creatorId: currentUser.id,
-                creatorUsername: currentUser.username,
-                completedBy: {}
-            };
-
-            // Add task to Firebase
-            const tasksRef = window.dbRef(window.firebaseDB, 'tasks');
-            await window.dbPush(tasksRef, taskData);
-
-            // Deduct stars and update stats
-            userStats.stars -= 100;
-            userStats.tasksCreated += 1;
-            
-            const userRef = window.dbRef(window.firebaseDB, `users/${currentUser.id}`);
-            window.dbUpdate(userRef, {
-                stars: userStats.stars,
-                tasksCreated: userStats.tasksCreated
-            });
-
-            // Reset form
-            document.getElementById('addTaskForm').reset();
-            document.getElementById('taskImpressions').value = 500;
-            
-            showMessage('Task created successfully! 🎉', 'success');
-            showPage('tasks');
-        });
-
-        // Watch Ad
-        window.watchAd = async function() {
-            const adsRef = window.dbRef(window.firebaseDB, `userAds/${currentUser.id}`);
-            
-            window.dbOnValue(adsRef, async (snapshot) => {
-                const adsData = snapshot.val() || { count: 0, lastReset: Date.now() };
-                
-                if (adsData.count >= 10) {
-                    alert('Daily ad limit reached! Come back tomorrow.');
-                    return;
-                }
-
-                // Show ad
-                try {
-                    document.getElementById('watchAdBtn').disabled = true;
-                    document.getElementById('adContent').innerHTML = '<div class="loading" style="margin: 50px auto;"></div><p>Loading ad...</p>';
-                    
-                    // Simulate ad loading and show
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                    
-                    if (typeof show_9789409 === 'function') {
-                        await show_9789409();
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                sections.forEach(section => {
+                    if (`#${section.id}` === targetId) {
+                        section.style.display = 'block';
+                    } else {
+                        section.style.display = 'none';
                     }
-                    
-                    // Update ad count and earnings
-                    adsData.count += 1;
-                    adsData.lastReset = adsData.lastReset || Date.now();
-                    
-                    userStats.balance += 0.000001;
-                    userStats.adsWatched += 1;
-                    userStats.totalEarned += 0.000001;
-                    
-                    // Save to Firebase
-                    window.dbSet(adsRef, adsData);
-                    
-                    const userRef = window.dbRef(window.firebaseDB, `users/${currentUser.id}`);
-                    window.dbUpdate(userRef, {
-                        balance: userStats.balance,
-                        adsWatched: userStats.adsWatched,
-                        totalEarned: userStats.totalEarned
-                    });
+                });
 
-                    showMessage('Ad completed! +0.000001 TON earned! 🎉', 'success');
-                    
-                } catch (error) {
-                    console.error('Ad error:', error);
-                    showMessage('Ad failed to load. Please try again.', 'error');
-                }
-                
-                document.getElementById('watchAdBtn').disabled = false;
-                resetAdContent();
-            }, { once: true });
-        };
-
-        // Update Watch Ad Button
-        function updateWatchAdButton(disabled) {
-            const btn = document.getElementById('watchAdBtn');
-            if (disabled) {
-                btn.disabled = true;
-                btn.innerHTML = '<span class="material-icons">block</span> Limit Reached';
-            } else {
-                btn.disabled = false;
-                btn.innerHTML = '<span class="material-icons">play_arrow</span> Watch Ad';
-            }
-        }
-
-        // Reset Ad Content
-        function resetAdContent() {
-            document.getElementById('adContent').innerHTML = `
-                <span class="material-icons" style="font-size: 48px; color: #4285f4;">play_circle_filled</span>
-                <h3 style="margin: 15px 0;">Ready to Watch Ads?</h3>
-                <p style="color: #666; margin-bottom: 20px;">Earn 0.000001 TON per ad</p>
-                <button class="start-btn" onclick="watchAd()" id="watchAdBtn">
-                    <span class="material-icons">play_arrow</span>
-                    Watch Ad
-                </button>
-            `;
-        }
-
-        // Withdrawal
-        document.getElementById('withdrawForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const amount = parseFloat(document.getElementById('withdrawAmount').value);
-            const address = document.getElementById('tonAddress').value;
-            
-            if (amount > userStats.balance) {
-                alert('Insufficient balance!');
-                return;
-            }
-
-            if (amount < 0.001) {
-                alert('Minimum withdrawal amount is 0.001 TON');
-                return;
-            }
-
-            const withdrawalData = {
-                userId: currentUser.id,
-                username: currentUser.username,
-                amount: amount,
-                address: address,
-                status: 'pending',
-                requestDate: Date.now()
-            };
-
-            // Save withdrawal request
-            const withdrawalsRef = window.dbRef(window.firebaseDB, 'withdrawals');
-            window.dbPush(withdrawalsRef, withdrawalData);
-
-            // Update user balance
-            userStats.balance -= amount;
-            const userRef = window.dbRef(window.firebaseDB, `users/${currentUser.id}`);
-            window.dbUpdate(userRef, { balance: userStats.balance });
-
-            showMessage('Withdrawal request submitted! 🚀', 'success');
-            closeWithdrawModal();
+                // Update active class
+                navLinks.forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+            });
         });
 
-        // Delete Task
-        window.deleteTask = function(taskId) {
-            if (confirm('Are you sure you want to delete this task?')) {
-                const taskRef = window.dbRef(window.firebaseDB, `tasks/${taskId}`);
-                window.dbRemove(taskRef);
-                showMessage('Task deleted successfully!', 'success');
-            }
-        };
+        // --- Task Functionality ---
+        function startTask(taskId) {
+            // This is where you'd implement the task logic:
+            // 1. Open the task URL in a new tab/window.
+            // 2. Start a timer.
+            // 3. After timer, prompt for confirmation or auto-confirm.
+            // 4. Update task status (running, completed) in Firebase.
+            // 5. Award user balance and TG Stars.
 
-        // Filter Tasks
-        window.filterTasks = function(filter) {
-            // Update active tab
-            document.querySelectorAll('.nav-tabs .nav-tab').forEach(tab => tab.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            const tasks = document.querySelectorAll('#myTasksList .task-card');
-            tasks.forEach(task => {
-                const isCompleted = task.querySelector('.task-reward').textContent === 'Completed';
-                const isRunning = !isCompleted;
-                
-                if (filter === 'all' || 
-                   (filter === 'completed' && isCompleted) || 
-                   (filter === 'running' && isRunning)) {
-                    task.style.display = 'block';
+            console.log(`Starting task: ${taskId}`);
+            alert('Task started! Open the link and complete it. After 10 seconds, refresh or check your tasks.');
+            // Example: Open URL
+            // const taskUrl = document.querySelector(`.task-card[data-task-id="${taskId}"] .task-url-element`).href;
+            // window.open(taskUrl, '_blank');
+        }
+
+        function deleteTask(taskId) {
+            // This function would remove the task from Firebase and the UI.
+            console.log(`Deleting task: ${taskId}`);
+            alert('Task deleted. (Firebase deletion logic would go here)');
+        }
+
+        // --- Add Task Form Submission ---
+        document.getElementById('add-task-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const title = document.getElementById('task-title').value;
+            const description = document.getElementById('task-description').value;
+            const url = document.getElementById('task-url').value;
+            const impressions = parseInt(document.getElementById('task-impressions').value);
+            const tgStarsCost = parseInt(document.getElementById('task-tgstars-cost').value);
+
+            if (!title || !description || !url || isNaN(impressions) || isNaN(tgStarsCost)) {
+                alert('Please fill in all fields correctly.');
+                return;
+            }
+
+            // Firebase Logic: Save the new task to your database
+            // Example (requires Firebase setup):
+            // const newTaskRef = push(ref(database, 'tasks'));
+            // set(newTaskRef, {
+            //     title: title,
+            //     description: description,
+            //     url: url,
+            //     impressions: impressions,
+            //     tgStarsCost: tgStarsCost,
+            //     addedBy: userId,
+            //     timestamp: Date.now()
+            // });
+
+            alert('Task added successfully! (Needs Firebase integration to save)');
+
+            // Clear form
+            document.getElementById('add-task-form').reset();
+        });
+
+        // --- Profile & Withdrawal ---
+        function openWithdrawPopup() {
+            // Update popup balance
+            const currentBalance = document.getElementById('profile-balance').innerText;
+            document.getElementById('popup-balance').innerText = currentBalance;
+            document.getElementById('withdraw-popup-overlay').style.display = 'flex';
+        }
+
+        function closeWithdrawPopup() {
+            document.getElementById('withdraw-popup-overlay').style.display = 'none';
+        }
+
+        function requestWithdrawal() {
+            const amount = document.getElementById('withdraw-amount').value;
+            const address = document.getElementById('withdraw-address').value;
+
+            if (!amount || !address) {
+                alert('Please enter amount and TON address.');
+                return;
+            }
+
+            const currentBalance = parseFloat(document.getElementById('profile-balance').innerText);
+            const withdrawAmount = parseFloat(amount);
+
+            if (withdrawAmount > currentBalance) {
+                alert('Insufficient balance.');
+                return;
+            }
+
+            // Firebase Logic: Save withdrawal request
+            // Example (requires Firebase setup):
+            // const newWithdrawalRef = push(ref(database, 'withdrawals'));
+            // set(newWithdrawalRef, {
+            //     userId: userId,
+            //     username: username,
+            //     amount: amount,
+            //     address: address,
+            //     status: 'pending',
+            //     timestamp: Date.now()
+            // });
+
+            alert('Withdrawal request submitted! (Needs Firebase integration to save)');
+            closeWithdrawPopup();
+            // Update pending withdrawals in profile
+            // document.getElementById('profile-pending-withdrawals').innerText = (parseFloat(document.getElementById('profile-pending-withdrawals').innerText) + withdrawAmount).toFixed(5) + ' TON';
+            // Update balance in profile
+            // document.getElementById('profile-balance').innerText = (currentBalance - withdrawAmount).toFixed(5) + ' TON';
+        }
+
+        // --- Ads Functionality ---
+        let adsWatchedToday = 0;
+        const maxAdsPerDay = 10;
+        const earningsPerAd = 0.000001; // TON
+
+        function showAd(adId) {
+            if (adsWatchedToday >= maxAdsPerDay) {
+                alert('You have reached your daily ad limit.');
+                return;
+            }
+
+            // This is where you'd integrate the libtl.com SDK.
+            // The SDK should handle displaying the ad.
+            // For now, we simulate the process.
+            console.log(`Showing ad ID: ${adId}`);
+
+            // Example of how you might trigger the ad using the SDK (if it provides a function)
+            // show_9789409(adId).then(result => {
+            //     if (result.success) {
+            //         adsWatchedToday++;
+            //         updateAdUI();
+            //         // Award earnings (needs Firebase integration to update balance)
+            //         // const currentBalance = parseFloat(document.getElementById('profile-balance').innerText);
+            //         // document.getElementById('profile-balance').innerText = (currentBalance + earningsPerAd).toFixed(5) + ' TON';
+            //         alert(`Ad watched! You earned ${earningsPerAd} TON.`);
+            //     } else {
+            //         alert('Failed to show ad.');
+            //     }
+            // });
+
+            // Simulate success for now
+            adsWatchedToday++;
+            updateAdUI();
+            alert(`Simulated ad watch! You earned ${earningsPerAd} TON.`);
+            // Update balance (needs Firebase integration)
+            // const currentBalance = parseFloat(document.getElementById('profile-balance').innerText);
+            // document.getElementById('profile-balance').innerText = (currentBalance + earningsPerAd).toFixed(5) + ' TON';
+        }
+
+        function updateAdUI() {
+            const adIndicators = document.querySelectorAll('.ad-count-indicator');
+            adIndicators.forEach((indicator, index) => {
+                indicator.innerText = `Ad ${index + 1}/${maxAdsPerDay}`;
+            });
+            // Disable buttons if limit reached
+            if (adsWatchedToday >= maxAdsPerDay) {
+                document.querySelectorAll('.ads-container .start-button').forEach(button => button.disabled = true);
+            }
+        }
+
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load initial data from Firebase (if you have it)
+            // Example: Fetch user profile, tasks, etc.
+
+            // Initially show only the home section
+            sections.forEach(section => {
+                if (section.id === 'home') {
+                    section.style.display = 'block';
                 } else {
-                    task.style.display = 'none';
+                    section.style.display = 'none';
                 }
             });
-        };
 
-        // Show Task Completion Animation
-        function showTaskCompletion() {
-            const animation = document.createElement('div');
-            animation.className = 'task-completion-animation';
-            animation.innerHTML = '🎉 Task Completed! +0.00005 TON';
-            document.body.appendChild(animation);
-            
-            setTimeout(() => {
-                animation.remove();
-            }, 2000);
-        }
-
-        // Show Message
-        function showMessage(message, type) {
-            const messageEl = document.createElement('div');
-            messageEl.className = `status-message status-${type}`;
-            messageEl.innerHTML = `<span class="material-icons" style="vertical-align: middle;">${type === 'success' ? 'check_circle' : 'info'}</span> ${message}`;
-            
-            document.body.appendChild(messageEl);
-            messageEl.style.position = 'fixed';
-            messageEl.style.top = '20px';
-            messageEl.style.left = '50%';
-            messageEl.style.transform = 'translateX(-50%)';
-            messageEl.style.zIndex = '1002';
-            
-            setTimeout(() => {
-                messageEl.remove();
-            }, 3000);
-        }
-
-        // Page Navigation
-        window.showPage = function(pageId) {
-            // Update active tab
-            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            // Show page
-            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-        };
-
-        // Modal Functions
-        window.showWithdrawModal = function() {
-            document.getElementById('withdrawModal').classList.add('active');
-        };
-
-        window.closeWithdrawModal = function() {
-            document.getElementById('withdrawModal').classList.remove('active');
-        };
-
-        window.closeTaskModal = function() {
-            document.getElementById('taskModal').classList.remove('active');
-        };
-
-        // Telegram Stars Payment Integration
-        async function processStarsPayment(amount) {
-            try {
-                // Using Telegram Bot API for Stars payment
-                const botToken = '8418101664:AAGUUWpQVhrueHoP97W5laKOOlJ1LNKGQm8';
-                const chatId = currentUser.id;
-                
-                const response = await fetch(`https://api.telegram.org/bot${botToken}/sendInvoice`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        chat_id: chatId,
-                        title: 'SkyTaskTon Stars',
-                        description: `Purchase ${amount} Stars for task creation`,
-                        payload: `stars_${amount}_${Date.now()}`,
-                        provider_token: '', // For Telegram Stars, this should be empty
-                        currency: 'XTR', // Telegram Stars currency
-                        prices: [{ label: `${amount} Stars`, amount: amount }]
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.ok) {
-                    return true;
-                } else {
-                    throw new Error(result.description || 'Payment failed');
-                }
-            } catch (error) {
-                console.error('Stars payment error:', error);
-                showMessage('Payment failed. Please try again.', 'error');
-                return false;
+            // Check Telegram Web App availability
+            if (typeof tg === 'undefined' || !tg) {
+                alert("This application is best experienced within Telegram.");
             }
-        }
 
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            initTelegramWebApp();
+            // Load ads count for today (needs persistence)
+            // If using Firebase, you'd fetch this value.
+            // For a single file, we'll reset it or assume a starting count.
+            adsWatchedToday = 0; // Reset on load, needs persistence via Firebase.
+            updateAdUI();
         });
 
-        // Make functions globally available
-        window.userStats = userStats;
-        window.currentUser = currentUser;
+        // --- Google Analytics / Tracking ---
+        // You can integrate Google Analytics or other tracking here if needed.
+        // For example:
+        // <script async src="https://www.googletagmanager.com/gtag/js?id=YOUR_GA_ID"></script>
+        // <script>
+        //   window.dataLayer = window.dataLayer || [];
+        //   function gtag(){dataLayer.push(arguments);}
+        //   gtag('js', new Date());
+        //   gtag('config', 'YOUR_GA_ID');
+        // </script>
+
     </script>
 </body>
 </html>
