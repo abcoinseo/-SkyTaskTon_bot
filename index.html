@@ -4,7 +4,6 @@
     <title>SkyTaskTon - Earn TON</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Ad SDK - Ensure this script is correctly integrated or replaced if needed -->
-    <!-- IMPORTANT: Ensure this script loads and makes the 'show_9789409' function available -->
     <script src='//libtl.com/sdk.js' data-zone='9789409' data-sdk='show_9789409'></script>
     <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
@@ -636,6 +635,7 @@
                 </div>
                 <div class="form-group">
                     <label for="totalImpressions">Total Impressions *</label>
+                    <!-- Changed min to 500 as per previous request, adjust to 50 if needed -->
                     <input type="number" id="totalImpressions" class="form-control" min="500" step="100" placeholder="Minimum 500 impressions" required>
                 </div>
                 <div class="cost-display">
@@ -730,7 +730,7 @@
                 </div>
                 <div class="form-group">
                     <label for="tonAddress">TON Wallet Address *</label>
-                    <input type="text" id="tonAddress" class="form-control" placeholder="Enter your TON wallet address" required>
+                    <input type="text" id="tonAddress" class="form-control" placeholder="Enter your TON wallet address (starts with UQ)" required>
                 </div>
                 <button type="submit" class="btn btn-success" style="width: 100%;">
                     <span class="material-icons">send</span>
@@ -774,9 +774,10 @@
         let adsWatchedToday = 0;
         let isProcessingPayment = false; // Prevent multiple payment requests
         let currentTab = 'home'; // Track the current active tab
+        let taskVerificationInterval = null; // To clear interval when modal closes
+        let adCountdownInterval = null; // To clear interval when ad completes or modal closes
 
         // !!! IMPORTANT: REPLACE WITH YOUR ACTUAL TELEGRAM BOT USERNAME !!!
-        // This is crucial for constructing payment invoice links.
         const BOT_USERNAME = 'SkyTaskTonBot'; // <-- CHANGE THIS TO YOUR BOT'S USERNAME
 
         // --- CONSTANTS ---
@@ -791,17 +792,15 @@
         // --- INITIALIZATION ---
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.expand();
-        window.Telegram.WebApp.enableClosingConfirmation(); // Show confirmation when trying to close
+        window.Telegram.WebApp.enableClosingConfirmation();
 
         document.addEventListener('DOMContentLoaded', function() {
             initializeUser();
             loadUserData();
             updateTaskCostInputHandler();
             initializeDailyAdsResetTimer();
-            setupTabButtons(); // Setup click handlers for tabs
-
-            // Set initial main button text and show it
-            updateMainButton('Home');
+            setupTabButtons();
+            updateMainButton('home'); // Set initial button text
         });
 
         // --- USER MANAGEMENT ---
@@ -811,7 +810,6 @@
                 const displayName = (currentUser.first_name || '') + (currentUser.last_name ? ' ' + currentUser.last_name : '');
                 document.getElementById('userName').textContent = displayName.trim() || 'User';
                 document.getElementById('userId').textContent = 'ID: ' + currentUser.id;
-                // Set profile avatar based on user ID (simple placeholder)
                 const avatarElement = document.querySelector('.profile-avatar');
                 if (avatarElement) {
                     avatarElement.textContent = displayName.charAt(0).toUpperCase();
@@ -819,7 +817,7 @@
             } else {
                 // Fallback for testing outside Telegram environment
                 currentUser = {
-                    id: Date.now(), // Simulate a unique ID for testing
+                    id: Date.now(),
                     first_name: 'TestUser',
                     username: 'testbotuser' + Math.floor(Math.random() * 1000)
                 };
@@ -836,38 +834,34 @@
                 return;
             }
 
-            // Show loading spinners while data is fetched
             document.getElementById('allTasksList').innerHTML = '<div class="loading-spinner"></div>';
             document.getElementById('myTasksList').innerHTML = '<div class="loading-spinner"></div>';
 
-            // Listen for user-specific data
             const userRef = firebase.ref(firebase.database, `users/${currentUser.id}`);
             firebase.onValue(userRef, (snapshot) => {
                 const userData = snapshot.val() || {};
                 userBalance = userData.balance || 0;
                 userStats = userData.stats || { tasksCreated: 0, tasksCompleted: 0, totalEarnings: 0, adsWatched: 0 };
                 adsWatchedToday = userData.adsWatchedToday || 0;
-                updateUI(); // Update relevant elements
+                updateUI();
             }, (error) => {
                 console.error("Error fetching user data:", error);
                 showNotification("Failed to load user data.", "error");
             });
 
-            // Listen for all tasks
             const tasksRef = firebase.ref(firebase.database, 'tasks');
             firebase.onValue(tasksRef, (snapshot) => {
                 allTasks = snapshot.val() || {};
-                displayAllTasks(); // Refresh displayed tasks
+                displayAllTasks();
             }, (error) => {
                 console.error("Error fetching all tasks:", error);
                 showNotification("Failed to load tasks.", "error");
             });
 
-            // Listen for tasks created by the current user
             const userTasksRef = firebase.ref(firebase.database, `userTasks/${currentUser.id}`);
             firebase.onValue(userTasksRef, (snapshot) => {
                 userTasks = snapshot.val() || {};
-                displayMyTasks(); // Refresh displayed user tasks
+                displayMyTasks();
             }, (error) => {
                 console.error("Error fetching user tasks:", error);
                 showNotification("Failed to load your tasks.", "error");
@@ -881,7 +875,6 @@
             document.getElementById('profileEarnings').textContent = userStats.totalEarnings.toFixed(5);
             document.getElementById('profileAdsWatched').textContent = userStats.adsWatched;
 
-            // Filter tasks for the total count (only active ones)
             const activeTasksCount = Object.values(allTasks).filter(task => task.status === 'active').length;
             document.getElementById('totalTasks').textContent = activeTasksCount;
             document.getElementById('completedTasks').textContent = userStats.tasksCompleted;
@@ -927,18 +920,15 @@
 
         function updateMainButton(tabName) {
             let buttonText = '';
-            let icon = '';
             switch (tabName) {
-                case 'home': buttonText = 'Home'; icon = 'home'; break;
-                case 'tasks': buttonText = 'My Tasks'; icon = 'assignment'; break;
-                case 'add-task': buttonText = 'Create Task'; icon = 'add_circle'; break;
-                case 'ads': buttonText = 'Watch Ads'; icon = 'ads_click'; break;
-                case 'profile': buttonText = 'My Profile'; icon = 'person'; break;
-                default: buttonText = 'Back'; icon = 'arrow_back';
+                case 'home': buttonText = 'Home'; break;
+                case 'tasks': buttonText = 'My Tasks'; break;
+                case 'add-task': buttonText = 'Create Task'; break;
+                case 'ads': buttonText = 'Watch Ads'; break;
+                case 'profile': buttonText = 'My Profile'; break;
+                default: buttonText = 'Back';
             }
             window.Telegram.WebApp.MainButton.setText(buttonText);
-            // If you want to add an icon to the main button (not directly supported by text method):
-            // window.Telegram.WebApp.MainButton.setParams({ text: buttonText, ... });
             window.Telegram.WebApp.MainButton.show();
         }
 
@@ -950,11 +940,9 @@
 
             impressionsInput.addEventListener('input', function() {
                 const impressions = parseInt(this.value) || 0;
-                // Calculate cost in Stars
                 const cost = Math.ceil((impressions / 500) * TASK_STARS_RATE_PER_500_IMPRESSIONS);
                 costSpan.textContent = cost;
 
-                // Visualize progress towards a reasonable max (e.g., 4000 impressions)
                 const progress = Math.min((impressions / 4000) * 100, 100);
                 progressBar.style.width = progress + '%';
             });
@@ -972,9 +960,15 @@
             const title = document.getElementById('taskTitle').value.trim();
             const description = document.getElementById('taskDescription').value.trim();
             const url = document.getElementById('taskUrl').value.trim();
-            const impressions = parseInt(document.getElementById('totalImpressions').value);
+            const impressionsInput = document.getElementById('totalImpressions');
+            const impressions = parseInt(impressionsInput.value);
 
-            if (impressions < 500) {
+            // Validation
+            if (!title || !description || !url) {
+                showNotification('Please fill in all required fields.', 'error');
+                return;
+            }
+            if (impressions < 500) { // Minimum 500 impressions
                 showNotification('Minimum 500 impressions required!', 'error');
                 return;
             }
@@ -987,10 +981,11 @@
 
             // --- Handle Free Task Creation Logic ---
             const isFreeTask = currentUser && currentUser.id === SPECIAL_USER_ID_FOR_FREE_TASKS;
+
             if (isFreeTask) {
                 showNotification('Creating task for special user (free).', 'info');
                 try {
-                    await createTask(title, description, url, impressions, 0); // 0 stars for free task
+                    await createTask(title, description, url, 0, impressions); // Pass 0 for cost, and impressions
                     showNotification('Task created successfully! 🎉', 'success');
                     document.getElementById('addTaskForm').reset();
                     document.getElementById('taskCost').textContent = '0';
@@ -1003,33 +998,37 @@
             }
             // --- End Free Task Creation Logic ---
 
-
             // --- Stars Payment Initiation ---
+            // Construct the invoice payload
             const invoiceAmountUnits = costInStars * 100; // Telegram uses smallest units (e.g., 100 units per Star)
             const uniqueInvoiceId = `skytaskton_task_pay_${currentUser.id}_${Date.now()}`;
             const invoiceDescription = `SkyTaskTon Task: ${title} (${impressions} impressions)`;
 
-            // Construct the invoice URL for Telegram payment.
-            // This assumes your bot handles `start` command with a payload like:
-            // `BOT_USERNAME?start=uniqueInvoiceId:invoiceAmountUnits:encodedDescription`
-            // In a production scenario, you'd likely use a backend to generate this link via Bot API `createInvoiceLink`.
-            const starsPaymentUrl = `https://t.me/${BOT_USERNAME}?start=${encodeURIComponent(`${uniqueInvoiceId}:${invoiceAmountUnits}:${encodeURIComponent(invoiceDescription)}`)}`;
+            // IMPORTANT: The URL format is critical for `openInvoice`.
+            // It must be a direct link to your bot that handles the 'start' command with specific payload.
+            // Example: https://t.me/YourBotUsername?start=payload
+            // The payload should contain all necessary info.
+            // For robustness, it's better if your bot backend generates this link.
+            // For client-side, ensure the encoding is perfect.
+            const payload = `${uniqueInvoiceId}:${invoiceAmountUnits}:${encodeURIComponent(invoiceDescription)}`;
+            const starsPaymentUrl = `https://t.me/${BOT_USERNAME}?start=${encodeURIComponent(payload)}`;
+
+            console.log("Attempting to open invoice with URL:", starsPaymentUrl); // Log for debugging
 
             try {
                 isProcessingPayment = true;
                 document.getElementById('paymentModal').style.display = 'block';
 
-                // Open Telegram's payment interface
                 window.Telegram.WebApp.openInvoice(starsPaymentUrl, (status) => {
+                    console.log("Invoice status:", status); // Log the status callback
                     if (status === 'paid') {
-                        // Payment confirmed, create the task and update user stats
-                        createTask(title, description, url, impressions, costInStars)
+                        createTask(title, description, url, costInStars, impressions) // Pass the actual cost and impressions
                             .then(() => {
                                 showNotification('Task created successfully! 🎉', 'success');
                                 document.getElementById('addTaskForm').reset();
                                 document.getElementById('taskCost').textContent = '0';
                                 document.getElementById('costProgress').style.width = '0%';
-                                switchTab('home'); // Go back to home tab after success
+                                switchTab('home');
                             })
                             .catch(error => {
                                 console.error("Error saving task after payment:", error);
@@ -1038,72 +1037,67 @@
                     } else if (status === 'cancelled') {
                         showNotification('Payment cancelled. Task not created.', 'info');
                     } else {
-                        showNotification(`Payment failed with status: ${status}. Task not created.`, 'error');
+                        // This includes 'invalid_url', 'failed', etc.
+                        showNotification(`Payment process failed or was cancelled. Status: ${status}`, 'error');
                     }
                     isProcessingPayment = false;
                     closeModal('paymentModal');
                 });
             } catch (error) {
                 console.error('Error initiating Stars payment:', error);
-                showNotification(`Error initiating payment: ${error.message}. Please try again.`, 'error');
+                // Catch specific error for invalid URL if possible, or generic error
+                if (error.message === 'WebAppInvoiceUrlInvalid') {
+                    showNotification('Invalid payment link generated. Please check bot configuration or try again.', 'error');
+                } else {
+                    showNotification(`Error initiating payment: ${error.message}. Please try again.`, 'error');
+                }
                 isProcessingPayment = false;
                 closeModal('paymentModal');
             }
         });
 
-        async function createTask(title, description, url, costInStars) {
+        async function createTask(title, description, url, costInStars, totalImpressions) {
             const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
             const taskData = {
                 id: taskId,
                 title,
                 description,
                 url,
-                totalImpressions: parseInt(document.getElementById('totalImpressions').value), // Get impressions from input
+                totalImpressions: totalImpressions || parseInt(document.getElementById('totalImpressions').value), // Use passed value or get from input
                 currentImpressions: 0,
                 costInStars: costInStars,
-                rewardPerCompletion: TASK_TON_REWARD_PER_COMPLETION, // Fixed reward for simplicity
+                rewardPerCompletion: TASK_TON_REWARD_PER_COMPLETION,
                 createdBy: currentUser.id,
                 createdAt: new Date().toISOString(),
                 status: 'active',
-                completedBy: [] // Array of user IDs who completed the task
+                completedBy: []
             };
 
-            // Save task to general tasks list and to user's created tasks list
             try {
                 await firebase.set(firebase.ref(firebase.database, `tasks/${taskId}`), taskData);
                 await firebase.set(firebase.ref(firebase.database, `userTasks/${currentUser.id}/${taskId}`), taskData);
 
-                // Update user's stats
                 const updatedStats = {
                     ...userStats,
                     tasksCreated: userStats.tasksCreated + 1
                 };
                 await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/stats`), updatedStats);
 
-                // If the user paid with stars, update their balance (this is a simulation, actual balance deduction needs bot backend)
-                if (!isFreeTask && costInStars > 0) {
-                    // In a real app, this deduction would be confirmed by your bot after payment success.
-                    // For this frontend, we'll assume payment success means the stars are "used".
-                    // If this web app is directly interacting with Telegram payments, the SDK *might* handle balance updates.
-                    // However, for clarity and control, it's best to manage balance via bot interaction.
-                    // For now, we don't deduct from frontend balance as Stars are separate from TON balance.
-                }
-
             } catch (error) {
                 console.error("Error saving task to Firebase:", error);
-                throw error; // Re-throw to be caught by the caller
+                throw error;
             }
         }
 
         function displayAllTasks() {
             const container = document.getElementById('allTasksList');
-            container.innerHTML = ''; // Clear previous content
+            container.innerHTML = '';
 
             const availableTasks = Object.values(allTasks)
                 .filter(task =>
                     task.status === 'active' &&
                     task.currentImpressions < task.totalImpressions &&
-                    !task.completedBy?.includes(currentUser.id) // Don't show tasks already completed by the user
+                    !task.completedBy?.includes(currentUser.id)
                 );
 
             if (availableTasks.length === 0) {
@@ -1117,7 +1111,7 @@
                 return;
             }
 
-            availableTasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Newest first
+            availableTasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
             availableTasks.forEach(task => {
                 container.appendChild(createTaskCard(task, 'all'));
@@ -1126,7 +1120,7 @@
 
         function displayMyTasks() {
             const container = document.getElementById('myTasksList');
-            container.innerHTML = ''; // Clear previous content
+            container.innerHTML = '';
 
             const myTasksList = Object.values(userTasks);
 
@@ -1141,7 +1135,7 @@
                 return;
             }
 
-            myTasksList.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Newest first
+            myTasksList.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
             myTasksList.forEach(task => {
                 container.appendChild(createTaskCard(task, 'my'));
@@ -1155,7 +1149,6 @@
             const progress = task.totalImpressions > 0 ? (task.currentImpressions / task.totalImpressions) * 100 : 0;
             const isUserTaskCreator = task.createdBy === currentUser.id;
             const isTaskCompletedByUser = task.completedBy?.includes(currentUser.id);
-
             const isFreeTask = currentUser && currentUser.id === SPECIAL_USER_ID_FOR_FREE_TASKS;
 
             card.innerHTML = `
@@ -1170,7 +1163,7 @@
                         <span class="material-icons" style="font-size: 1em; vertical-align: middle;">payments</span>
                         ${task.rewardPerCompletion.toFixed(5)} TON
                     </div>
-                    ${type === 'all' && !isFreeTask ? `
+                    ${type === 'all' && !isFreeTask && task.costInStars > 0 ? `
                         <div class="stat">
                             <span class="material-icons" style="font-size: 1em; vertical-align: middle;">star</span>
                             ${task.costInStars} Stars
@@ -1208,9 +1201,8 @@
 
         async function startTask(taskId, url) {
             try {
-                window.open(url, '_blank'); // Open URL in a new tab
+                window.open(url, '_blank');
 
-                // Show verification modal
                 document.getElementById('verifyModal').style.display = 'block';
 
                 let countdown = TASK_VERIFICATION_SECONDS;
@@ -1220,15 +1212,17 @@
                 progressElement.style.width = '0%';
                 countdownElement.textContent = countdown;
 
-                const interval = setInterval(() => {
+                // Clear previous interval if any
+                if (taskVerificationInterval) clearInterval(taskVerificationInterval);
+
+                taskVerificationInterval = setInterval(() => {
                     countdown--;
                     countdownElement.textContent = countdown;
-                    // Update progress bar based on countdown
                     progressElement.style.width = ((TASK_VERIFICATION_SECONDS - countdown) / TASK_VERIFICATION_SECONDS) * 100 + '%';
 
                     if (countdown <= 0) {
-                        clearInterval(interval);
-                        completeTask(taskId); // Call completion logic
+                        clearInterval(taskVerificationInterval);
+                        completeTask(taskId);
                         closeModal('verifyModal');
                     }
                 }, 1000);
@@ -1251,17 +1245,14 @@
                     return;
                 }
 
-                // Update task status (increment impressions and mark as completed by user)
                 const updatedTask = {
                     ...task,
-                    currentImpressions: task.currentImpressions + 1, // Increment impression count (can be made more granular)
+                    currentImpressions: task.currentImpressions + 1,
                     completedBy: [...(task.completedBy || []), currentUser.id]
                 };
 
-                // Update Firebase
                 await firebase.set(firebase.ref(firebase.database, `tasks/${taskId}`), updatedTask);
 
-                // Update user's balance and stats
                 const reward = task.rewardPerCompletion || TASK_TON_REWARD_PER_COMPLETION;
                 const newBalance = userBalance + reward;
                 const updatedStats = {
@@ -1275,7 +1266,7 @@
 
                 showNotification(`Task completed! +${reward.toFixed(5)} TON earned! 🎉`, 'success');
 
-                loadUserData(); // Refresh UI to reflect changes
+                loadUserData();
 
             } catch (error) {
                 console.error('Error completing task:', error);
@@ -1289,19 +1280,17 @@
             }
 
             try {
-                // Remove from general tasks and user's created tasks
                 await firebase.remove(firebase.ref(firebase.database, `tasks/${taskId}`));
                 await firebase.remove(firebase.ref(firebase.database, `userTasks/${currentUser.id}/${taskId}`));
 
-                // Update user's stats (decrement tasksCreated)
                 const updatedStats = {
                     ...userStats,
-                    tasksCreated: Math.max(0, userStats.tasksCreated - 1) // Ensure it doesn't go below zero
+                    tasksCreated: Math.max(0, userStats.tasksCreated - 1)
                 };
                 await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/stats`), updatedStats);
 
                 showNotification('Task deleted successfully!', 'success');
-                loadUserData(); // Refresh UI
+                loadUserData();
             } catch (error) {
                 console.error("Error deleting task:", error);
                 showNotification('Error deleting task. Please try again.', 'error');
@@ -1319,7 +1308,6 @@
             const amount = parseFloat(document.getElementById('withdrawAmount').value);
             const address = document.getElementById('tonAddress').value.trim();
 
-            // Basic validation
             if (isNaN(amount) || amount <= 0) {
                 showNotification('Please enter a valid amount.', 'error');
                 return;
@@ -1328,36 +1316,32 @@
                 showNotification('Insufficient balance!', 'error');
                 return;
             }
-            if (amount < 0.001) { // Minimum withdrawal amount
+            if (amount < 0.001) {
                 showNotification('Minimum withdrawal is 0.001 TON!', 'error');
                 return;
             }
-            if (!address || !address.startsWith('UQ')) { // Simple TON address check (starts with UQ for user-friendly address)
+            // Basic TON address validation (starts with UQ for user-friendly address)
+            if (!address || !address.startsWith('UQ')) {
                 showNotification('Please enter a valid TON wallet address (starts with UQ).', 'error');
                 return;
             }
 
             try {
-                // Record withdrawal request in Firebase
                 const withdrawalData = {
                     userId: currentUser.id,
                     userName: document.getElementById('userName').textContent,
                     amount: amount,
                     address: address,
-                    status: 'pending', // Status: 'pending', 'processing', 'completed', 'rejected'
+                    status: 'pending',
                     createdAt: new Date().toISOString()
                 };
 
                 const withdrawalRef = firebase.push(firebase.ref(firebase.database, 'withdrawals'));
                 await firebase.set(withdrawalRef, withdrawalData);
 
-                // IMPORTANT: This only *requests* the withdrawal. The actual transfer of TON
-                // from your bot's wallet to the user's address must be handled by your backend bot.
-                // This frontend cannot securely perform wallet transactions.
-
                 showNotification('Withdrawal request submitted successfully! Please wait for processing.', 'success');
                 closeModal('withdrawModal');
-                this.reset(); // Clear the form
+                this.reset();
             } catch (error) {
                 console.error("Error submitting withdrawal:", error);
                 showNotification('Error submitting withdrawal request. Please try again.', 'error');
@@ -1371,37 +1355,30 @@
                 return;
             }
 
-            // Show the ad display area and disable the button
             document.getElementById('adDisplay').style.display = 'block';
             this.disabled = true;
-            this.textContent = 'Loading Ad...'; // Update button text
+            this.textContent = 'Loading Ad...';
 
             const adContentElement = document.getElementById('adContent');
             const countdownElement = document.getElementById('adCountdown');
             const progressElement = document.getElementById('adProgress');
 
             // --- Ad SDK Integration ---
-            // The SDK `libtl.com/sdk.js` with `show_9789409` is expected to be loaded.
-            // We assume `show_9789409` will load the ad and potentially make the adContentElement visible.
             if (typeof show_9789409 === 'function') {
                 try {
-                    // Call the SDK function. It might return a promise that resolves when the ad is ready or completed.
-                    // For this example, we'll proceed to countdown immediately.
                     await show_9789409();
                     console.log('Ad SDK (show_9789409) function called.');
                 } catch (adError) {
                     console.log('Error executing Ad SDK function:', adError);
                     adContentElement.innerHTML = `<p style="color: red;">Failed to load ad content. Please check your connection or try again.</p>`;
-                    // If ad fails to load, we should reset and show notification.
                     this.disabled = false;
                     this.textContent = 'Watch Ad Now';
                     document.getElementById('adDisplay').style.display = 'none';
                     showNotification('Failed to load ad content. Please try again.', 'error');
-                    return; // Stop further processing
+                    return;
                 }
             } else {
                 console.log('Ad SDK (show_9789409) is not available or has not loaded.');
-                // Provide a placeholder if the SDK is not correctly loaded
                 adContentElement.innerHTML = `
                     <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                                 color: white; padding: 40px; border-radius: 15px; text-align: center;">
@@ -1412,32 +1389,31 @@
             }
             // --- End Ad SDK Integration ---
 
-
-            // Start countdown and progress bar
             let countdown = AD_COUNTDOWN_SECONDS;
             progressElement.style.width = '0%';
             countdownElement.textContent = countdown;
 
-            const interval = setInterval(() => {
+            // Clear previous interval if any
+            if (adCountdownInterval) clearInterval(adCountdownInterval);
+
+            adCountdownInterval = setInterval(() => {
                 countdown--;
                 countdownElement.textContent = countdown;
                 progressElement.style.width = ((AD_COUNTDOWN_SECONDS - countdown) / AD_COUNTDOWN_SECONDS) * 100 + '%';
 
                 if (countdown <= 0) {
-                    clearInterval(interval);
-                    earnFromAd(); // Reward the user
-                    // Reset ad display and button
+                    clearInterval(adCountdownInterval);
+                    earnFromAd();
                     document.getElementById('adDisplay').style.display = 'none';
                     this.disabled = false;
                     this.textContent = 'Watch Ad Now';
-                    loadUserData(); // Refresh the UI
+                    loadUserData();
                 }
             }, 1000);
         });
 
         async function earnFromAd() {
             try {
-                // Update user's balance and stats
                 const newBalance = userBalance + AD_TON_REWARD;
                 const newAdsCount = adsWatchedToday + 1;
                 const updatedStats = {
@@ -1463,11 +1439,11 @@
             const modal = document.getElementById(modalId);
             if (modal) {
                 modal.style.display = 'none';
-                // Potentially reset modal content if needed, e.g., stop timers
+                // Clear intervals when modal is closed to prevent memory leaks and duplicate timers
                 if (modalId === 'verifyModal') {
-                    const countdownElement = document.getElementById('verifyCountdown');
-                    if (countdownElement && countdownElement.timeoutId) {
-                        clearTimeout(countdownElement.timeoutId); // Clear any active interval
+                    if (taskVerificationInterval) {
+                        clearInterval(taskVerificationInterval);
+                        taskVerificationInterval = null;
                     }
                 }
             }
@@ -1480,20 +1456,17 @@
 
             document.body.appendChild(notification);
 
-            // Auto-remove notification after a delay
             setTimeout(() => {
-                notification.style.animation = 'slideInRight 0.3s reverse forwards'; // Reverse the animation
+                notification.style.animation = 'slideInRight 0.3s reverse forwards';
                 setTimeout(() => {
-                    notification.remove(); // Remove element from DOM
-                }, 300); // Match animation duration
-            }, 3000); // Show for 3 seconds
+                    notification.remove();
+                }, 300);
+            }, 3000);
         }
 
-        // Close modal when clicking outside of it
         window.addEventListener('click', function(event) {
             const modals = document.querySelectorAll('.modal');
             modals.forEach(modal => {
-                // Check if the click was directly on the modal background
                 if (event.target === modal) {
                     modal.style.display = 'none';
                 }
@@ -1504,15 +1477,13 @@
         function initializeDailyAdsResetTimer() {
             const now = new Date();
             const tomorrow = new Date(now);
-            tomorrow.setHours(0, 0, 0, 0); // Set to midnight of the next day
+            tomorrow.setHours(0, 0, 0, 0);
             tomorrow.setDate(now.getDate() + 1);
 
             const msUntilMidnight = tomorrow.getTime() - now.getTime();
 
-            // Schedule the first reset
             setTimeout(async () => {
                 await resetDailyAds();
-                // Then set an interval to reset every 24 hours
                 setInterval(resetDailyAds, 24 * 60 * 60 * 1000);
             }, msUntilMidnight);
         }
@@ -1522,7 +1493,7 @@
                 try {
                     await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/adsWatchedToday`), 0);
                     showNotification('Daily ads reset! You can watch 10 more ads today.', 'info');
-                    loadUserData(); // Refresh UI to show updated ad count
+                    loadUserData();
                 } catch (error) {
                     console.error("Error resetting daily ads:", error);
                     showNotification("Failed to reset daily ads count.", "error");
@@ -1532,20 +1503,16 @@
 
         // --- TELEGRAM WEB APP EVENTS ---
         window.Telegram.WebApp.onEvent('mainButtonClicked', function() {
-            // Action for the main button click based on current tab
-            const activeTabId = currentTab; // Use the tracked current tab
+            const activeTabId = currentTab;
             console.log('Main button clicked in tab:', activeTabId);
-            // You could add specific actions here if needed, e.g., confirm changes, go back etc.
-            // For now, the button text updates dynamically.
         });
 
         window.Telegram.WebApp.onEvent('backButtonClicked', function() {
-            // Handle back button behavior
             if (currentTab !== 'home') {
-                switchTab('home'); // Go back to home tab if not already there
+                switchTab('home');
                 updateMainButton('home');
             } else {
-                window.Telegram.WebApp.close(); // Close the app if on the home tab
+                window.Telegram.WebApp.close();
             }
         });
 
