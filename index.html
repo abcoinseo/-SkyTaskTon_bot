@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkyTaskTon - Earn TON</title>
+
     <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Ad SDK - Ensure this script is correctly integrated or replaced if needed -->
-    <script src='//libtl.com/sdk.js' data-zone='9789409' data-sdk='show_9789409'></script>
+    <!-- TON Connect UI -->
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
     <!-- Firebase SDK -->
     <script type="module">
@@ -53,6 +54,7 @@
             --input-border: #e1e5e9;
             --modal-backdrop: rgba(0,0,0,0.6);
             --modal-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            --ton-connect-button-background: linear-gradient(135deg, #007AFF 0%, #4CAF50 100%); /* Example gradient for TON Connect button */
         }
 
         * {
@@ -541,6 +543,19 @@
         }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
+        /* TON Connect Button Styling */
+        #ton-connect {
+            display: inline-block;
+            margin-bottom: 20px; /* Add some margin below the button if needed */
+            --button-background: var(--primary-gradient); /* Use your primary gradient */
+            --button-border-radius: 30px;
+            --button-padding: 14px 28px;
+            --button-font-weight: 600;
+            --button-font-size: 1em;
+            --button-text-color: white;
+            --button-box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
         /* Media Queries */
         @media (max-width: 768px) {
             .header h1 { font-size: 2em; }
@@ -549,6 +564,7 @@
             .stat { margin: 5px 0; }
             .modal-content { margin: 20px auto; width: 95%; padding: 25px; }
             .stats-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
+            #ton-connect { width: 100%; } /* Make TON Connect button full width on smaller screens */
         }
 
         /* Specific Tab Styles */
@@ -559,45 +575,11 @@
         #ads h3 { margin-bottom: 15px; color: var(--text-color); }
         #adDisplay { min-height: 350px; }
         #adContent { /* Placeholder styling */ }
-        /* Payment Modal for TON */
-        #tonPaymentModal .modal-content {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); /* Greenish theme for TON */
-            color: white;
-            text-align: center;
-        }
-        #tonPaymentModal .modal-content h2, #tonPaymentModal .modal-content p {
-            color: white !important;
-        }
-        #tonPaymentModal .loading-spinner {
-            border-top-color: white;
-            border-color: rgba(255,255,255,0.5);
-        }
-        #verifyModal .modal-content .material-icons {
-            color: var(--primary-color);
-        }
-        .qr-code-container {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            display: inline-block;
-            margin: 20px auto;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        }
-        .qr-code-container img {
-            display: block;
-            margin: 0 auto;
-        }
-        .ton-address-display {
-            font-family: monospace;
-            font-size: 0.9em;
-            word-break: break-all; /* Ensure long addresses wrap */
-            margin-top: 15px;
-            background: rgba(255,255,255,0.2);
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.3);
-        }
-
+        #paymentModal .modal-content { background: var(--primary-gradient); color: white; }
+        #paymentModal .modal-content h2, #paymentModal .modal-content p { color: white !important; }
+        #paymentModal .loading-spinner { border-top-color: white; border-color: rgba(255,255,255,0.5); }
+        #verifyModal .modal-content .material-icons { color: var(--primary-color); }
+        #addTaskForm .btn-primary { /* Override default btn style for consistency */ }
 
         /* Developer Info Footer */
         .developer-info {
@@ -683,6 +665,10 @@
         <!-- Add Task Tab -->
         <div id="add-task" class="tab-content">
             <h2 style="margin-bottom: 25px; font-size: 1.8em; color: var(--text-color);">➕ Create New Task</h2>
+            
+            <!-- TON Connect Button -->
+            <div id="ton-connect"></div>
+
             <form id="addTaskForm">
                 <div class="form-group">
                     <label for="taskTitle">Task Title *</label>
@@ -700,19 +686,22 @@
                     <label for="totalImpressions">Total Impressions *</label>
                     <input type="number" id="totalImpressions" class="form-control" min="500" step="100" placeholder="Minimum 500 impressions" required>
                 </div>
-                <!-- Cost Display in TON -->
+                <div class="form-group">
+                    <label for="taskReward">Reward per Completion (TON) *</label>
+                    <input type="number" id="taskReward" class="form-control" step="0.00001" min="0.00001" value="0.00005" placeholder="e.g., 0.00005" required>
+                </div>
                 <div class="cost-display">
-                    💰 Total Cost: <span id="taskCostTon">0.00000</span> TON
+                    💰 Task Cost: <span id="taskCost">0.0</span> TON
                     <div style="font-size: 0.9em; margin-top: 8px; opacity: 0.9;">
-                        Rate: 500 impressions = 0.00005 TON (example rate)
+                        Rate: 500 Impressions = 0.05 TON
                     </div>
                 </div>
                 <div class="progress-bar">
                     <div class="progress-fill" id="costProgress"></div>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
-                    <span class="material-icons">payment</span>
-                    Create Task & Pay with TON
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;" id="createTaskBtn">
+                    <span class="material-icons">payments</span>
+                    Create Task & Pay TON
                 </button>
             </form>
         </div>
@@ -820,35 +809,15 @@
         </div>
     </div>
 
-    <!-- TON Payment Modal -->
-    <div id="tonPaymentModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('tonPaymentModal')">&times;</span>
-            <h2 style="margin-bottom: 20px;">Pay with TON</h2>
-            <p style="margin-bottom: 25px; opacity: 0.9;">Please send the exact amount of TON to the address below to create your task.</p>
-
-            <div class="qr-code-container">
-                <canvas id="tonQrCode"></canvas>
-            </div>
-
-            <div class="ton-address-display">
-                <p><strong>Address:</strong></p>
-                <p id="paymentTonAddress"></p>
-                <button class="btn btn-info btn-sm" onclick="copyToClipboard('paymentTonAddress')" style="margin-top: 10px; padding: 8px 15px; font-size: 0.8em;">Copy Address</button>
-            </div>
-
-            <p style="margin-top: 25px; font-size: 0.9em; opacity: 0.8;">Your task will be created after payment confirmation.</p>
-            <p style="font-size: 0.9em; opacity: 0.8;">If payment is not detected within 10 minutes, you may need to retry.</p>
-
-            <!-- Loading spinner or status indicator -->
-            <div id="tonPaymentStatus" style="margin-top: 20px; font-weight: 600;">
-                <div class="loading-spinner" style="display: none; border-top-color: var(--primary-color); border-color: rgba(102, 126, 234, 0.5);"></div>
-                <p id="paymentStatusMessage"></p>
-            </div>
+    <!-- Payment Confirmation Modal (for TON transaction) -->
+    <div id="paymentConfirmationModal" class="modal">
+        <div class="modal-content" style="text-align: center; background: var(--primary-gradient); color: white;">
+            <div class="material-icons pulse" style="font-size: 4em; color: white; margin-bottom: 20px;">payments</div>
+            <h2 style="margin-bottom: 20px;">💳 Processing TON Payment</h2>
+            <p style="margin-bottom: 25px; opacity: 0.9;">Please confirm the TON transaction in your wallet...</p>
+            <div class="loading-spinner" style="border-top-color: white; border-color: rgba(255,255,255,0.5);"></div>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 
     <script>
         // --- GLOBAL VARIABLES ---
@@ -861,27 +830,36 @@
         let currentTab = 'home'; // Track the current active tab
         let taskVerificationInterval = null; // To clear interval when modal closes
         let adCountdownInterval = null; // To clear interval when ad completes or modal closes
-        let tonPaymentPollingInterval = null; // For polling payment status
+
+        // --- TON Connect Configuration ---
+        // Replace with your actual manifest URL
+        const MANIFEST_URL = 'https://sky-task-ton-bot-compleat.vercel.app/tonconnect-manifest.json'; 
+        const TON_CONNECT_UI_BUTTON_ROOT_ID = 'ton-connect';
+
+        // Initialize TON Connect UI
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+            manifestUrl: MANIFEST_URL,
+            buttonRootId: TON_CONNECT_UI_BUTTON_ROOT_ID
+        });
+
+        // Example transaction payload for creating a task
+        // This will be dynamically generated based on user input
+        let currentTaskTransactionPayload = null;
 
         // --- CONSTANTS ---
-        // Rate for TON payment (e.g., 500 impressions cost 0.00005 TON)
-        // This rate MUST be set by your backend logic or dynamically fetched.
-        const TASK_TON_COST_RATE_PER_500_IMPRESSIONS = 0.00005; // Example TON cost
-        const TASK_TON_REWARD_PER_COMPLETION = 0.00005; // TON reward for completing a task
+        const TASK_TON_COST_PER_IMPRESSION = 0.0001; // Example: 0.0001 TON per impression
+        const TASK_TON_REWARD_PER_COMPLETION = 0.00005; // TON reward for completing a task (example value)
         const AD_TON_REWARD = 0.000001; // TON reward per watched ad
         const MAX_DAILY_ADS = 10;
         const AD_COUNTDOWN_SECONDS = 5;
         const TASK_VERIFICATION_SECONDS = 10;
-        const SPECIAL_USER_ID_FOR_FREE_TASKS = 123456789; // User ID for free task creation (REPLACE WITH A TEST ID OR REMOVE IF NOT NEEDED)
-
-        // --- BOT BACKEND CONFIGURATION ---
-        // This is the URL your bot backend serves payment links/status from.
-        // Your bot backend MUST generate unique addresses for each payment and track them.
-        const BACKEND_PAYMENT_API_URL = 'YOUR_BOT_BACKEND_API_URL'; // e.g., 'https://your-bot-backend.com/api'
+        // Replace with a test user ID or remove if free tasks are not needed
+        const SPECIAL_USER_ID_FOR_FREE_TASKS = 123456789; 
 
         // --- INITIALIZATION ---
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.expand();
+        // window.Telegram.WebApp.enableClosingConfirmation(); // Uncomment if you want confirmation before closing
 
         document.addEventListener('DOMContentLoaded', function() {
             initializeUser();
@@ -889,9 +867,26 @@
             updateTaskCostInputHandler();
             initializeDailyAdsResetTimer();
             setupTabButtons();
-            updateMainButton('home');
+            updateMainButton('home'); // Set initial main button text
 
-            // TON Address Validation Regex
+            // TON Connect Listener for connection status changes
+            tonConnectUI.onStatusChange(async (wallet) => {
+                console.log('TON Wallet connection status changed:', wallet);
+                if (wallet) {
+                    // Wallet connected
+                    document.getElementById('ton-connect')?.style.setProperty('--button-background', 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)'); // Indicate connected status
+                    document.getElementById('ton-connect')?.style.setProperty('--button-text-color', 'white');
+                    // Potentially fetch user's TON balance if needed
+                    // For now, we rely on Firebase balance for display
+                } else {
+                    // Wallet disconnected
+                    document.getElementById('ton-connect')?.style.setProperty('--button-background', 'var(--primary-gradient)');
+                    document.getElementById('ton-connect')?.style.setProperty('--button-text-color', 'white');
+                    showNotification('TON Wallet disconnected.', 'info');
+                }
+            });
+
+            // Add TON Address Validation Regex
             const tonAddressInput = document.getElementById('tonAddress');
             const tonAddressRegex = /^UQ[a-zA-Z0-9_-]{46}$/; // Basic TON address format
             tonAddressInput.addEventListener('input', function() {
@@ -994,7 +989,7 @@
             }
         }
 
-        // --- TABNAVIGATION ---
+        // --- TAB NAVIGATION ---
         function setupTabButtons() {
             const navTabs = document.querySelectorAll('.nav-tab');
             navTabs.forEach(button => {
@@ -1035,70 +1030,30 @@
         // --- TASK MANAGEMENT ---
         function updateTaskCostInputHandler() {
             const impressionsInput = document.getElementById('totalImpressions');
-            const costSpan = document.getElementById('taskCostTon');
+            const rewardInput = document.getElementById('taskReward');
+            const costSpan = document.getElementById('taskCost');
             const progressBar = document.getElementById('costProgress');
 
-            impressionsInput.addEventListener('input', function() {
-                const impressions = parseInt(this.value) || 0;
-                // Calculate cost in TON
-                const costTon = ((impressions / 500) * TASK_TON_COST_RATE_PER_500_IMPRESSIONS).toFixed(6);
-                costSpan.textContent = costTon;
+            const updateCost = () => {
+                const impressions = parseInt(impressionsInput.value) || 0;
+                const reward = parseFloat(rewardInput.value) || 0;
+
+                // Calculate cost based on impressions and reward (example rate)
+                // You can adjust this calculation to your needs.
+                // Example: Cost = (Impressions / 500) * 0.05 TON
+                const cost = (impressions / 500) * 0.05; 
+                costSpan.textContent = cost.toFixed(2); // Display cost in TON
 
                 // Clamp progress between 0% and 100%
-                const progress = Math.min(Math.max((impressions / 4000) * 100, 0), 100);
+                const progress = Math.min(Math.max((impressions / 10000) * 100, 0), 100); // Scale impressions for progress bar visually
                 progressBar.style.width = progress + '%';
-            });
+            };
+
+            impressionsInput.addEventListener('input', updateCost);
+            rewardInput.addEventListener('input', updateCost);
         }
 
-        // Function to get TON payment details from backend
-        async function getTonPaymentDetails(taskId, taskTitle, impressions, costTon) {
-            try {
-                // IMPORTANT: Replace this with your actual backend endpoint
-                const response = await fetch(`${BACKEND_PAYMENT_API_URL}/get_ton_payment`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        userId: currentUser.id,
-                        taskId: taskId,
-                        taskTitle: taskTitle,
-                        impressions: impressions,
-                        amount: costTon,
-                        // Add any other necessary data your backend needs
-                    })
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Failed to get TON payment details');
-                }
-                return await response.json(); // Should return { paymentAddress: '...', qrCodeData: '...', txId: '...' }
-
-            } catch (error) {
-                console.error("Error fetching TON payment details:", error);
-                throw error;
-            }
-        }
-
-        // Function to poll for payment status from backend
-        async function pollPaymentStatus(txId) {
-            try {
-                // IMPORTANT: Replace this with your actual backend endpoint
-                const response = await fetch(`${BACKEND_PAYMENT_API_URL}/check_ton_payment_status/${txId}`);
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Failed to check payment status');
-                }
-                return await response.json(); // Should return { status: 'pending' | 'paid' | 'failed' }
-
-            } catch (error) {
-                console.error("Error polling payment status:", error);
-                // Don't throw here, just log and continue polling if possible, or stop after few retries
-                return { status: 'error' };
-            }
-        }
-
-        // Add Task Form Submission
+        // Handle task creation form submission
         document.getElementById('addTaskForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -1107,6 +1062,7 @@
             const url = document.getElementById('taskUrl').value.trim();
             const impressionsInput = document.getElementById('totalImpressions');
             const impressions = parseInt(impressionsInput.value);
+            const reward = parseFloat(document.getElementById('taskReward').value);
 
             // --- Input Validation ---
             if (!title || !description || !url) {
@@ -1121,102 +1077,122 @@
                  showNotification('Please enter a valid URL (starting with http:// or https://).', 'error');
                  return;
             }
-            // --- End Input Validation ---
-
-            const costTon = ((impressions / 500) * TASK_TON_COST_RATE_PER_500_IMPRESSIONS).toFixed(6);
-
-            // --- Handle Free Task Creation Logic (for special user ID) ---
-            const isFreeTask = currentUser && currentUser.id === SPECIAL_USER_ID_FOR_FREE_TASKS;
-            if (isFreeTask) {
-                showNotification('Creating task for special user (free).', 'info');
-                try {
-                    await createTask(title, description, url, 0, impressions, null); // 0 cost, no payment txId
-                    showNotification('Task created successfully! 🎉', 'success');
-                    document.getElementById('addTaskForm').reset();
-                    document.getElementById('taskCostTon').textContent = '0.00000';
-                    document.getElementById('costProgress').style.width = '0%';
-                    switchTab('home');
-                } catch (error) {
-                    console.error("Error creating free task:", error);
-                    showNotification(`Error creating task: ${error.message}`, 'error');
-                }
+            if (reward <= 0) {
+                showNotification('Reward per completion must be greater than zero.', 'error');
                 return;
             }
-            // --- End Free Task Creation Logic ---
+            // --- End Validation ---
 
-            // --- TON Payment Flow ---
-            const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`; // Generate a temp task ID
+            // Get current connected wallet info
+            const wallet = await tonConnectUI.getWallet();
+            if (!wallet) {
+                showNotification('Please connect your TON wallet first.', 'info');
+                // Optional: Trigger wallet connection modal here if you prefer
+                // await tonConnectUI.openModal(); 
+                return;
+            }
+
+            const taskCostInTON = (impressions / 500) * 0.05; // Calculate task creation cost
+
+            // Prepare the TON transaction payload
+            // THIS DESTINATION ADDRESS MUST BE CONTROLLED BY YOUR BOT/SERVICE
+            // It's where the payment for task creation will be sent.
+            const TASK_CREATION_PAYMENT_ADDRESS = "UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB77u"; // REPLACE with your TON wallet address to receive payments
+            const TON_UTONS_PER_TON = 1_000_000_000; // 1 TON = 1,000,000,000 microtons (uTON)
+            const transactionCostInUtons = Math.round(taskCostInTON * TON_UTONS_PER_TON);
+
+            if (transactionCostInUtons === 0) { // Avoid zero-value transactions if cost is negligible
+                showNotification('Task cost is too low. Minimum creation cost applies.', 'error');
+                return;
+            }
+
+            currentTaskTransactionPayload = {
+                validUntil: Math.floor(Date.now() / 1000) + 600, // 10 minutes validity
+                messages: [{
+                    address: TASK_CREATION_PAYMENT_ADDRESS, // Your service's TON address
+                    amount: transactionCostInUtons.toString(), // Amount in microtons
+                    // Optional: Add a comment/message to the transaction
+                    // comment: `Task creation: ${title}`
+                }]
+            };
+
             try {
-                // 1. Get Payment Details (TON address, QR code data) from backend
-                const paymentDetails = await getTonPaymentDetails(taskId, title, impressions, costTon);
+                // Show the payment confirmation modal while the user is prompted
+                document.getElementById('paymentConfirmationModal').style.display = 'block';
 
-                // 2. Display TON Payment Modal
-                document.getElementById('tonPaymentModal').style.display = 'block';
-                document.getElementById('paymentTonAddress').textContent = paymentDetails.paymentAddress;
-                document.getElementById('paymentStatusMessage').textContent = 'Waiting for payment...';
-                document.getElementById('tonPaymentModal').querySelector('.loading-spinner').style.display = 'inline-block'; // Show spinner
-                generateQrCode(paymentDetails.paymentAddress, costTon); // Generate QR code
+                // Send the transaction using TON Connect UI
+                const result = await tonConnectUI.sendTransaction(currentTaskTransactionPayload);
+                console.log("TON Transaction Result:", result);
 
-                // 3. Start Polling for Payment Status
-                if (tonPaymentPollingInterval) clearInterval(tonPaymentPollingInterval);
-                tonPaymentPollingInterval = setInterval(async () => {
-                    const statusResult = await pollPaymentStatus(paymentDetails.txId);
-                    if (statusResult.status === 'paid') {
-                        clearInterval(tonPaymentPollingInterval);
-                        tonPaymentPollingInterval = null;
-                        // Payment confirmed, create the task in Firebase with actual txId
-                        await createTask(title, description, url, costTon, impressions, paymentDetails.txId);
-                        showNotification('Task created successfully! 🎉', 'success');
-                        closeModal('tonPaymentModal');
-                        document.getElementById('addTaskForm').reset();
-                        document.getElementById('taskCostTon').textContent = '0.00000';
-                        document.getElementById('costProgress').style.width = '0%';
-                        switchTab('home'); // Navigate to home tab
-                    } else if (statusResult.status === 'failed') {
-                        clearInterval(tonPaymentPollingInterval);
-                        tonPaymentPollingInterval = null;
-                        showNotification('TON payment failed or timed out. Please try again.', 'error');
-                        closeModal('tonPaymentModal');
-                    } else if (statusResult.status === 'error') {
-                         // Handle polling errors, maybe stop polling after a few errors
-                         console.warn("Polling returned error, continuing...");
-                    } else { // 'pending'
-                        document.getElementById('paymentStatusMessage').textContent = `Waiting for payment confirmation (${costTon} TON)...`;
+                // --- Handle Transaction Confirmation ---
+                // This is where you would typically verify the transaction on the blockchain
+                // or via a webhook from your backend/TON service.
+                // For simulation purposes, we'll assume success after a short delay.
+
+                // Simulate backend confirmation check
+                setTimeout(async () => {
+                    if (result && result.boc) { // 'boc' usually indicates a successful transaction receipt
+                        showNotification('TON transaction confirmed! Creating task...', 'success');
+                        try {
+                            await createTask(title, description, url, impressions, reward);
+                            showNotification('Task created successfully! 🎉', 'success');
+                            document.getElementById('addTaskForm').reset();
+                            document.getElementById('taskCost').textContent = '0.0';
+                            document.getElementById('costProgress').style.width = '0%';
+                            switchTab('home'); // Navigate to home tab after success
+                        } catch (firebaseError) {
+                            console.error("Error saving task to Firebase:", firebaseError);
+                            showNotification(`Task creation failed after payment: ${firebaseError.message}`, 'error');
+                        }
+                    } else {
+                        showNotification('TON transaction failed or was cancelled. Task not created.', 'error');
                     }
-                }, 15000); // Poll every 15 seconds
+                    closeModal('paymentConfirmationModal'); // Close the modal
+                }, 2000); // Simulate a small delay for confirmation check
 
             } catch (error) {
-                console.error('Error initiating TON payment:', error);
-                showNotification(`Error initiating TON payment: ${error.message}. Please check your backend configuration and try again.`, 'error');
-                closeModal('tonPaymentModal');
+                console.error('Error sending TON transaction:', error);
+                let errorMessage = 'Error sending TON transaction.';
+                if (error.code === 'ACTION_TIMEOUT') {
+                    errorMessage = 'Transaction timed out. Please try again.';
+                } else if (error.code === 'BAD_REQUEST') {
+                    errorMessage = 'Invalid transaction data. Please check details.';
+                } else if (error.code === 'UNEXPECTED_RESPONSE') {
+                    errorMessage = 'Received an unexpected response. Please try again.';
+                } else if (error.code === 'USER_REJECTED') {
+                    errorMessage = 'Transaction rejected by the user.';
+                } else {
+                    errorMessage = error.message || errorMessage;
+                }
+                showNotification(errorMessage, 'error');
+                closeModal('paymentConfirmationModal'); // Close modal on error
             }
         });
 
-        // Function to create the task in Firebase (called after payment confirmation)
-        async function createTask(title, description, url, costValue, impressions, paymentTxId) {
-            const taskId = paymentTxId ? `task_${paymentTxId}` : `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`; // Use txId if available
-
+        // Function to actually create the task in Firebase
+        async function createTask(title, description, url, totalImpressions, rewardPerCompletion) {
+            const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
             const taskData = {
                 id: taskId,
                 title,
                 description,
                 url,
-                totalImpressions: impressions || 500,
+                totalImpressions: totalImpressions || 500, // Default to minimum if not provided
                 currentImpressions: 0,
-                costValue: costValue, // Store cost (could be Stars or TON amount)
-                costUnit: paymentTxId ? 'TON' : 'Stars', // Indicate unit
-                rewardPerCompletion: TASK_TON_REWARD_PER_COMPLETION,
+                rewardPerCompletion: rewardPerCompletion,
                 createdBy: currentUser.id,
                 createdAt: new Date().toISOString(),
-                status: 'active',
-                completedBy: [],
-                paymentTxId: paymentTxId // Store transaction ID if applicable
+                status: 'active', // 'active', 'completed', 'deleted'
+                completedBy: [] // Array of user IDs who completed this task
             };
 
             try {
+                // Save task to the main tasks list
                 await firebase.set(firebase.ref(firebase.database, `tasks/${taskId}`), taskData);
+                // Save task to the user's specific tasks list
                 await firebase.set(firebase.ref(firebase.database, `userTasks/${currentUser.id}/${taskId}`), taskData);
 
+                // Update user's stats
                 const updatedStats = {
                     ...userStats,
                     tasksCreated: userStats.tasksCreated + 1
@@ -1226,14 +1202,14 @@
 
             } catch (error) {
                 console.error("Error saving task to Firebase:", error);
-                throw error;
+                throw error; // Re-throw to be caught by the submit handler
             }
         }
 
         // Render all available tasks
         function displayAllTasks() {
             const container = document.getElementById('allTasksList');
-            container.innerHTML = '';
+            container.innerHTML = ''; // Clear loading spinner or previous tasks
 
             const availableTasks = Object.values(allTasks)
                 .filter(task =>
@@ -1263,7 +1239,7 @@
         // Render tasks created by the current user
         function displayMyTasks() {
             const container = document.getElementById('myTasksList');
-            container.innerHTML = '';
+            container.innerHTML = ''; // Clear loading spinner or previous tasks
 
             const myTasksList = Object.values(userTasks);
 
@@ -1293,21 +1269,7 @@
             const progress = task.totalImpressions > 0 ? (task.currentImpressions / task.totalImpressions) * 100 : 0;
             const isUserTaskCreator = task.createdBy === currentUser.id;
             const isTaskCompletedByUser = task.completedBy?.includes(currentUser.id);
-
-            let costDisplay = '';
-            if (task.costUnit === 'TON') {
-                costDisplay = `
-                    <div class="stat">
-                        <span class="material-icons" style="font-size: 1em; vertical-align: middle;">payments</span>
-                        ${parseFloat(task.costValue).toFixed(6)} TON
-                    </div>`;
-            } else if (task.costUnit === 'Stars') { // Keeping Stars as an option or for older tasks
-                 costDisplay = `
-                    <div class="stat">
-                        <span class="material-icons" style="font-size: 1em; vertical-align: middle;">star</span>
-                        ${task.costValue} Stars
-                    </div>`;
-            }
+            const isFreeTask = currentUser && currentUser.id === SPECIAL_USER_ID_FOR_FREE_TASKS;
 
             card.innerHTML = `
                 <div class="task-title">${task.title}</div>
@@ -1318,10 +1280,14 @@
                         ${task.currentImpressions}/${task.totalImpressions}
                     </div>
                     <div class="stat">
-                        <span class="material-icons" style="font-size: 1em; vertical-align: middle;">redeem</span>
+                        <span class="material-icons" style="font-size: 1em; vertical-align: middle;">payments</span>
                         ${task.rewardPerCompletion.toFixed(5)} TON
                     </div>
-                    ${costDisplay}
+                    ${type === 'all' && !isFreeTask && task.costInStars > 0 ? `
+                        <div class="stat">
+                            <span class="material-icons" style="font-size: 1em; vertical-align: middle;">payments</span>
+                            ${(task.costInTON || 0).toFixed(2)} TON
+                        </div>` : ''}
                 </div>
                 <div class="progress-bar">
                     <div class="progress-fill" style="width: ${progress.toFixed(2)}%;"></div>
@@ -1421,6 +1387,7 @@
                 await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/stats`), updatedStats);
 
                 showNotification(`Task completed! +${reward.toFixed(5)} TON earned! 🎉`, 'success');
+
                 loadUserData();
 
             } catch (error) {
@@ -1521,13 +1488,13 @@
             const countdownElement = document.getElementById('adCountdown');
             const progressElement = document.getElementById('adProgress');
 
-            // --- Ad SDK Integration ---
+            // --- Ad SDK Integration (Placeholder) ---
             if (typeof show_9789409 === 'function') {
                 try {
-                    await show_9789409();
+                    await show_9789409(); // Assume this starts displaying an ad
                     console.log('Ad SDK (show_9789409) function called.');
                 } catch (adError) {
-                    console.error('Error executing Ad SDK function:', adError);
+                    console.log('Error executing Ad SDK function:', adError);
                     adContentElement.innerHTML = `<p style="color: red;">Failed to load ad content. Please check your connection or try again.</p>`;
                     this.disabled = false;
                     this.textContent = 'Watch Ad Now';
@@ -1603,15 +1570,6 @@
                         taskVerificationInterval = null;
                     }
                 }
-                // Stop polling if the TON payment modal is closed
-                if (modalId === 'tonPaymentModal') {
-                    if (tonPaymentPollingInterval) {
-                        clearInterval(tonPaymentPollingInterval);
-                        tonPaymentPollingInterval = null;
-                        document.getElementById('tonPaymentModal').querySelector('.loading-spinner').style.display = 'none';
-                        document.getElementById('paymentStatusMessage').textContent = '';
-                    }
-                }
             }
         }
 
@@ -1638,36 +1596,6 @@
                 }
             });
         });
-
-        // Copy text to clipboard
-        function copyToClipboard(elementId) {
-            const element = document.getElementById(elementId);
-            const textToCopy = element.innerText || element.textContent;
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                showNotification('Address copied to clipboard!', 'info');
-            }).catch(err => {
-                console.error('Failed to copy text: ', err);
-                showNotification('Failed to copy address.', 'error');
-            });
-        }
-
-        // Generate QR Code for TON Payment
-        function generateQrCode(address, amount) {
-            const qrCodeContainer = document.getElementById('tonQrCode');
-            // Construct the TON deep link or raw address for QR code
-            // You might need to adjust this based on TON wallet's preferred format
-            const qrData = `ton://transfer/${address}?amount=${Math.round(parseFloat(amount) * 1e9)}&ref=${Date.now()}`; // Amount in raw units (e.g., nanoton)
-
-            new QRCode(qrCodeContainer, {
-                text: qrData,
-                width: 180,
-                height: 180,
-                colorDark : "#333333",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H
-            });
-        }
-
 
         // --- DAILY RESET LOGIC for Ads ---
         function initializeDailyAdsResetTimer() {
@@ -1697,7 +1625,7 @@
             }
         }
 
-        // --- TELEGRAM WEB APP EVENT LISTENERS ---
+        // --- TELEGRAM WEB APP EVENTS ---
         window.Telegram.WebApp.onEvent('mainButtonClicked', function() {
             const activeTabId = currentTab;
             console.log('Main button clicked in tab:', activeTabId);
