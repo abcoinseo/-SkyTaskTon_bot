@@ -1,668 +1,560 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!DOCTYPE html><html lang="en"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyTaskTon</title>
+    <title>SkyTaskTon - Earn TON</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Ad SDK - Ensure this script is correctly integrated or replaced if needed -->
+    <!-- IMPORTANT: Ensure this script loads and makes the 'show_9789409' function available -->
     <script src='//libtl.com/sdk.js' data-zone='9789409' data-sdk='show_9789409'></script>
-
     <script type="module">
-        // Import Firebase modules
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-        import { getDatabase, ref, push, set, get, onValue, remove, update } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js';
-        
-        // Your Firebase configuration - REPLACE WITH YOUR ACTUAL CONFIG
-        const firebaseConfig = {
-            apiKey: "AIzaSyBSj3t2ClyafHRgpN__cCnbDarhTfse3aA", // !!! REPLACE WITH YOUR ACTUAL API KEY !!!
-            authDomain: "skytasktonbot.firebaseapp.com",
-            projectId: "skytasktonbot",
-            storageBucket: "skytasktonbot.firebasestorage.app",
-            messagingSenderId: "1078897344814",
-            appId: "1:1078897344814:web:166f4341b884d877d97abf"
-        };
-        
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-        
-        // Expose Firebase functions globally for easier access in inline onclicks if needed,
-        // though direct usage in JS is preferred.
-        window.firebase = { database, ref, push, set, get, onValue, remove, update };
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+    import { getDatabase, ref, push, set, get, onValue, remove, update } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js';
+
+    // --- FIREBASE CONFIG ---
+    // !!! REPLACE WITH YOUR ACTUAL FIREBASE CONFIG !!!
+    const firebaseConfig = {
+        apiKey: "AIzaSyBSj3t2ClyafHRgpN__cCnbDarhTfse3aA", // Example, replace!
+        authDomain: "skytasktonbot.firebaseapp.com",
+        projectId: "skytasktonbot",
+        storageBucket: "skytasktonbot.firebasestorage.app",
+        messagingSenderId: "1078897344814",
+        appId: "1:1078897344814:web:166f4341b884d877d97abf"
+    };
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+    window.firebase = { database, ref, push, set, get, onValue, remove, update };
+    // --- END FIREBASE CONFIG ---
+
     </script>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #333;
-            overflow-x: hidden;
-            min-height: 100vh;
-            display: flex; /* Use flex to manage container */
-            flex-direction: column;
-        }
-
-        .container {
-            max-width: 100vw;
-            flex-grow: 1; /* Allow container to grow */
-            position: relative;
-            background: rgba(255,255,255,0.98);
-            backdrop-filter: blur(20px);
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 25px 20px;
-            text-align: center;
-            color: white;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-            opacity: 0.3;
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            font-weight: 700;
-            margin-bottom: 8px;
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
-            position: relative;
-            z-index: 1;
-        }
-
-        .balance {
-            font-size: 1.3em;
-            margin-top: 15px;
-            background: rgba(255,255,255,0.25);
-            padding: 15px 20px;
-            border-radius: 20px;
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255,255,255,0.2);
-            position: relative;
-            z-index: 1;
-            font-weight: 600;
-        }
-
-        .nav-tabs {
-            display: flex;
-            background: white;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .nav-tab {
-            flex: 1;
-            padding: 18px 8px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: none;
-            background: none;
-            font-size: 11px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            font-weight: 500;
-            position: relative;
-        }
-
-        .nav-tab::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
-        }
-
-        .nav-tab.active::before {
-            transform: scaleX(1);
-        }
-
-        .nav-tab.active {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-            color: #667eea;
-        }
-
-        .nav-tab:hover {
-            background: rgba(102, 126, 234, 0.05);
-            transform: translateY(-1px);
-        }
-
-        .nav-tab .material-icons {
-            font-size: 20px;
-        }
-
-        .tab-content {
-            display: none;
-            padding: 25px 20px;
-            flex-grow: 1; /* Allow content to take available space */
-            animation: fadeIn 0.3s ease;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .task-card {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            margin: 20px 0;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(0,0,0,0.05);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .task-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .task-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 16px 48px rgba(0,0,0,0.12);
-        }
-
-        .task-title {
-            font-size: 1.4em;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 12px;
-            line-height: 1.3;
-        }
-
-        .task-description {
-            color: #666;
-            margin-bottom: 20px;
-            line-height: 1.6;
-            font-size: 0.95em;
-        }
-
-        .task-stats {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .stat {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 10px 16px;
-            border-radius: 25px;
-            font-size: 0.85em;
-            font-weight: 600;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .btn {
-            padding: 14px 28px;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-size: 1em;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .btn:hover::before {
-            left: 100%;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-            color: white;
-            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
-        }
-
-        .btn-success:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(76, 175, 80, 0.5);
-        }
-
-        .btn-warning {
-            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
-            color: white;
-            box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
-        }
-        .btn-warning:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(255, 152, 0, 0.5);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
-            color: white;
-            box-shadow: 0 6px 20px rgba(244, 67, 54, 0.4);
-        }
-        .btn-danger:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(244, 67, 54, 0.5);
-        }
-
-        .btn-info {
-            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
-            color: white;
-            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
-        }
-        .btn-info:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(33, 150, 243, 0.5);
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 600;
-            color: #333;
-            font-size: 0.95em;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 16px 20px;
-            border: 2px solid #e1e5e9;
-            border-radius: 15px;
-            font-size: 1em;
-            transition: all 0.3s ease;
-            background: white;
-            font-family: inherit;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            transform: translateY(-1px);
-        }
-
-        .profile-card {
-            background: white;
-            border-radius: 25px;
-            padding: 35px;
-            text-align: center;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.1);
-            margin-bottom: 25px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .profile-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 6px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .profile-avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 25px;
-            color: white;
-            font-size: 3.5em;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 2000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.6);
-            backdrop-filter: blur(8px);
-            animation: modalFadeIn 0.3s ease;
-        }
-
-        @keyframes modalFadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-content {
-            background-color: white;
-            margin: 50px auto;
-            padding: 35px;
-            border-radius: 25px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-
-        @keyframes modalSlideIn {
-            from { transform: translateY(-50px) scale(0.9); opacity: 0; }
-            to { transform: translateY(0) scale(1); opacity: 1; }
-        }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 32px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            line-height: 1;
-        }
-
-        .close:hover {
-            color: #667eea;
-            transform: scale(1.1);
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 12px;
-            background-color: #f0f0f0;
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 15px 0;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-            width: 0%;
-            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            animation: shimmer 2s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        .ad-container {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            margin: 20px 0;
-            text-align: center;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .countdown {
-            font-size: 3em;
-            font-weight: 700;
-            color: #667eea;
-            margin: 25px 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .notification {
-            position: fixed;
-            top: 25px;
-            right: 25px;
-            padding: 18px 25px;
-            border-radius: 15px;
-            color: white;
-            font-weight: 600;
-            z-index: 3000;
-            animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-            max-width: 300px;
-            text-align: center;
-        }
-
-        .notification.success {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-        }
-
-        .notification.error {
-            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
-        }
-
-        .notification.info {
-            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
-        }
-
-        @keyframes slideInRight {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 20px;
-            margin: 25px 0;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 25px;
-            border-radius: 20px;
-            text-align: center;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
-            transition: transform 0.3s ease;
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .stat-number {
-            font-size: 2.2em;
-            font-weight: 700;
-            color: #667eea;
-            margin-bottom: 8px;
-        }
-
-        .stat-label {
-            font-size: 0.9em;
-            color: #666;
-            font-weight: 500;
-        }
-
-        .cost-display {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin: 20px 0;
-            text-align: center;
-            font-size: 1.2em;
-            font-weight: 600;
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
-        }
-
-        .ads-remaining {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 25px;
-            display: inline-block;
-            margin: 15px 0;
-            font-weight: 600;
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-        }
-
-        .loading-spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 50px 20px;
-            color: #666;
-        }
-
-        .empty-state .material-icons {
-            font-size: 4em;
-            color: #ddd;
-            margin-bottom: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2em;
-            }
-            
-            .nav-tab {
-                font-size: 10px;
-                padding: 15px 5px;
-            }
-            
-            .task-stats {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .stat {
-                text-align: center;
-                margin: 5px 0;
-            }
-            
-            .modal-content {
-                margin: 20px auto;
-                width: 95%;
-                padding: 25px;
-            }
-            
-            .stats-grid {
-                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-                gap: 15px;
-            }
-        }
-
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        
-        /* Admin Specific Styles (hidden by default) */
-        .admin-only {
-            display: none;
-            border: 2px dashed #ffc107; /* Admin indicator */
-            padding: 15px;
-            margin-top: 20px;
-            background-color: #fff9e6;
-            border-radius: 10px;
-        }
-        .admin-only.visible {
-            display: block;
-        }
-        .admin-only h3 {
-            color: #d32f2f;
-            margin-bottom: 10px;
-        }
-    </style>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    /* Global Styles */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --primary-color: #667eea;
+        --secondary-color: #764ba2;
+        --text-color: #333;
+        --light-text-color: #666;
+        --background-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --card-background: rgba(255,255,255,0.98);
+        --card-shadow: 0 8px 32px rgba(0,0,0,0.08);
+        --card-hover-shadow: 0 16px 48px rgba(0,0,0,0.12);
+        --input-border: #e1e5e9;
+        --modal-backdrop: rgba(0,0,0,0.6);
+        --modal-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: var(--background-gradient);
+        color: var(--text-color);
+        overflow-x: hidden;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .container {
+        max-width: 100vw;
+        min-height: 100vh;
+        position: relative;
+        background: var(--card-background);
+        backdrop-filter: blur(20px);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .header {
+        background: var(--primary-gradient);
+        padding: 25px 20px;
+        text-align: center;
+        color: white;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .header::before { /* Subtle background grain effect */
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+    }
+
+    .header h1 {
+        font-size: 2.5em;
+        font-weight: 700;
+        margin-bottom: 8px;
+        text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+        position: relative;
+        z-index: 1;
+    }
+
+    .balance {
+        font-size: 1.3em;
+        margin-top: 15px;
+        background: rgba(255,255,255,0.25);
+        padding: 15px 20px;
+        border-radius: 20px;
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255,255,255,0.2);
+        position: relative;
+        z-index: 1;
+        font-weight: 600;
+    }
+
+    .nav-tabs {
+        display: flex;
+        background: white;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .nav-tab {
+        flex: 1;
+        padding: 18px 8px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+        background: none;
+        font-size: 11px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        font-weight: 500;
+        position: relative;
+        color: var(--light-text-color);
+    }
+
+    .nav-tab::before {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        height: 3px;
+        background: var(--primary-gradient);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .nav-tab.active {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        color: var(--primary-color);
+    }
+    .nav-tab.active::before {
+        transform: scaleX(1);
+    }
+
+    .nav-tab:hover {
+        background: rgba(102, 126, 234, 0.05);
+        transform: translateY(-1px);
+    }
+
+    .nav-tab .material-icons {
+        font-size: 20px;
+    }
+
+    .tab-content {
+        display: none;
+        padding: 25px 20px;
+        flex-grow: 1; /* Allow content to fill remaining space */
+        animation: fadeIn 0.3s ease;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Task Card Styles */
+    .task-card {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        margin: 20px 0;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(0,0,0,0.05);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .task-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 4px;
+        background: var(--primary-gradient);
+    }
+
+    .task-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--card-hover-shadow);
+    }
+
+    .task-title {
+        font-size: 1.4em;
+        font-weight: 600;
+        color: var(--text-color);
+        margin-bottom: 12px;
+        line-height: 1.3;
+    }
+
+    .task-description {
+        color: var(--light-text-color);
+        margin-bottom: 20px;
+        line-height: 1.6;
+        font-size: 0.95em;
+    }
+
+    .task-stats {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .stat {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 10px 16px;
+        border-radius: 25px;
+        font-size: 0.85em;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    /* Button Styles */
+    .btn {
+        padding: 14px 28px;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        font-size: 1em;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn::before {
+        content: '';
+        position: absolute;
+        top: 0; left: -100%;
+        width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .btn:hover::before {
+        left: 100%;
+    }
+
+    .btn-primary { background: var(--primary-gradient); color: white; box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4); }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5); }
+    .btn-success { background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4); }
+    .btn-success:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(76, 175, 80, 0.5); }
+    .btn-warning { background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); color: white; box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4); }
+    .btn-warning:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(255, 152, 0, 0.5); }
+    .btn-danger { background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%); color: white; box-shadow: 0 6px 20px rgba(244, 67, 54, 0.4); }
+    .btn-danger:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(244, 67, 54, 0.5); }
+    .btn-info { background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white; box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4); }
+    .btn-info:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(33, 150, 243, 0.5); }
+
+    /* Form Styles */
+    .form-group {
+        margin-bottom: 25px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: 600;
+        color: var(--text-color);
+        font-size: 0.95em;
+    }
+    .form-control {
+        width: 100%;
+        padding: 16px 20px;
+        border: 2px solid var(--input-border);
+        border-radius: 15px;
+        font-size: 1em;
+        transition: all 0.3s ease;
+        background: white;
+        font-family: inherit;
+        color: var(--text-color);
+    }
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        transform: translateY(-1px);
+    }
+
+    /* Profile Card */
+    .profile-card {
+        background: white;
+        border-radius: 25px;
+        padding: 35px;
+        text-align: center;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+        margin-bottom: 25px;
+        position: relative;
+        overflow: hidden;
+    }
+    .profile-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 6px;
+        background: var(--primary-gradient);
+    }
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: var(--primary-gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 25px;
+        color: white;
+        font-size: 3.5em;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 2000;
+        left: 0; top: 0;
+        width: 100%; height: 100%;
+        background-color: var(--modal-backdrop);
+        backdrop-filter: blur(8px);
+        animation: modalFadeIn 0.3s ease;
+    }
+    @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .modal-content {
+        background-color: white;
+        margin: 50px auto;
+        padding: 35px;
+        border-radius: 25px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: var(--modal-shadow);
+        animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+    }
+    @keyframes modalSlideIn { from { transform: translateY(-50px) scale(0.9); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 32px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        line-height: 1;
+    }
+    .close:hover { color: var(--primary-color); transform: scale(1.1); }
+
+    /* Progress Bar */
+    .progress-bar {
+        width: 100%;
+        height: 12px;
+        background-color: #f0f0f0;
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 15px 0;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        width: 0%;
+        transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+    }
+    .progress-fill::after { /* Shimmer effect */
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        animation: shimmer 2s infinite;
+    }
+    @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+    /* Ad Container */
+    .ad-container {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        margin: 20px 0;
+        text-align: center;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    .ads-remaining {
+        background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        color: white;
+        padding: 15px 25px;
+        border-radius: 25px;
+        display: inline-block;
+        margin: 15px 0;
+        font-weight: 600;
+        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    }
+
+    /* Countdown */
+    .countdown {
+        font-size: 3em;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin: 25px 0;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Notification */
+    .notification {
+        position: fixed;
+        top: 25px;
+        right: 25px;
+        padding: 18px 25px;
+        border-radius: 15px;
+        color: white;
+        font-weight: 600;
+        z-index: 3000;
+        animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        max-width: 300px;
+        text-align: center;
+    }
+    .notification.success { background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); }
+    .notification.error { background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%); }
+    .notification.info { background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); }
+    @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 20px;
+        margin: 25px 0;
+    }
+    .stat-card {
+        background: white;
+        padding: 25px;
+        border-radius: 20px;
+        text-align: center;
+        box-shadow: var(--card-shadow);
+        transition: transform 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    .stat-card:hover { transform: translateY(-5px); }
+    .stat-number {
+        font-size: 2.2em;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 8px;
+    }
+    .stat-label {
+        font-size: 0.9em;
+        color: var(--light-text-color);
+        font-weight: 500;
+    }
+
+    /* Cost Display */
+    .cost-display {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 20px;
+        border-radius: 15px;
+        margin: 20px 0;
+        text-align: center;
+        font-size: 1.2em;
+        font-weight: 600;
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    /* Loading Spinner */
+    .loading-spinner {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid var(--primary-color);
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 50px 20px;
+        color: var(--light-text-color);
+    }
+    .empty-state .material-icons {
+        font-size: 4em;
+        color: #ddd;
+        margin-bottom: 20px;
+    }
+
+    /* Pulse Animation */
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+    /* Media Queries */
+    @media (max-width: 768px) {
+        .header h1 { font-size: 2em; }
+        .nav-tab { font-size: 10px; padding: 15px 5px; }
+        .task-stats { flex-direction: column; align-items: stretch; }
+        .stat { margin: 5px 0; }
+        .modal-content { margin: 20px auto; width: 95%; padding: 25px; }
+        .stats-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
+    }
+
+    /* Specific Tab Styles */
+    #home { padding-top: 15px; }
+    #home h2 { margin-top: 30px; margin-bottom: 20px; }
+    #ads .ad-container > .material-icons { font-size: 4em; color: var(--primary-color); margin-bottom: 20px; }
+    #ads p strong { color: var(--primary-color); }
+    #ads h3 { margin-bottom: 15px; color: var(--text-color); }
+    #adDisplay { min-height: 350px; }
+    #adContent { /* Placeholder styling */ }
+    #paymentModal .modal-content { background: var(--primary-gradient); color: white; }
+    #paymentModal .modal-content h2, #paymentModal .modal-content p { color: white !important; }
+    #paymentModal .loading-spinner { border-top-color: white; border-color: rgba(255,255,255,0.5); }
+    #verifyModal .modal-content .material-icons { color: var(--primary-color); }
+
+</style>
 </head>
 <body>
     <div class="container">
@@ -694,11 +586,6 @@
                 <span class="material-icons">person</span>
                 <span>Profile</span>
             </button>
-            <!-- Admin Tab -->
-            <button id="adminTabBtn" class="nav-tab admin-only" onclick="switchTab('admin')">
-                <span class="material-icons">admin_panel_settings</span>
-                <span>Admin</span>
-            </button>
         </div>
 
         <!-- Home Tab -->
@@ -717,7 +604,7 @@
                     <div class="stat-label">Total Earned</div>
                 </div>
             </div>
-            <h2 style="margin: 25px 0; font-size: 1.8em; color: #333;">🚀 Available Tasks</h2>
+            <h2 style="margin-top: 30px; margin-bottom: 20px; font-size: 1.8em; color: var(--text-color);">🚀 Available Tasks</h2>
             <div id="allTasksList">
                 <div class="loading-spinner"></div>
             </div>
@@ -725,7 +612,7 @@
 
         <!-- My Tasks Tab -->
         <div id="tasks" class="tab-content">
-            <h2 style="margin-bottom: 25px; font-size: 1.8em; color: #333;">📝 My Tasks</h2>
+            <h2 style="margin-bottom: 25px; font-size: 1.8em; color: var(--text-color);">📝 My Tasks</h2>
             <div id="myTasksList">
                 <div class="loading-spinner"></div>
             </div>
@@ -733,7 +620,7 @@
 
         <!-- Add Task Tab -->
         <div id="add-task" class="tab-content">
-            <h2 style="margin-bottom: 25px; font-size: 1.8em; color: #333;">➕ Create New Task</h2>
+            <h2 style="margin-bottom: 25px; font-size: 1.8em; color: var(--text-color);">➕ Create New Task</h2>
             <form id="addTaskForm">
                 <div class="form-group">
                     <label for="taskTitle">Task Title *</label>
@@ -750,10 +637,6 @@
                 <div class="form-group">
                     <label for="totalImpressions">Total Impressions *</label>
                     <input type="number" id="totalImpressions" class="form-control" min="500" step="100" placeholder="Minimum 500 impressions" required>
-                </div>
-                <div class="form-group admin-only">
-                    <label for="taskReward">Reward per Completion (TON) *</label>
-                    <input type="number" id="taskReward" class="form-control" step="0.000001" min="0.000001" placeholder="Enter TON reward for completing task" required value="0.000001">
                 </div>
                 <div class="cost-display">
                     💰 Total Cost: <span id="taskCost">0</span> Telegram Stars
@@ -773,15 +656,15 @@
 
         <!-- Ads Tab -->
         <div id="ads" class="tab-content">
-            <h2 style="margin-bottom: 25px; font-size: 1.8em; color: #333;">📺 Watch Ads & Earn</h2>
+            <h2 style="margin-bottom: 25px; font-size: 1.8em; color: var(--text-color);">📺 Watch Ads & Earn</h2>
             <div class="ad-container">
-                <div class="material-icons" style="font-size: 4em; color: #667eea; margin-bottom: 20px;">play_circle_filled</div>
+                <div class="material-icons" style="font-size: 4em; color: var(--primary-color); margin-bottom: 20px;">play_circle_filled</div>
                 <h3 style="margin-bottom: 15px;">Daily Ads Available</h3>
                 <div class="ads-remaining">
                     <span id="adsRemaining">10</span> / 10 Ads Remaining
                 </div>
-                <p style="margin: 20px 0; color: #666; font-size: 1.1em;">
-                    Earn <strong><span id="adRewardAmount">0.000001</span></strong> TON per ad watched!
+                <p style="margin: 20px 0; color: var(--light-text-color); font-size: 1.1em;">
+                    Earn <strong>0.000001</strong> TON per ad watched!
                 </p>
                 <button id="watchAdBtn" class="btn btn-success" style="font-size: 1.1em;">
                     <span class="material-icons">play_arrow</span>
@@ -808,7 +691,7 @@
                     <span class="material-icons">person</span>
                 </div>
                 <h2 id="userName" style="margin-bottom: 8px; font-size: 1.8em;">Loading...</h2>
-                <p id="userId" style="color: #666; margin-bottom: 25px;">ID: Loading...</p>
+                <p id="userId" style="color: var(--light-text-color); margin-bottom: 25px;">ID: Loading...</p>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-number" id="profileBalance">0.00000</div>
@@ -833,56 +716,13 @@
                 </button>
             </div>
         </div>
-        
-        <!-- Admin Tab -->
-        <div id="admin" class="tab-content">
-            <h2 style="margin-bottom: 25px; font-size: 1.8em; color: #333;">⚙️ Admin Panel</h2>
-            
-            <div class="admin-only">
-                <h3>Manage Users</h3>
-                <div class="form-group">
-                    <label for="targetUserId">User ID</label>
-                    <input type="text" id="targetUserId" class="form-control" placeholder="Enter User ID to manage">
-                </div>
-                <button class="btn btn-info" onclick="manageUser()">Manage</button>
-                <div id="userManagementSection" style="margin-top: 20px;"></div>
-            </div>
-
-            <div class="admin-only" style="margin-top: 40px;">
-                <h3>System Settings</h3>
-                <div class="form-group">
-                    <label for="maxDailyAdsInput">Max Daily Ads</label>
-                    <input type="number" id="maxDailyAdsInput" class="form-control" value="10">
-                </div>
-                <div class="form-group">
-                    <label for="adRewardInput">Ad Reward (TON)</label>
-                    <input type="number" id="adRewardInput" class="form-control" step="0.000001" value="0.000001">
-                </div>
-                <div class="form-group">
-                    <label for="taskRewardRateInput">Stars Rate (per 500 impressions)</label>
-                    <input type="number" id="taskRewardRateInput" class="form-control" value="100">
-                </div>
-                 <div class="form-group">
-                    <label for="taskCompletionRewardInput">Task Completion Reward (TON)</label>
-                    <input type="number" id="taskCompletionRewardInput" class="form-control" step="0.000001" value="0.000001">
-                </div>
-                <button class="btn btn-success" onclick="saveSystemSettings()">Save Settings</button>
-            </div>
-            
-            <div class="admin-only" style="margin-top: 40px;">
-                <h3>Withdrawals</h3>
-                <div id="withdrawalRequestsList">
-                    <div class="loading-spinner"></div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Withdraw Modal -->
     <div id="withdrawModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('withdrawModal')">&times;</span>
-            <h2 style="margin-bottom: 25px; color: #333;">💰 Withdraw TON</h2>
+            <h2 style="margin-bottom: 25px; color: var(--text-color);">💰 Withdraw TON</h2>
             <form id="withdrawForm">
                 <div class="form-group">
                     <label for="withdrawAmount">Amount (TON) *</label>
@@ -904,9 +744,9 @@
     <div id="verifyModal" class="modal">
         <div class="modal-content" style="text-align: center;">
             <span class="close" onclick="closeModal('verifyModal')">&times;</span>
-            <div class="material-icons" style="font-size: 4em; color: #667eea; margin-bottom: 20px;">hourglass_empty</div>
-            <h2 style="margin-bottom: 20px; color: #333;">⏳ Task Verification</h2>
-            <p style="margin-bottom: 25px; color: #666;">Please wait while we verify your task completion...</p>
+            <div class="material-icons" style="font-size: 4em; color: var(--primary-color); margin-bottom: 20px;">hourglass_empty</div>
+            <h2 style="margin-bottom: 20px; color: var(--text-color);">⏳ Task Verification</h2>
+            <p style="margin-bottom: 25px; color: var(--light-text-color);">Please wait while we verify your task completion...</p>
             <div class="countdown" id="verifyCountdown">10</div>
             <div class="progress-bar">
                 <div class="progress-fill" id="verifyProgress"></div>
@@ -916,179 +756,121 @@
 
     <!-- Payment Processing Modal -->
     <div id="paymentModal" class="modal">
-        <div class="modal-content" style="text-align: center;">
-            <div class="material-icons pulse" style="font-size: 4em; color: #667eea; margin-bottom: 20px;">payment</div>
-            <h2 style="margin-bottom: 20px; color: #333;">💳 Processing Payment</h2>
-            <p style="margin-bottom: 25px; color: #666;">Please complete the payment to create your task...</p>
-            <div class="loading-spinner"></div>
-        </div>
-    </div>
-    
-    <!-- User Management Modal -->
-    <div id="userManagementModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('userManagementModal')">&times;</span>
-            <h2 id="manageUserName" style="margin-bottom: 25px; color: #333;">Manage User: <span id="manageUserId"></span></h2>
-            <div class="form-group">
-                <label>User ID:</label>
-                <p id="manageUserIdDisplay" class="form-control-display"></p>
-            </div>
-             <div class="form-group">
-                <label>Role:</label>
-                <select id="userRoleSelect" class="form-control">
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Grant "Free Adds" (Simulated):</label>
-                <select id="freeAddsSelect" class="form-control">
-                    <option value="false">No</option>
-                    <option value="true">Yes</option>
-                </select>
-            </div>
-            <button class="btn btn-primary" onclick="updateUserRole()">Save Changes</button>
-            <button class="btn btn-danger" onclick="deleteUser()" style="margin-left: 10px;">Delete User</button>
+        <div class="modal-content" style="text-align: center; background: var(--primary-gradient); color: white;">
+            <div class="material-icons pulse" style="font-size: 4em; color: white; margin-bottom: 20px;">payment</div>
+            <h2 style="margin-bottom: 20px;">💳 Processing Payment</h2>
+            <p style="margin-bottom: 25px; opacity: 0.9;">Please complete the payment to create your task...</p>
+            <div class="loading-spinner" style="border-top-color: white; border-color: rgba(255,255,255,0.5);"></div>
         </div>
     </div>
 
     <script>
-        // Global variables
+        // --- GLOBAL VARIABLES ---
         let currentUser = null;
         let userTasks = {}; // Tasks created by the current user
-        let allTasks = {}; // All available tasks
+        let allTasks = {}; // All available tasks from Firebase
         let userBalance = 0;
         let userStats = { tasksCreated: 0, tasksCompleted: 0, totalEarnings: 0, adsWatched: 0 };
         let adsWatchedToday = 0;
-        let isProcessingPayment = false;
-        
-        // --- Configuration Constants ---
-        // IMPORTANT: Replace 'YOUR_BOT_USERNAME' with your actual Telegram Bot Username.
-        const BOT_USERNAME = 'SkyTaskTonBot'; // !!! REPLACE WITH YOUR BOT'S USERNAME !!!
-        
-        // Admin User ID (for simulated admin privileges)
-        const ADMIN_USER_ID = 8101021767; 
-        
-        let TASK_STARS_RATE_PER_500_IMPRESSIONS = 100;
-        let TASK_TON_REWARD_PER_COMPLETION = 0.000001; // Default
-        let AD_TON_REWARD = 0.000001; // Default
-        let MAX_DAILY_ADS = 10; // Default
-        
+        let isProcessingPayment = false; // Prevent multiple payment requests
+        let currentTab = 'home'; // Track the current active tab
+
+        // !!! IMPORTANT: REPLACE WITH YOUR ACTUAL TELEGRAM BOT USERNAME !!!
+        // This is crucial for constructing payment invoice links.
+        const BOT_USERNAME = 'SkyTaskTonBot'; // <-- CHANGE THIS TO YOUR BOT'S USERNAME
+
+        // --- CONSTANTS ---
+        const TASK_STARS_RATE_PER_500_IMPRESSIONS = 100; // Stars needed for every 500 impressions
+        const TASK_TON_REWARD_PER_COMPLETION = 0.00005; // TON reward for completing a task
+        const AD_TON_REWARD = 0.000001; // TON reward per watched ad
+        const MAX_DAILY_ADS = 10;
         const AD_COUNTDOWN_SECONDS = 5;
         const TASK_VERIFICATION_SECONDS = 10;
+        const SPECIAL_USER_ID_FOR_FREE_TASKS = 8101021767; // User ID for free task creation
 
-        // Initialize Telegram Web App
+        // --- INITIALIZATION ---
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.expand();
-        window.Telegram.WebApp.enableClosingConfirmation();
+        window.Telegram.WebApp.enableClosingConfirmation(); // Show confirmation when trying to close
 
-        // Initialize app on DOM content loaded
         document.addEventListener('DOMContentLoaded', function() {
             initializeUser();
-            loadSystemSettings(); // Load settings first
             loadUserData();
             updateTaskCostInputHandler();
             initializeDailyAdsResetTimer();
+            setupTabButtons(); // Setup click handlers for tabs
 
             // Set initial main button text and show it
-            window.Telegram.WebApp.MainButton.setText('Home');
-            window.Telegram.WebApp.MainButton.show();
+            updateMainButton('Home');
         });
 
+        // --- USER MANAGEMENT ---
         function initializeUser() {
             if (window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
                 currentUser = window.Telegram.WebApp.initDataUnsafe.user;
-                document.getElementById('userName').textContent = 
-                    (currentUser.first_name || '') + ' ' + (currentUser.last_name || '');
+                const displayName = (currentUser.first_name || '') + (currentUser.last_name ? ' ' + currentUser.last_name : '');
+                document.getElementById('userName').textContent = displayName.trim() || 'User';
                 document.getElementById('userId').textContent = 'ID: ' + currentUser.id;
+                // Set profile avatar based on user ID (simple placeholder)
+                const avatarElement = document.querySelector('.profile-avatar');
+                if (avatarElement) {
+                    avatarElement.textContent = displayName.charAt(0).toUpperCase();
+                }
             } else {
                 // Fallback for testing outside Telegram environment
-                currentUser = { 
+                currentUser = {
                     id: Date.now(), // Simulate a unique ID for testing
-                    first_name: 'TestUser', 
+                    first_name: 'TestUser',
                     username: 'testbotuser' + Math.floor(Math.random() * 1000)
                 };
                 document.getElementById('userName').textContent = 'Test User';
                 document.getElementById('userId').textContent = 'ID: ' + currentUser.id;
                 showNotification('Running in test mode. Some features might be simulated.', 'info');
             }
-            
-            // Show Admin Tab if the current user is the designated admin
-            if (currentUser && currentUser.id === ADMIN_USER_ID) {
-                document.getElementById('adminTabBtn').classList.add('visible');
-                document.getElementById('adminTabBtn').style.display = 'flex'; // Ensure it's displayed
-            }
         }
 
-        function loadSystemSettings() {
-            const settingsRef = firebase.ref(firebase.database, 'settings');
-            firebase.onValue(settingsRef, (snapshot) => {
-                const settings = snapshot.val() || {};
-                MAX_DAILY_ADS = settings.maxDailyAds || 10;
-                AD_TON_REWARD = settings.adReward || 0.000001;
-                TASK_STARS_RATE_PER_500_IMPRESSIONS = settings.taskStarsRate || 100;
-                TASK_TON_REWARD_PER_COMPLETION = settings.taskCompletionReward || 0.000001;
-
-                // Update UI elements that use these settings
-                document.getElementById('adRewardAmount').textContent = AD_TON_REWARD.toFixed(6);
-                document.getElementById('maxDailyAdsInput').value = MAX_DAILY_ADS;
-                document.getElementById('adRewardInput').value = AD_TON_REWARD.toFixed(6);
-                document.getElementById('taskRewardRateInput').value = TASK_STARS_RATE_PER_500_IMPRESSIONS;
-                document.getElementById('taskCompletionRewardInput').value = TASK_TON_REWARD_PER_COMPLETION.toFixed(6);
-                document.getElementById('costProgress').style.width = '0%'; // Reset progress bar on load/change
-                
-                updateTaskCostInputHandler(); // Re-apply handler in case values changed
-
-            }, (error) => {
-                console.error("Error loading system settings:", error);
-                showNotification("Error loading system settings.", "error");
-            });
-        }
-
+        // --- DATA LOADING AND UI UPDATING ---
         function loadUserData() {
             if (!currentUser) {
                 console.error("No current user found. Cannot load user data.");
                 return;
             }
-            
+
             // Show loading spinners while data is fetched
             document.getElementById('allTasksList').innerHTML = '<div class="loading-spinner"></div>';
             document.getElementById('myTasksList').innerHTML = '<div class="loading-spinner"></div>';
 
+            // Listen for user-specific data
             const userRef = firebase.ref(firebase.database, `users/${currentUser.id}`);
             firebase.onValue(userRef, (snapshot) => {
                 const userData = snapshot.val() || {};
                 userBalance = userData.balance || 0;
                 userStats = userData.stats || { tasksCreated: 0, tasksCompleted: 0, totalEarnings: 0, adsWatched: 0 };
                 adsWatchedToday = userData.adsWatchedToday || 0;
-                
-                // Load admin specific user data if admin
-                if (currentUser.id === ADMIN_USER_ID) {
-                    loadWithdrawalRequests();
-                }
-                
-                updateUI();
+                updateUI(); // Update relevant elements
             }, (error) => {
-                console.error("Error loading user data:", error);
-                showNotification("Error loading your data. Please try refreshing.", "error");
+                console.error("Error fetching user data:", error);
+                showNotification("Failed to load user data.", "error");
             });
 
+            // Listen for all tasks
             const tasksRef = firebase.ref(firebase.database, 'tasks');
             firebase.onValue(tasksRef, (snapshot) => {
                 allTasks = snapshot.val() || {};
                 displayAllTasks(); // Refresh displayed tasks
             }, (error) => {
-                console.error("Error loading tasks:", error);
-                showNotification("Error loading available tasks.", "error");
+                console.error("Error fetching all tasks:", error);
+                showNotification("Failed to load tasks.", "error");
             });
 
+            // Listen for tasks created by the current user
             const userTasksRef = firebase.ref(firebase.database, `userTasks/${currentUser.id}`);
             firebase.onValue(userTasksRef, (snapshot) => {
                 userTasks = snapshot.val() || {};
                 displayMyTasks(); // Refresh displayed user tasks
             }, (error) => {
-                console.error("Error loading user's tasks:", error);
-                showNotification("Error loading your tasks.", "error");
+                console.error("Error fetching user tasks:", error);
+                showNotification("Failed to load your tasks.", "error");
             });
         }
 
@@ -1098,13 +880,15 @@
             document.getElementById('profileTasks').textContent = userStats.tasksCreated;
             document.getElementById('profileEarnings').textContent = userStats.totalEarnings.toFixed(5);
             document.getElementById('profileAdsWatched').textContent = userStats.adsWatched;
-            
-            document.getElementById('totalTasks').textContent = Object.values(allTasks).filter(task => task.status === 'active').length;
+
+            // Filter tasks for the total count (only active ones)
+            const activeTasksCount = Object.values(allTasks).filter(task => task.status === 'active').length;
+            document.getElementById('totalTasks').textContent = activeTasksCount;
             document.getElementById('completedTasks').textContent = userStats.tasksCompleted;
             document.getElementById('totalEarnings').textContent = userStats.totalEarnings.toFixed(5);
-            
+
             document.getElementById('adsRemaining').textContent = Math.max(0, MAX_DAILY_ADS - adsWatchedToday);
-            
+
             const watchAdBtn = document.getElementById('watchAdBtn');
             if (adsWatchedToday >= MAX_DAILY_ADS) {
                 watchAdBtn.disabled = true;
@@ -1117,94 +901,140 @@
             }
         }
 
+        // --- TAB NAVIGATION ---
+        function setupTabButtons() {
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabId = this.getAttribute('onclick').match(/switchTab\('([^']+)'\)/)[1];
+                    switchTab(tabId);
+                });
+            });
+        }
+
         function switchTab(tabName) {
             const tabs = document.querySelectorAll('.tab-content');
             tabs.forEach(tab => tab.classList.remove('active'));
-            
+
             const navTabs = document.querySelectorAll('.nav-tab');
             navTabs.forEach(tab => tab.classList.remove('active'));
-            
-            document.getElementById(tabName).classList.add('active');
-            const activeNavButton = document.querySelector(`.nav-tab[onclick="switchTab('${tabName}')"]`);
-            if (activeNavButton) {
-                activeNavButton.classList.add('active');
-            }
 
+            document.getElementById(tabName).classList.add('active');
+            document.querySelector(`.nav-tab[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            currentTab = tabName;
+            updateMainButton(tabName);
+        }
+
+        function updateMainButton(tabName) {
             let buttonText = '';
+            let icon = '';
             switch (tabName) {
-                case 'home': buttonText = 'Home'; break;
-                case 'tasks': buttonText = 'My Tasks'; break;
-                case 'add-task': buttonText = 'Create Task'; break;
-                case 'ads': buttonText = 'Watch Ads'; break;
-                case 'profile': buttonText = 'My Profile'; break;
-                case 'admin': buttonText = 'Admin Panel'; break;
-                default: buttonText = 'Back';
+                case 'home': buttonText = 'Home'; icon = 'home'; break;
+                case 'tasks': buttonText = 'My Tasks'; icon = 'assignment'; break;
+                case 'add-task': buttonText = 'Create Task'; icon = 'add_circle'; break;
+                case 'ads': buttonText = 'Watch Ads'; icon = 'ads_click'; break;
+                case 'profile': buttonText = 'My Profile'; icon = 'person'; break;
+                default: buttonText = 'Back'; icon = 'arrow_back';
             }
             window.Telegram.WebApp.MainButton.setText(buttonText);
+            // If you want to add an icon to the main button (not directly supported by text method):
+            // window.Telegram.WebApp.MainButton.setParams({ text: buttonText, ... });
             window.Telegram.WebApp.MainButton.show();
         }
 
+        // --- TASK MANAGEMENT ---
         function updateTaskCostInputHandler() {
             const impressionsInput = document.getElementById('totalImpressions');
             const costSpan = document.getElementById('taskCost');
             const progressBar = document.getElementById('costProgress');
-            
-            // Remove existing listener to prevent duplicates if settings change
-            impressionsInput.replaceWith(impressionsInput.cloneNode(true)); 
-            const newImpressionsInput = document.getElementById('totalImpressions');
 
-            newImpressionsInput.addEventListener('input', function() {
+            impressionsInput.addEventListener('input', function() {
                 const impressions = parseInt(this.value) || 0;
+                // Calculate cost in Stars
                 const cost = Math.ceil((impressions / 500) * TASK_STARS_RATE_PER_500_IMPRESSIONS);
                 costSpan.textContent = cost;
-                
-                const progress = Math.min((impressions / 4000) * 100, 100); // Visualize up to 4000 impressions for clarity
+
+                // Visualize progress towards a reasonable max (e.g., 4000 impressions)
+                const progress = Math.min((impressions / 4000) * 100, 100);
                 progressBar.style.width = progress + '%';
             });
         }
 
-        // Add Task Form Handler
+        // Add Task Form Submission
         document.getElementById('addTaskForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
             if (isProcessingPayment) {
                 showNotification('Payment already in progress...', 'info');
                 return;
             }
-            
+
             const title = document.getElementById('taskTitle').value.trim();
             const description = document.getElementById('taskDescription').value.trim();
             const url = document.getElementById('taskUrl').value.trim();
             const impressions = parseInt(document.getElementById('totalImpressions').value);
-            const reward = parseFloat(document.getElementById('taskReward').value); // Get reward from input
-            
+
             if (impressions < 500) {
                 showNotification('Minimum 500 impressions required!', 'error');
                 return;
             }
-            if (reward <= 0) {
-                showNotification('Task reward must be greater than zero!', 'error');
-                return;
+            if (!url.startsWith('http')) {
+                 showNotification('Please enter a valid URL.', 'error');
+                 return;
             }
-            
+
             const costInStars = Math.ceil((impressions / 500) * TASK_STARS_RATE_PER_500_IMPRESSIONS);
-            
+
+            // --- Handle Free Task Creation Logic ---
+            const isFreeTask = currentUser && currentUser.id === SPECIAL_USER_ID_FOR_FREE_TASKS;
+            if (isFreeTask) {
+                showNotification('Creating task for special user (free).', 'info');
+                try {
+                    await createTask(title, description, url, impressions, 0); // 0 stars for free task
+                    showNotification('Task created successfully! 🎉', 'success');
+                    document.getElementById('addTaskForm').reset();
+                    document.getElementById('taskCost').textContent = '0';
+                    document.getElementById('costProgress').style.width = '0%';
+                } catch (error) {
+                    console.error("Error creating free task:", error);
+                    showNotification(`Error creating task: ${error.message}`, 'error');
+                }
+                return; // Exit after creating the free task
+            }
+            // --- End Free Task Creation Logic ---
+
+
+            // --- Stars Payment Initiation ---
+            const invoiceAmountUnits = costInStars * 100; // Telegram uses smallest units (e.g., 100 units per Star)
             const uniqueInvoiceId = `skytaskton_task_pay_${currentUser.id}_${Date.now()}`;
             const invoiceDescription = `SkyTaskTon Task: ${title} (${impressions} impressions)`;
-            
-            const starsPaymentUrl = `https://t.me/${BOT_USERNAME}?start=${encodeURIComponent(`${uniqueInvoiceId}:${costInStars * 100}:${encodeURIComponent(invoiceDescription)}`)}`;
+
+            // Construct the invoice URL for Telegram payment.
+            // This assumes your bot handles `start` command with a payload like:
+            // `BOT_USERNAME?start=uniqueInvoiceId:invoiceAmountUnits:encodedDescription`
+            // In a production scenario, you'd likely use a backend to generate this link via Bot API `createInvoiceLink`.
+            const starsPaymentUrl = `https://t.me/${BOT_USERNAME}?start=${encodeURIComponent(`${uniqueInvoiceId}:${invoiceAmountUnits}:${encodeURIComponent(invoiceDescription)}`)}`;
 
             try {
                 isProcessingPayment = true;
                 document.getElementById('paymentModal').style.display = 'block';
-                
+
+                // Open Telegram's payment interface
                 window.Telegram.WebApp.openInvoice(starsPaymentUrl, (status) => {
                     if (status === 'paid') {
-                        createTask(title, description, url, impressions, costInStars, reward);
-                        showNotification('Task created successfully! 🎉', 'success');
-                        document.getElementById('addTaskForm').reset();
-                        document.getElementById('taskCost').textContent = '0';
-                        document.getElementById('costProgress').style.width = '0%';
+                        // Payment confirmed, create the task and update user stats
+                        createTask(title, description, url, impressions, costInStars)
+                            .then(() => {
+                                showNotification('Task created successfully! 🎉', 'success');
+                                document.getElementById('addTaskForm').reset();
+                                document.getElementById('taskCost').textContent = '0';
+                                document.getElementById('costProgress').style.width = '0%';
+                                switchTab('home'); // Go back to home tab after success
+                            })
+                            .catch(error => {
+                                console.error("Error saving task after payment:", error);
+                                showNotification(`Task creation failed after payment: ${error.message}`, 'error');
+                            });
                     } else if (status === 'cancelled') {
                         showNotification('Payment cancelled. Task not created.', 'info');
                     } else {
@@ -1215,55 +1045,67 @@
                 });
             } catch (error) {
                 console.error('Error initiating Stars payment:', error);
-                showNotification(`Error: ${error.message}. Please try again.`, 'error');
+                showNotification(`Error initiating payment: ${error.message}. Please try again.`, 'error');
                 isProcessingPayment = false;
                 closeModal('paymentModal');
             }
         });
 
-        async function createTask(title, description, url, impressions, costInStars, reward) {
+        async function createTask(title, description, url, costInStars) {
             const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
             const taskData = {
                 id: taskId,
                 title,
                 description,
                 url,
-                totalImpressions: impressions,
+                totalImpressions: parseInt(document.getElementById('totalImpressions').value), // Get impressions from input
                 currentImpressions: 0,
                 costInStars: costInStars,
-                rewardPerCompletion: reward, // Use the reward from input
+                rewardPerCompletion: TASK_TON_REWARD_PER_COMPLETION, // Fixed reward for simplicity
                 createdBy: currentUser.id,
                 createdAt: new Date().toISOString(),
-                status: 'active', 
-                completedBy: [] 
+                status: 'active',
+                completedBy: [] // Array of user IDs who completed the task
             };
-            
+
+            // Save task to general tasks list and to user's created tasks list
             try {
                 await firebase.set(firebase.ref(firebase.database, `tasks/${taskId}`), taskData);
                 await firebase.set(firebase.ref(firebase.database, `userTasks/${currentUser.id}/${taskId}`), taskData);
-                
+
+                // Update user's stats
                 const updatedStats = {
                     ...userStats,
                     tasksCreated: userStats.tasksCreated + 1
                 };
                 await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/stats`), updatedStats);
-                
+
+                // If the user paid with stars, update their balance (this is a simulation, actual balance deduction needs bot backend)
+                if (!isFreeTask && costInStars > 0) {
+                    // In a real app, this deduction would be confirmed by your bot after payment success.
+                    // For this frontend, we'll assume payment success means the stars are "used".
+                    // If this web app is directly interacting with Telegram payments, the SDK *might* handle balance updates.
+                    // However, for clarity and control, it's best to manage balance via bot interaction.
+                    // For now, we don't deduct from frontend balance as Stars are separate from TON balance.
+                }
+
             } catch (error) {
                 console.error("Error saving task to Firebase:", error);
-                throw error; 
+                throw error; // Re-throw to be caught by the caller
             }
         }
 
         function displayAllTasks() {
             const container = document.getElementById('allTasksList');
-            container.innerHTML = ''; 
-            
-            const availableTasks = Object.values(allTasks).filter(task => 
-                task.status === 'active' && 
-                task.currentImpressions < task.totalImpressions &&
-                !task.completedBy?.includes(currentUser.id) // Don't show tasks already completed by the user
-            );
-            
+            container.innerHTML = ''; // Clear previous content
+
+            const availableTasks = Object.values(allTasks)
+                .filter(task =>
+                    task.status === 'active' &&
+                    task.currentImpressions < task.totalImpressions &&
+                    !task.completedBy?.includes(currentUser.id) // Don't show tasks already completed by the user
+                );
+
             if (availableTasks.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
@@ -1274,7 +1116,7 @@
                 `;
                 return;
             }
-            
+
             availableTasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Newest first
 
             availableTasks.forEach(task => {
@@ -1284,10 +1126,10 @@
 
         function displayMyTasks() {
             const container = document.getElementById('myTasksList');
-            container.innerHTML = ''; 
-            
+            container.innerHTML = ''; // Clear previous content
+
             const myTasksList = Object.values(userTasks);
-            
+
             if (myTasksList.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
@@ -1298,9 +1140,9 @@
                 `;
                 return;
             }
-            
+
             myTasksList.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Newest first
-            
+
             myTasksList.forEach(task => {
                 container.appendChild(createTaskCard(task, 'my'));
             });
@@ -1309,79 +1151,84 @@
         function createTaskCard(task, type) {
             const card = document.createElement('div');
             card.className = 'task-card';
-            
+
             const progress = task.totalImpressions > 0 ? (task.currentImpressions / task.totalImpressions) * 100 : 0;
             const isUserTaskCreator = task.createdBy === currentUser.id;
             const isTaskCompletedByUser = task.completedBy?.includes(currentUser.id);
-            
+
+            const isFreeTask = currentUser && currentUser.id === SPECIAL_USER_ID_FOR_FREE_TASKS;
+
             card.innerHTML = `
                 <div class="task-title">${task.title}</div>
                 <div class="task-description">${task.description}</div>
                 <div class="task-stats">
                     <div class="stat">
-                        <span class="material-icons" style="font-size: 1em; vertical-align: middle;">visibility</span> 
+                        <span class="material-icons" style="font-size: 1em; vertical-align: middle;">visibility</span>
                         ${task.currentImpressions}/${task.totalImpressions}
                     </div>
                     <div class="stat">
-                        <span class="material-icons" style="font-size: 1em; vertical-align: middle;">payments</span> 
-                        ${task.rewardPerCompletion.toFixed(6)} TON
+                        <span class="material-icons" style="font-size: 1em; vertical-align: middle;">payments</span>
+                        ${task.rewardPerCompletion.toFixed(5)} TON
                     </div>
-                    <div class="stat">
-                        <span class="material-icons" style="font-size: 1em; vertical-align: middle;">star</span> 
-                        ${task.costInStars} Stars
-                    </div>
+                    ${type === 'all' && !isFreeTask ? `
+                        <div class="stat">
+                            <span class="material-icons" style="font-size: 1em; vertical-align: middle;">star</span>
+                            ${task.costInStars} Stars
+                        </div>` : ''}
                 </div>
                 <div class="progress-bar">
                     <div class="progress-fill" style="width: ${progress.toFixed(2)}%;"></div>
                 </div>
                 <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-                    ${type === 'all' && !isTaskCompletedByUser ? 
+                    ${type === 'all' && !isTaskCompletedByUser ?
                         `<button class="btn btn-primary" onclick="startTask('${task.id}', '${task.url}')" style="flex: 1;">
                             <span class="material-icons">play_arrow</span>
                             Start Task
                         </button>` : ''}
-                    ${type === 'my' ? 
+                    ${type === 'my' ?
                         `<button class="btn btn-danger" onclick="deleteTask('${task.id}')" style="flex: 1;">
                             <span class="material-icons">delete</span>
                             Delete Task
                         </button>` : ''}
-                    ${isTaskCompletedByUser ? 
+                    ${isTaskCompletedByUser ?
                         `<div class="btn btn-success" style="cursor: default; flex: 1;">
                             <span class="material-icons">check_circle</span>
                             Completed
                         </div>` : ''}
-                    ${type === 'all' && isTaskCompletedByUser ? 
+                    ${type === 'all' && isTaskCompletedByUser ?
                         `<div class="btn btn-info" style="cursor: default; flex: 1;">
                             <span class="material-icons">task_alt</span>
                             Your Task Done
                         </div>` : ''}
                 </div>
             `;
-            
+
             return card;
         }
 
         async function startTask(taskId, url) {
             try {
-                window.open(url, '_blank');
-                
+                window.open(url, '_blank'); // Open URL in a new tab
+
+                // Show verification modal
                 document.getElementById('verifyModal').style.display = 'block';
-                
+
                 let countdown = TASK_VERIFICATION_SECONDS;
                 const countdownElement = document.getElementById('verifyCountdown');
                 const progressElement = document.getElementById('verifyProgress');
-                
-                progressElement.style.width = '0%'; 
+
+                progressElement.style.width = '0%';
                 countdownElement.textContent = countdown;
 
                 const interval = setInterval(() => {
                     countdown--;
                     countdownElement.textContent = countdown;
+                    // Update progress bar based on countdown
                     progressElement.style.width = ((TASK_VERIFICATION_SECONDS - countdown) / TASK_VERIFICATION_SECONDS) * 100 + '%';
-                    
+
                     if (countdown <= 0) {
                         clearInterval(interval);
-                        completeTask(taskId); 
+                        completeTask(taskId); // Call completion logic
                         closeModal('verifyModal');
                     }
                 }, 1000);
@@ -1398,34 +1245,37 @@
                     showNotification('Task not found!', 'error');
                     return;
                 }
-                
+
                 if (task.completedBy?.includes(currentUser.id)) {
-                    showNotification('Task already completed by you!', 'error');
+                    showNotification('Task already completed by you!', 'info');
                     return;
                 }
-                
+
+                // Update task status (increment impressions and mark as completed by user)
                 const updatedTask = {
                     ...task,
-                    currentImpressions: task.currentImpressions + 1,
+                    currentImpressions: task.currentImpressions + 1, // Increment impression count (can be made more granular)
                     completedBy: [...(task.completedBy || []), currentUser.id]
                 };
-                
+
+                // Update Firebase
                 await firebase.set(firebase.ref(firebase.database, `tasks/${taskId}`), updatedTask);
-                
-                const reward = task.rewardPerCompletion || TASK_TON_REWARD_PER_COMPLETION; 
+
+                // Update user's balance and stats
+                const reward = task.rewardPerCompletion || TASK_TON_REWARD_PER_COMPLETION;
                 const newBalance = userBalance + reward;
                 const updatedStats = {
                     ...userStats,
                     tasksCompleted: userStats.tasksCompleted + 1,
                     totalEarnings: userStats.totalEarnings + reward
                 };
-                
+
                 await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/balance`), newBalance);
                 await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/stats`), updatedStats);
-                
-                showNotification(`Task completed! +${reward.toFixed(6)} TON earned! 🎉`, 'success');
-                
-                loadUserData(); // Refresh UI
+
+                showNotification(`Task completed! +${reward.toFixed(5)} TON earned! 🎉`, 'success');
+
+                loadUserData(); // Refresh UI to reflect changes
 
             } catch (error) {
                 console.error('Error completing task:', error);
@@ -1434,135 +1284,160 @@
         }
 
         async function deleteTask(taskId) {
-            if (confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
-                try {
-                    await firebase.remove(firebase.ref(firebase.database, `tasks/${taskId}`));
-                    await firebase.remove(firebase.ref(firebase.database, `userTasks/${currentUser.id}/${taskId}`));
-                    
-                    const updatedStats = {
-                        ...userStats,
-                        tasksCreated: Math.max(0, userStats.tasksCreated - 1)
-                    };
-                    await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/stats`), updatedStats);
-                    
-                    showNotification('Task deleted successfully!', 'success');
-                    loadUserData(); // Refresh UI
-                } catch (error) {
-                    console.error("Error deleting task:", error);
-                    showNotification('Error deleting task. Please try again.', 'error');
-                }
+            if (!confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                // Remove from general tasks and user's created tasks
+                await firebase.remove(firebase.ref(firebase.database, `tasks/${taskId}`));
+                await firebase.remove(firebase.ref(firebase.database, `userTasks/${currentUser.id}/${taskId}`));
+
+                // Update user's stats (decrement tasksCreated)
+                const updatedStats = {
+                    ...userStats,
+                    tasksCreated: Math.max(0, userStats.tasksCreated - 1) // Ensure it doesn't go below zero
+                };
+                await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/stats`), updatedStats);
+
+                showNotification('Task deleted successfully!', 'success');
+                loadUserData(); // Refresh UI
+            } catch (error) {
+                console.error("Error deleting task:", error);
+                showNotification('Error deleting task. Please try again.', 'error');
             }
         }
 
-        // Withdraw functionality
+        // --- WITHDRAWAL SYSTEM ---
         document.getElementById('withdrawBtn').addEventListener('click', function() {
             document.getElementById('withdrawModal').style.display = 'block';
         });
 
         document.getElementById('withdrawForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
             const amount = parseFloat(document.getElementById('withdrawAmount').value);
             const address = document.getElementById('tonAddress').value.trim();
-            
+
+            // Basic validation
+            if (isNaN(amount) || amount <= 0) {
+                showNotification('Please enter a valid amount.', 'error');
+                return;
+            }
             if (amount > userBalance) {
                 showNotification('Insufficient balance!', 'error');
                 return;
             }
-            
-            if (amount < 0.001) { // Minimum withdrawal
+            if (amount < 0.001) { // Minimum withdrawal amount
                 showNotification('Minimum withdrawal is 0.001 TON!', 'error');
                 return;
             }
-            
+            if (!address || !address.startsWith('UQ')) { // Simple TON address check (starts with UQ for user-friendly address)
+                showNotification('Please enter a valid TON wallet address (starts with UQ).', 'error');
+                return;
+            }
+
             try {
+                // Record withdrawal request in Firebase
                 const withdrawalData = {
                     userId: currentUser.id,
                     userName: document.getElementById('userName').textContent,
                     amount: amount,
                     address: address,
-                    status: 'pending', 
+                    status: 'pending', // Status: 'pending', 'processing', 'completed', 'rejected'
                     createdAt: new Date().toISOString()
                 };
-                
+
                 const withdrawalRef = firebase.push(firebase.ref(firebase.database, 'withdrawals'));
                 await firebase.set(withdrawalRef, withdrawalData);
-                
+
+                // IMPORTANT: This only *requests* the withdrawal. The actual transfer of TON
+                // from your bot's wallet to the user's address must be handled by your backend bot.
+                // This frontend cannot securely perform wallet transactions.
+
                 showNotification('Withdrawal request submitted successfully! Please wait for processing.', 'success');
                 closeModal('withdrawModal');
-                this.reset(); 
+                this.reset(); // Clear the form
             } catch (error) {
                 console.error("Error submitting withdrawal:", error);
                 showNotification('Error submitting withdrawal request. Please try again.', 'error');
             }
         });
 
-        // Ads functionality
+        // --- ADS FUNCTIONALITY ---
         document.getElementById('watchAdBtn').addEventListener('click', async function() {
             if (adsWatchedToday >= MAX_DAILY_ADS) {
                 showNotification('Daily ad limit reached! Come back tomorrow.', 'error');
                 return;
             }
-            
-            try {
-                document.getElementById('adDisplay').style.display = 'block';
-                this.disabled = true;
-                
-                const adContentElement = document.getElementById('adContent');
-                // Placeholder for the Ad SDK content
-                adContentElement.innerHTML = '<div id="show_9789409"></div>'; 
-                
-                let countdown = AD_COUNTDOWN_SECONDS;
-                const countdownElement = document.getElementById('adCountdown');
-                const progressElement = document.getElementById('adProgress');
-                
-                progressElement.style.width = '0%'; 
-                countdownElement.textContent = countdown;
 
-                const interval = setInterval(() => {
-                    countdown--;
-                    countdownElement.textContent = countdown;
-                    progressElement.style.width = ((AD_COUNTDOWN_SECONDS - countdown) / AD_COUNTDOWN_SECONDS) * 100 + '%';
-                    
-                    if (countdown <= 0) {
-                        clearInterval(interval);
-                        earnFromAd(); 
-                        document.getElementById('adDisplay').style.display = 'none'; 
-                        this.disabled = false; 
-                        loadUserData(); 
-                    }
-                }, 1000);
-                
-                // Execute the ad SDK function
-                if (typeof show_9789409 === 'function') {
-                    try {
-                        await show_9789409(); // Assuming this function handles ad display and possibly returns a promise
-                        console.log('Ad SDK initiated successfully.');
-                    } catch (adError) {
-                        console.log('Error executing Ad SDK function:', adError);
-                        adContentElement.innerHTML = `<p style="color: red;">Failed to load ad content. Please check your connection or try again.</p>`;
-                    }
-                } else {
-                    console.log('Ad SDK (show_9789409) is not available or has not loaded.');
-                    adContentElement.innerHTML = `
-                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                                    color: white; padding: 40px; border-radius: 15px; text-align: center;">
-                            <h3>Placeholder Ad Content</h3>
-                            <p>This is where ads from the SDK would appear.</p>
-                        </div>
-                    `;
+            // Show the ad display area and disable the button
+            document.getElementById('adDisplay').style.display = 'block';
+            this.disabled = true;
+            this.textContent = 'Loading Ad...'; // Update button text
+
+            const adContentElement = document.getElementById('adContent');
+            const countdownElement = document.getElementById('adCountdown');
+            const progressElement = document.getElementById('adProgress');
+
+            // --- Ad SDK Integration ---
+            // The SDK `libtl.com/sdk.js` with `show_9789409` is expected to be loaded.
+            // We assume `show_9789409` will load the ad and potentially make the adContentElement visible.
+            if (typeof show_9789409 === 'function') {
+                try {
+                    // Call the SDK function. It might return a promise that resolves when the ad is ready or completed.
+                    // For this example, we'll proceed to countdown immediately.
+                    await show_9789409();
+                    console.log('Ad SDK (show_9789409) function called.');
+                } catch (adError) {
+                    console.log('Error executing Ad SDK function:', adError);
+                    adContentElement.innerHTML = `<p style="color: red;">Failed to load ad content. Please check your connection or try again.</p>`;
+                    // If ad fails to load, we should reset and show notification.
+                    this.disabled = false;
+                    this.textContent = 'Watch Ad Now';
+                    document.getElementById('adDisplay').style.display = 'none';
+                    showNotification('Failed to load ad content. Please try again.', 'error');
+                    return; // Stop further processing
                 }
-                
-            } catch (error) {
-                console.error('Error handling ad watch:', error);
-                showNotification('Error loading ad. Please try again.', 'error');
-                this.disabled = false;
-                document.getElementById('adDisplay').style.display = 'none';
+            } else {
+                console.log('Ad SDK (show_9789409) is not available or has not loaded.');
+                // Provide a placeholder if the SDK is not correctly loaded
+                adContentElement.innerHTML = `
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                color: white; padding: 40px; border-radius: 15px; text-align: center;">
+                        <h3>Placeholder Ad Content</h3>
+                        <p>This is where ads from the SDK would appear.</p>
+                    </div>
+                `;
             }
+            // --- End Ad SDK Integration ---
+
+
+            // Start countdown and progress bar
+            let countdown = AD_COUNTDOWN_SECONDS;
+            progressElement.style.width = '0%';
+            countdownElement.textContent = countdown;
+
+            const interval = setInterval(() => {
+                countdown--;
+                countdownElement.textContent = countdown;
+                progressElement.style.width = ((AD_COUNTDOWN_SECONDS - countdown) / AD_COUNTDOWN_SECONDS) * 100 + '%';
+
+                if (countdown <= 0) {
+                    clearInterval(interval);
+                    earnFromAd(); // Reward the user
+                    // Reset ad display and button
+                    document.getElementById('adDisplay').style.display = 'none';
+                    this.disabled = false;
+                    this.textContent = 'Watch Ad Now';
+                    loadUserData(); // Refresh the UI
+                }
+            }, 1000);
         });
 
         async function earnFromAd() {
             try {
+                // Update user's balance and stats
                 const newBalance = userBalance + AD_TON_REWARD;
                 const newAdsCount = adsWatchedToday + 1;
                 const updatedStats = {
@@ -1570,23 +1445,31 @@
                     totalEarnings: userStats.totalEarnings + AD_TON_REWARD,
                     adsWatched: userStats.adsWatched + 1
                 };
-                
+
                 await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/balance`), newBalance);
                 await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/adsWatchedToday`), newAdsCount);
                 await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/stats`), updatedStats);
-                
+
                 showNotification(`Ad completed! +${AD_TON_REWARD.toFixed(6)} TON earned! 🎉`, 'success');
-                
+
             } catch (error) {
                 console.error('Error earning from ad:', error);
                 showNotification('Error processing ad reward. Please try again.', 'error');
             }
         }
 
+        // --- MODAL AND NOTIFICATION HELPERS ---
         function closeModal(modalId) {
             const modal = document.getElementById(modalId);
             if (modal) {
                 modal.style.display = 'none';
+                // Potentially reset modal content if needed, e.g., stop timers
+                if (modalId === 'verifyModal') {
+                    const countdownElement = document.getElementById('verifyCountdown');
+                    if (countdownElement && countdownElement.timeoutId) {
+                        clearTimeout(countdownElement.timeoutId); // Clear any active interval
+                    }
+                }
             }
         }
 
@@ -1594,282 +1477,78 @@
             const notification = document.createElement('div');
             notification.className = `notification ${type}`;
             notification.textContent = message;
-            
+
             document.body.appendChild(notification);
-            
+
+            // Auto-remove notification after a delay
             setTimeout(() => {
-                notification.style.animation = 'slideInRight 0.3s reverse'; 
+                notification.style.animation = 'slideInRight 0.3s reverse forwards'; // Reverse the animation
                 setTimeout(() => {
-                    notification.remove();
-                }, 300); 
-            }, 3000); 
+                    notification.remove(); // Remove element from DOM
+                }, 300); // Match animation duration
+            }, 3000); // Show for 3 seconds
         }
 
-        // Close modals if clicking outside
+        // Close modal when clicking outside of it
         window.addEventListener('click', function(event) {
             const modals = document.querySelectorAll('.modal');
             modals.forEach(modal => {
+                // Check if the click was directly on the modal background
                 if (event.target === modal) {
                     modal.style.display = 'none';
                 }
             });
         });
 
+        // --- DAILY RESET LOGIC ---
         function initializeDailyAdsResetTimer() {
             const now = new Date();
             const tomorrow = new Date(now);
-            tomorrow.setHours(0, 0, 0, 0); 
+            tomorrow.setHours(0, 0, 0, 0); // Set to midnight of the next day
             tomorrow.setDate(now.getDate() + 1);
-            
+
             const msUntilMidnight = tomorrow.getTime() - now.getTime();
-            
+
+            // Schedule the first reset
             setTimeout(async () => {
-                if (currentUser) {
-                    await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/adsWatchedToday`), 0);
-                    showNotification('Daily ads reset! You can watch more ads today.', 'info');
-                }
-                setInterval(async () => {
-                    if (currentUser) {
-                        await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/adsWatchedToday`), 0);
-                        showNotification('Daily ads reset! You can watch more ads today.', 'info');
-                    }
-                }, 24 * 60 * 60 * 1000); 
+                await resetDailyAds();
+                // Then set an interval to reset every 24 hours
+                setInterval(resetDailyAds, 24 * 60 * 60 * 1000);
             }, msUntilMidnight);
         }
 
-        // --- Admin Functions ---
-
-        function manageUser() {
-            const userIdToManage = document.getElementById('targetUserId').value.trim();
-            if (!userIdToManage) {
-                showNotification("Please enter a User ID.", "error");
-                return;
-            }
-
-            const userManagementModal = document.getElementById('userManagementModal');
-            document.getElementById('manageUserId').textContent = userIdToManage;
-            document.getElementById('manageUserIdDisplay').textContent = userIdToManage; // Also set the display
-
-            const userRoleSelect = document.getElementById('userRoleSelect');
-            const freeAddsSelect = document.getElementById('freeAddsSelect');
-
-            // Fetch user data to pre-fill the modal
-            firebase.get(firebase.ref(firebase.database, `users/${userIdToManage}`)).then((snapshot) => {
-                const userData = snapshot.val();
-                if (userData) {
-                    userRoleSelect.value = userData.role || 'user';
-                    freeAddsSelect.value = userData.hasFreeAdds ? 'true' : 'false'; // Check for hasFreeAdds property
-                    userManagementModal.style.display = 'block';
-                } else {
-                    showNotification("User not found or has no data.", "info");
+        async function resetDailyAds() {
+            if (currentUser) {
+                try {
+                    await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/adsWatchedToday`), 0);
+                    showNotification('Daily ads reset! You can watch 10 more ads today.', 'info');
+                    loadUserData(); // Refresh UI to show updated ad count
+                } catch (error) {
+                    console.error("Error resetting daily ads:", error);
+                    showNotification("Failed to reset daily ads count.", "error");
                 }
-            }).catch((error) => {
-                console.error("Error fetching user for management:", error);
-                showNotification("Error fetching user data.", "error");
-            });
-        }
-
-        async function updateUserRole() {
-            const userId = document.getElementById('manageUserId').textContent;
-            const role = document.getElementById('userRoleSelect').value;
-            const hasFreeAdds = document.getElementById('freeAddsSelect').value === 'true';
-
-            try {
-                // Update user role in Firebase
-                await firebase.set(firebase.ref(firebase.database, `users/${userId}/role`), role);
-                await firebase.set(firebase.ref(firebase.database, `users/${userId}/hasFreeAdds`), hasFreeAdds); // Store free adds status
-
-                showNotification(`User ${userId} updated successfully!`, 'success');
-                closeModal('userManagementModal');
-            } catch (error) {
-                console.error("Error updating user role:", error);
-                showNotification("Error updating user. Please try again.", "error");
-            }
-        }
-        
-        async function deleteUser() {
-             const userIdToDelete = document.getElementById('manageUserId').textContent;
-             if (confirm(`Are you sure you want to delete user ${userIdToDelete}? This cannot be undone and will remove all their data.`)) {
-                 try {
-                     // Delete user's main data
-                     await firebase.remove(firebase.ref(firebase.database, `users/${userIdToDelete}`));
-                     // Delete user's tasks
-                     await firebase.remove(firebase.ref(firebase.database, `userTasks/${userIdToDelete}`));
-                     // Note: Deleting from the main 'tasks' node requires more complex logic if the user created tasks.
-                     // For now, we focus on their personal data.
-
-                     showNotification(`User ${userIdToDelete} deleted successfully!`, 'success');
-                     closeModal('userManagementModal');
-                 } catch (error) {
-                     console.error("Error deleting user:", error);
-                     showNotification("Error deleting user. Please try again.", "error");
-                 }
-             }
-        }
-
-        function saveSystemSettings() {
-            const maxDailyAds = parseInt(document.getElementById('maxDailyAdsInput').value);
-            const adReward = parseFloat(document.getElementById('adRewardInput').value);
-            const taskStarsRate = parseInt(document.getElementById('taskRewardRateInput').value);
-            const taskCompletionReward = parseFloat(document.getElementById('taskCompletionRewardInput').value);
-
-            if (isNaN(maxDailyAds) || maxDailyAds <= 0) {
-                showNotification("Invalid value for Max Daily Ads.", "error");
-                return;
-            }
-            if (isNaN(adReward) || adReward <= 0) {
-                showNotification("Invalid value for Ad Reward.", "error");
-                return;
-            }
-            if (isNaN(taskStarsRate) || taskStarsRate <= 0) {
-                showNotification("Invalid value for Stars Rate.", "error");
-                return;
-            }
-             if (isNaN(taskCompletionReward) || taskCompletionReward <= 0) {
-                showNotification("Invalid value for Task Completion Reward.", "error");
-                return;
-            }
-
-            const settings = {
-                maxDailyAds: maxDailyAds,
-                adReward: adReward,
-                taskStarsRate: taskStarsRate,
-                taskCompletionReward: taskCompletionReward
-            };
-
-            firebase.set(firebase.ref(firebase.database, 'settings'), settings)
-                .then(() => {
-                    showNotification("System settings updated successfully!", "success");
-                    // Reload user data to apply new settings immediately if they affect current user's view
-                    loadUserData(); 
-                })
-                .catch((error) => {
-                    console.error("Error saving system settings:", error);
-                    showNotification("Error saving system settings.", "error");
-                });
-        }
-
-        function loadWithdrawalRequests() {
-            const withdrawalListContainer = document.getElementById('withdrawalRequestsList');
-            withdrawalListContainer.innerHTML = ''; // Clear previous requests
-
-            const withdrawalsRef = firebase.ref(firebase.database, 'withdrawals');
-            firebase.onValue(withdrawalsRef, (snapshot) => {
-                const requests = snapshot.val() || {};
-                let html = '';
-                let hasPending = false;
-
-                Object.entries(requests).forEach(([id, req]) => {
-                    const statusClass = req.status === 'pending' ? 'warning' : (req.status === 'completed' ? 'success' : 'info');
-                    html += `
-                        <div class="stat-card" style="margin: 10px 0; padding: 15px; text-align: left;">
-                            <p><strong>User ID:</strong> ${req.userId} (${req.userName || 'N/A'})</p>
-                            <p><strong>Amount:</strong> ${req.amount.toFixed(5)} TON</p>
-                            <p><strong>Address:</strong> ${req.address}</p>
-                            <p><strong>Status:</strong> <span class="stat" style="padding: 5px 10px; font-size: 0.75em; background: linear-gradient(135deg, ${getStatusColor(req.status)} 0%, ${getStatusColor(req.status)} 100%);">${req.status.toUpperCase()}</span></p>
-                            <p><small>Requested: ${new Date(req.createdAt).toLocaleString()}</small></p>
-                            ${req.status === 'pending' ? `
-                                <div style="margin-top: 10px; display: flex; gap: 10px;">
-                                    <button class="btn btn-success btn-sm" onclick="processWithdrawal('${id}', 'completed')">Complete</button>
-                                    <button class="btn btn-danger btn-sm" onclick="processWithdrawal('${id}', 'failed')">Fail</button>
-                                </div>
-                            ` : ''}
-                        </div>
-                    `;
-                    if(req.status === 'pending') hasPending = true;
-                });
-
-                if (html === '') {
-                    withdrawalListContainer.innerHTML = '<div class="empty-state">No withdrawal requests found.</div>';
-                } else {
-                    withdrawalListContainer.innerHTML = html;
-                }
-                
-                // Optionally show a notification if there are pending requests
-                if (hasPending) {
-                    // Avoid spamming notifications if already shown
-                    if (!document.querySelector('.notification')) {
-                         showNotification('New withdrawal requests are pending!', 'info');
-                    }
-                }
-
-            }, (error) => {
-                console.error("Error loading withdrawal requests:", error);
-                withdrawalListContainer.innerHTML = '<div class="empty-state error">Error loading requests.</div>';
-            });
-        }
-
-        function getStatusColor(status) {
-            switch(status) {
-                case 'completed': return '#4CAF50'; // Green
-                case 'failed': return '#f44336'; // Red
-                case 'pending': return '#ff9800'; // Orange
-                default: return '#2196F3'; // Blue
             }
         }
 
-        async function processWithdrawal(requestId, newStatus) {
-            const withdrawalRef = firebase.ref(firebase.database, `withdrawals/${requestId}`);
-            
-            try {
-                const snapshot = await firebase.get(withdrawalRef);
-                const requestData = snapshot.val();
-                
-                if (!requestData) {
-                    showNotification("Withdrawal request not found.", "error");
-                    return;
-                }
-
-                // --- IMPORTANT: Backend Logic Simulation ---
-                // In a real app, this is where your server/bot would:
-                // 1. Deduct TON from the bot's wallet.
-                // 2. Send it to the user's address.
-                // 3. Handle any transaction fees.
-                // This frontend code CANNOT do that securely.
-                // We will simulate success/failure by updating status in Firebase.
-
-                await firebase.update(withdrawalRef, { status: newStatus });
-
-                if (newStatus === 'completed') {
-                    // Optionally deduct the amount from the user's balance if not handled by bot directly
-                    // For now, we'll assume the bot handles the balance deduction upon successful withdrawal.
-                    showNotification(`Withdrawal ${requestId} marked as ${newStatus}.`, 'success');
-                } else { // Failed
-                    showNotification(`Withdrawal ${requestId} marked as ${newStatus}.`, 'error');
-                    // Potentially re-add funds to user balance or notify admin if failed for a reason
-                }
-
-            } catch (error) {
-                console.error(`Error processing withdrawal ${requestId}:`, error);
-                showNotification(`Error processing withdrawal ${requestId}.`, "error");
-            }
-        }
-
-        // --- Telegram Web App Button Handlers ---
+        // --- TELEGRAM WEB APP EVENTS ---
         window.Telegram.WebApp.onEvent('mainButtonClicked', function() {
-            const activeTabId = document.querySelector('.tab-content.active').id;
-            // Add specific actions if needed for the main button on certain tabs
-            if (activeTabId === 'add-task') {
-                document.getElementById('addTaskForm').querySelector('button[type="submit"]').click();
-            } else if (activeTabId === 'ads') {
-                document.getElementById('watchAdBtn').click();
-            } else if (activeTabId === 'profile') {
-                document.getElementById('withdrawBtn').click();
-            } else {
-                // Default behavior if no specific action
-                console.log('Main button clicked in tab:', activeTabId);
-            }
+            // Action for the main button click based on current tab
+            const activeTabId = currentTab; // Use the tracked current tab
+            console.log('Main button clicked in tab:', activeTabId);
+            // You could add specific actions here if needed, e.g., confirm changes, go back etc.
+            // For now, the button text updates dynamically.
         });
 
         window.Telegram.WebApp.onEvent('backButtonClicked', function() {
-            const activeTab = document.querySelector('.tab-content.active');
-            if (activeTab && activeTab.id !== 'home') {
-                switchTab('home');
-                window.Telegram.WebApp.MainButton.setText('Home'); 
+            // Handle back button behavior
+            if (currentTab !== 'home') {
+                switchTab('home'); // Go back to home tab if not already there
+                updateMainButton('home');
             } else {
-                window.Telegram.WebApp.close();
+                window.Telegram.WebApp.close(); // Close the app if on the home tab
             }
         });
+
     </script>
 </body>
 </html>
