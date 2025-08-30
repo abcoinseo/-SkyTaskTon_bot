@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkyTaskTon - Earn TON</title>
-
-    <!-- TON Connect UI -->
-    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-
     <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- TON Connect UI SDK -->
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    <!-- Ad SDK - Ensure this script is correctly integrated or replaced if needed -->
+    <script src='//libtl.com/sdk.js' data-zone='9789409' data-sdk='show_9789409'></script>
 
     <!-- Firebase SDK -->
     <script type="module">
@@ -30,6 +30,7 @@
     const database = getDatabase(app);
     window.firebase = { database, ref, push, set, get, onValue, remove, update };
     // --- END FIREBASE CONFIG ---
+
     </script>
 
     <!-- Google Fonts -->
@@ -38,6 +39,7 @@
 
     <!-- Custom Styles -->
     <style>
+        /* ... (Previous CSS styles remain the same) ... */
         /* Global Styles */
         :root {
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -52,42 +54,239 @@
             --input-border: #e1e5e9;
             --modal-backdrop: rgba(0,0,0,0.6);
             --modal-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            --ton-connect-button-bg: #007AFF; /* Example TON Connect button background */
-            --ton-connect-button-text: white;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--background-gradient); color: var(--text-color); overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column; }
-        .container { max-width: 100vw; min-height: 100vh; background: var(--card-background); backdrop-filter: blur(20px); display: flex; flex-direction: column; }
-        .header { background: var(--primary-gradient); padding: 25px 20px; text-align: center; color: white; box-shadow: 0 8px 32px rgba(0,0,0,0.15); position: relative; overflow: hidden; }
-        .header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>'); opacity: 0.3; }
-        .header h1 { font-size: 2.5em; font-weight: 700; margin-bottom: 8px; text-shadow: 2px 2px 8px rgba(0,0,0,0.3); position: relative; z-index: 1; }
-        .balance { font-size: 1.3em; margin-top: 15px; background: rgba(255,255,255,0.25); padding: 15px 20px; border-radius: 20px; backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2); position: relative; z-index: 1; font-weight: 600; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-        .nav-tabs { display: flex; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #f0f0f0; }
-        .nav-tab { flex: 1; padding: 18px 8px; text-align: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; background: none; font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 6px; font-weight: 500; position: relative; color: var(--light-text-color); }
-        .nav-tab::before { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: var(--primary-gradient); transform: scaleX(0); transition: transform 0.3s ease; }
-        .nav-tab.active { background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); color: var(--primary-color); }
-        .nav-tab.active::before { transform: scaleX(1); }
-        .nav-tab:hover { background: rgba(102, 126, 234, 0.05); transform: translateY(-1px); }
-        .nav-tab .material-icons { font-size: 20px; }
-        .tab-content { display: none; padding: 25px 20px; flex-grow: 1; animation: fadeIn 0.3s ease; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--background-gradient);
+            color: var(--text-color);
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 100vw;
+            min-height: 100vh;
+            position: relative;
+            background: var(--card-background);
+            backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: var(--primary-gradient);
+            padding: 25px 20px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before { /* Subtle background grain effect */
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .balance {
+            font-size: 1.3em;
+            margin-top: 15px;
+            background: rgba(255,255,255,0.25);
+            padding: 15px 20px;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.2);
+            position: relative;
+            z-index: 1;
+            font-weight: 600;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 18px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            background: none;
+            font-size: 11px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+            position: relative;
+            color: var(--light-text-color);
+        }
+
+        .nav-tab::before {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            color: var(--primary-color);
+        }
+        .nav-tab.active::before {
+            transform: scaleX(1);
+        }
+
+        .nav-tab:hover {
+            background: rgba(102, 126, 234, 0.05);
+            transform: translateY(-1px);
+        }
+
+        .nav-tab .material-icons {
+            font-size: 20px;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 25px 20px;
+            flex-grow: 1; /* Allow content to fill remaining space */
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
         /* Task Card Styles */
-        .task-card { background: white; border-radius: 20px; padding: 25px; margin: 20px 0; box-shadow: var(--card-shadow); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(0,0,0,0.05); position: relative; overflow: hidden; }
-        .task-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--primary-gradient); }
-        .task-card:hover { transform: translateY(-8px); box-shadow: var(--card-hover-shadow); }
-        .task-title { font-size: 1.4em; font-weight: 600; color: var(--text-color); margin-bottom: 12px; line-height: 1.3; }
-        .task-description { color: var(--light-text-color); margin-bottom: 20px; line-height: 1.6; font-size: 0.95em; }
-        .task-stats { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
-        .stat { background: var(--primary-gradient); color: white; padding: 10px 16px; border-radius: 25px; font-size: 0.85em; font-weight: 600; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); display: flex; align-items: center; gap: 5px; }
+        .task-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .task-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+
+        .task-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--card-hover-shadow);
+        }
+
+        .task-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        .task-description {
+            color: var(--light-text-color);
+            margin-bottom: 20px;
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+
+        .task-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 25px;
+            font-size: 0.85em;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
 
         /* Button Styles */
-        .btn { padding: 14px 28px; border: none; border-radius: 30px; cursor: pointer; font-weight: 600; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 10px; font-size: 1em; position: relative; overflow: hidden; }
-        .btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transition: left 0.5s; }
-        .btn:hover::before { left: 100%; }
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
         .btn-primary { background: var(--primary-gradient); color: white; box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4); }
         .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5); }
         .btn-success { background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4); }
@@ -100,64 +299,247 @@
         .btn-info:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(33, 150, 243, 0.5); }
 
         /* Form Styles */
-        .form-group { margin-bottom: 25px; }
-        .form-group label { display: block; margin-bottom: 10px; font-weight: 600; color: var(--text-color); font-size: 0.95em; }
-        .form-control { width: 100%; padding: 16px 20px; border: 2px solid var(--input-border); border-radius: 15px; font-size: 1em; transition: all 0.3s ease; background: white; font-family: inherit; color: var(--text-color); }
-        .form-control:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); transform: translateY(-1px); }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 0.95em;
+        }
+        .form-control {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid var(--input-border);
+            border-radius: 15px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: white;
+            font-family: inherit;
+            color: var(--text-color);
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
+        }
 
         /* Profile Card */
-        .profile-card { background: white; border-radius: 25px; padding: 35px; text-align: center; box-shadow: 0 12px 40px rgba(0,0,0,0.1); margin-bottom: 25px; position: relative; overflow: hidden; }
-        .profile-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: var(--primary-gradient); }
-        .profile-avatar { width: 120px; height: 120px; border-radius: 50%; background: var(--primary-gradient); display: flex; align-items: center; justify-content: center; margin: 0 auto 25px; color: white; font-size: 3.5em; box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3); }
+        .profile-card {
+            background: white;
+            border-radius: 25px;
+            padding: 35px;
+            text-align: center;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 6px;
+            background: var(--primary-gradient);
+        }
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            color: white;
+            font-size: 3.5em;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
 
         /* Modal Styles */
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: var(--modal-backdrop); backdrop-filter: blur(8px); animation: modalFadeIn 0.3s ease; }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background-color: var(--modal-backdrop);
+            backdrop-filter: blur(8px);
+            animation: modalFadeIn 0.3s ease;
+        }
         @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .modal-content { background-color: white; margin: 50px auto; padding: 35px; border-radius: 25px; width: 90%; max-width: 500px; box-shadow: var(--modal-shadow); animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
+        .modal-content {
+            background-color: white;
+            margin: 50px auto;
+            padding: 35px;
+            border-radius: 25px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--modal-shadow);
+            animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
         @keyframes modalSlideIn { from { transform: translateY(-50px) scale(0.9); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
-        .close { color: #aaa; float: right; font-size: 32px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; line-height: 1; }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            line-height: 1;
+        }
         .close:hover { color: var(--primary-color); transform: scale(1.1); }
 
         /* Progress Bar */
-        .progress-bar { width: 100%; height: 12px; background-color: #f0f0f0; border-radius: 10px; overflow: hidden; margin: 15px 0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
-        .progress-fill { height: 100%; background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); width: 0%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
-        .progress-fill::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); animation: shimmer 2s infinite; }
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            width: 0%;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .progress-fill::after { /* Shimmer effect */
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
         @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 
         /* Ad Container */
-        .ad-container { background: white; border-radius: 20px; padding: 30px; margin: 20px 0; text-align: center; box-shadow: var(--card-shadow); border: 1px solid rgba(0,0,0,0.05); }
-        .ads-remaining { background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; padding: 15px 25px; border-radius: 25px; display: inline-block; margin: 15px 0; font-weight: 600; box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3); }
+        .ad-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .ads-remaining {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            display: inline-block;
+            margin: 15px 0;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
 
         /* Countdown */
-        .countdown { font-size: 3em; font-weight: 700; color: var(--primary-color); margin: 25px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+        .countdown {
+            font-size: 3em;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 25px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
 
         /* Notification */
-        .notification { position: fixed; top: 25px; right: 25px; padding: 18px 25px; border-radius: 15px; color: white; font-weight: 600; z-index: 3000; animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 8px 25px rgba(0,0,0,0.2); max-width: 300px; text-align: center; }
+        .notification {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            padding: 18px 25px;
+            border-radius: 15px;
+            color: white;
+            font-weight: 600;
+            z-index: 3000;
+            animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            max-width: 300px;
+            text-align: center;
+        }
         .notification.success { background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); }
         .notification.error { background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%); }
         .notification.info { background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); }
         @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
         /* Stats Grid */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; margin: 25px 0; }
-        .stat-card { background: white; padding: 25px; border-radius: 20px; text-align: center; box-shadow: var(--card-shadow); transition: transform 0.3s ease; border: 1px solid rgba(0,0,0,0.05); }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
         .stat-card:hover { transform: translateY(-5px); }
-        .stat-number { font-size: 2.2em; font-weight: 700; color: var(--primary-color); margin-bottom: 8px; }
-        .stat-label { font-size: 0.9em; color: var(--light-text-color); font-weight: 500; }
+        .stat-number {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+        .stat-label {
+            font-size: 0.9em;
+            color: var(--light-text-color);
+            font-weight: 500;
+        }
 
         /* Cost Display */
-        .cost-display { background: var(--primary-gradient); color: white; padding: 20px; border-radius: 15px; margin: 20px 0; text-align: center; font-size: 1.2em; font-weight: 600; box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3); }
+        .cost-display {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: 600;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
 
         /* Loading Spinner */
-        .loading-spinner { border: 3px solid #f3f3f3; border-top: 3px solid var(--primary-color); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; }
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* Empty State */
-        .empty-state { text-align: center; padding: 50px 20px; color: var(--light-text-color); }
-        .empty-state .material-icons { font-size: 4em; color: #ddd; margin-bottom: 20px; }
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--light-text-color);
+        }
+        .empty-state .material-icons {
+            font-size: 4em;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
 
         /* Pulse Animation */
-        .pulse { animation: pulse 2s infinite; }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
         /* Media Queries */
@@ -183,38 +565,36 @@
         #paymentModal .loading-spinner { border-top-color: white; border-color: rgba(255,255,255,0.5); }
         #verifyModal .modal-content .material-icons { color: var(--primary-color); }
 
-        /* TON Connect Button Styling */
-        /* We'll use the provided div for the TON Connect button */
-        #ton-connect {
-            display: inline-block; /* Or adjust as needed */
+        /* Developer Info Footer */
+        .developer-info {
+            margin-top: 30px;
+            padding: 20px;
+            text-align: center;
+            color: var(--light-text-color);
+            font-size: 0.9em;
+            border-top: 1px solid #eee;
         }
-        /* Style the default button provided by TON Connect UI if it's not customized */
-        .ton-connect-ui-button {
-            padding: 14px 28px !important; /* Match our button style */
-            border-radius: 30px !important;
-            font-weight: 600 !important;
-            font-size: 1em !important;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.1) !important;
-            background-color: var(--ton-connect-button-bg) !important;
-            color: var(--ton-connect-button-text) !important;
-            transition: all 0.3s ease !important;
-            margin-left: 10px; /* Add some spacing */
+        .developer-info a {
+            color: var(--primary-color);
+            font-weight: 600;
+            text-decoration: none;
         }
-        .ton-connect-ui-button:hover {
-            transform: translateY(-3px) !important;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
-        }
-        .ton-connect-ui-button:disabled {
-            opacity: 0.6 !important;
-            cursor: not-allowed !important;
-            transform: none !important;
-            box-shadow: none !important;
+        .developer-info a:hover {
+            text-decoration: underline;
         }
 
-        /* Developer Info Footer */
-        .developer-info { margin-top: 30px; padding: 20px; text-align: center; color: var(--light-text-color); font-size: 0.9em; border-top: 1px solid #eee; }
-        .developer-info a { color: var(--primary-color); font-weight: 600; text-decoration: none; }
-        .developer-info a:hover { text-decoration: underline; }
+        /* TON Connect Button Styles */
+        #ton-connect {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+        /* Style the default TON Connect button if needed, or integrate it into your existing button styles */
+        /* Example: You might want to wrap the TON connect button in your own styled button */
+        .ton-connect-button-wrapper {
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -299,18 +679,24 @@
                     <label for="totalImpressions">Total Impressions *</label>
                     <input type="number" id="totalImpressions" class="form-control" min="500" step="100" placeholder="Minimum 500 impressions" required>
                 </div>
+                <!-- Display estimated cost in TON -->
                 <div class="cost-display">
-                    💰 Total Cost: <span id="taskCost">0.00</span> TON
+                    💰 Estimated TON Cost: <span id="taskTonCost">0.00000</span> TON
                     <div style="font-size: 0.9em; margin-top: 8px; opacity: 0.9;">
-                        Cost is fixed at 0.0001 TON per task creation.
-                        <br>You can adjust this in the JavaScript constants.
+                        Rate: 500 impressions = ~0.0001 TON (0.1 TON per 500k impressions)
                     </div>
                 </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="costProgress"></div>
+                </div>
+
                 <!-- TON Connect Button will be rendered here -->
                 <div id="ton-connect"></div>
-                <button type="submit" id="createTaskBtn" class="btn btn-primary" style="width: 100%; margin-top: 20px; opacity: 0.5;" disabled>
+
+                <!-- Add Task Button - It will be enabled/disabled based on wallet connection -->
+                <button type="submit" id="submitTaskBtn" class="btn btn-primary" style="width: 100%; margin-top: 20px;" disabled>
                     <span class="material-icons">payment</span>
-                    Connect Wallet & Pay TON
+                    Create Task & Pay with TON
                 </button>
             </form>
         </div>
@@ -423,23 +809,12 @@
         <div class="modal-content" style="text-align: center; background: var(--primary-gradient); color: white;">
             <div class="material-icons pulse" style="font-size: 4em; color: white; margin-bottom: 20px;">payment</div>
             <h2 style="margin-bottom: 20px;">💳 Processing Payment</h2>
-            <p style="margin-bottom: 25px; opacity: 0.9;">Please confirm the transaction in your TON wallet...</p>
+            <p style="margin-bottom: 25px; opacity: 0.9;">Please complete the payment to create your task...</p>
             <div class="loading-spinner" style="border-top-color: white; border-color: rgba(255,255,255,0.5);"></div>
         </div>
     </div>
 
     <script>
-        // --- TON CONNECT UI INITIALIZATION ---
-        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-            manifestUrl: 'https://sky-task-ton-bot-compleat.vercel.app/tonconnect-manifest.json', // Replace with YOUR manifest URL
-            buttonRootId: 'ton-connect' // The ID of the div where the button will be rendered
-        });
-
-        // Configure TON Connect UI options if needed (e.g., theme, language)
-        tonConnectUI.uiOptions = {
-            twaReturnUrl: 'https://t.me/your_telegram_bot_username?start=payload' // IMPORTANT: Replace with your bot's start URL
-        };
-
         // --- GLOBAL VARIABLES ---
         let currentUser = null;
         let userTasks = {}; // Tasks created by the current user
@@ -452,20 +827,26 @@
         let taskVerificationInterval = null; // To clear interval when modal closes
         let adCountdownInterval = null; // To clear interval when ad completes or modal closes
 
+        // --- TON Connect Initialization ---
+        // !!! REPLACE WITH YOUR MANIFEST URL !!!
+        // This manifest must be hosted and accessible. It describes your app to the TON wallet.
+        const MANIFEST_URL = 'https://sky-task-ton-bot-compleat.vercel.app/tonconnect-manifest.json'; // <-- REPLACE WITH YOUR MANIFEST URL
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+            manifestUrl: MANIFEST_URL,
+            buttonRootId: 'ton-connect' // The ID of the div where the TON Connect button will be rendered
+        });
+
         // --- CONSTANTS ---
-        // Task creation cost in TON. This will be deducted from the user's wallet.
-        // You might want to dynamically calculate this based on impressions and a TON price feed,
-        // but for simplicity, we'll use a fixed amount.
-        const TASK_CREATION_TON_COST = 0.0001; // Example cost in TON
-        const TASK_TON_REWARD_PER_COMPLETION = 0.00005; // TON reward for completing a task
+        // Rate for TON cost per impression (Example: 0.0000002 TON per impression)
+        // This is a rough estimate, adjust as needed. TON fees can vary.
+        const TON_COST_PER_IMPRESSION = 0.0000002;
+        const TASK_TON_REWARD_PER_COMPLETION = 0.00005; // TON reward for completing a task (example value)
         const AD_TON_REWARD = 0.000001; // TON reward per watched ad
         const MAX_DAILY_ADS = 10;
         const AD_COUNTDOWN_SECONDS = 5;
         const TASK_VERIFICATION_SECONDS = 10;
-        const SPECIAL_USER_ID_FOR_FREE_TASKS = 123456789; // User ID for free task creation (REPLACE WITH A TEST ID OR REMOVE IF NOT NEEDED)
-
-        // Your bot's username is needed for the TWA return URL.
-        const BOT_USERNAME = 'SkyTaskTonBot'; // <-- CHANGE THIS TO YOUR BOT'S USERNAME
+        // !!! Replace with a test User ID if you want to grant free task creation !!!
+        const SPECIAL_USER_ID_FOR_FREE_TASKS = 123456789; // User ID for free task creation
 
         // --- INITIALIZATION ---
         window.Telegram.WebApp.ready();
@@ -473,65 +854,42 @@
         // window.Telegram.WebApp.enableClosingConfirmation(); // Uncomment if you want confirmation before closing
 
         document.addEventListener('DOMContentLoaded', async function() {
-            // Initialize TON Connect UI
-            await tonConnectUI.connectButton(); // This renders the button and handles connection logic
-
             initializeUser();
-            loadUserData();
-            updateTaskCostDisplay();
+            await loadUserData(); // Wait for user data before enabling buttons
+            updateTaskCostInputHandler();
             initializeDailyAdsResetTimer();
             setupTabButtons();
-            updateMainButton('home');
+            updateMainButton('home'); // Set initial main button text
+
+            // --- TON Connect Event Listeners ---
+            tonConnectUI.onStatusChange(async (walletInfo) => {
+                console.log('TON Connect Status Changed:', walletInfo);
+                if (walletInfo) {
+                    // Wallet Connected
+                    document.getElementById('submitTaskBtn').disabled = false; // Enable submit button
+                    // Optionally display connected wallet address
+                    const userWalletAddress = walletInfo.account;
+                    console.log("Connected wallet address:", userWalletAddress);
+                    // You might want to save this address to user profile if needed
+                } else {
+                    // Wallet Disconnected
+                    document.getElementById('submitTaskBtn').disabled = true; // Disable submit button
+                    // You might want to clear any stored wallet info
+                }
+                await loadUserData(); // Reload data as connection might affect balance display etc.
+            });
 
             // --- Add TON Address Validation Regex ---
             const tonAddressInput = document.getElementById('tonAddress');
-            const tonAddressRegex = /^UQ[a-zA-Z0-9_-]{46}$/; // Basic TON address format
+            const tonAddressRegex = /^UQ[a-zA-Z0-9_-]{46}$/; // Basic TON address format (48 chars total)
             tonAddressInput.addEventListener('input', function() {
                 if (this.value && !tonAddressRegex.test(this.value)) {
-                    this.setCustomValidity('Invalid TON address format. Starts with UQ and is 48 characters long.');
+                    this.setCustomValidity('Invalid TON address format. Should start with UQ and be 48 characters long.');
                 } else {
                     this.setCustomValidity('');
                 }
             });
-
-            // Enable the create task button only after wallet connection is established
-            updateCreateTaskButtonState();
-            tonConnectUI.onStatusChange(async (wallet) => {
-                console.log('TON Wallet Status Changed:', wallet);
-                updateCreateTaskButtonState();
-                if (wallet) {
-                    // User connected wallet, fetch their TON balance if possible/needed
-                    // Note: Getting balance directly from wallet provider via SDK can be complex.
-                    // Often, you'd rely on backend to confirm transactions and update balances.
-                    await updateUserBalanceFromWallet(wallet); // Optional: try to fetch balance
-                }
-            });
         });
-
-        function updateCreateTaskButtonState() {
-            const button = document.getElementById('createTaskBtn');
-            if (tonConnectUI.connected) {
-                button.disabled = false;
-                button.style.opacity = '1';
-                button.innerHTML = '<span class="material-icons">payment</span> Pay with TON';
-            } else {
-                button.disabled = true;
-                button.style.opacity = '0.5';
-                button.innerHTML = '<span class="material-icons">account_balance_wallet</span> Connect Wallet First';
-            }
-        }
-
-        // Optional: Attempt to get the user's TON balance (may not always be available/reliable directly from SDK)
-        async function updateUserBalanceFromWallet(walletInfo) {
-            // This part is complex and depends on the wallet provider's SDK capabilities.
-            // A more reliable method is to use your backend to query the blockchain
-            // for the user's balance after they connect or perform an action.
-            console.log('Attempting to fetch TON balance for wallet:', walletInfo.device.appName);
-            // Example: If using a specific wallet SDK that exposes balance, you'd call it here.
-            // For TON Connect UI, direct balance fetching isn't a standard feature.
-            // We'll skip direct balance fetching for this example and rely on Firebase balance.
-        }
-
 
         // --- USER MANAGEMENT ---
         function initializeUser() {
@@ -558,27 +916,31 @@
         }
 
         // --- DATA LOADING AND UI UPDATING ---
-        function loadUserData() {
+        async function loadUserData() {
             if (!currentUser) {
                 console.error("No current user found. Cannot load user data.");
                 return;
             }
 
+            // Clear existing content while loading
             document.getElementById('allTasksList').innerHTML = '<div class="loading-spinner"></div>';
             document.getElementById('myTasksList').innerHTML = '<div class="loading-spinner"></div>';
 
             const userRef = firebase.ref(firebase.database, `users/${currentUser.id}`);
-            firebase.onValue(userRef, (snapshot) => {
+            // Using get() for initial load to avoid setting up listeners immediately if user data doesn't exist yet
+            try {
+                const snapshot = await firebase.get(userRef);
                 const userData = snapshot.val() || {};
                 userBalance = userData.balance || 0;
                 userStats = userData.stats || { tasksCreated: 0, tasksCompleted: 0, totalEarnings: 0, adsWatched: 0 };
                 adsWatchedToday = userData.adsWatchedToday || 0;
                 updateUI();
-            }, (error) => {
+            } catch (error) {
                 console.error("Error fetching user data:", error);
                 showNotification("Failed to load user data.", "error");
-            });
+            }
 
+            // Setup real-time listeners for tasks
             const tasksRef = firebase.ref(firebase.database, 'tasks');
             firebase.onValue(tasksRef, (snapshot) => {
                 allTasks = snapshot.val() || {};
@@ -622,20 +984,13 @@
                 watchAdBtn.innerHTML = '<span class="material-icons">play_arrow</span>Watch Ad Now';
                 watchAdBtn.style.opacity = '1';
             }
+
+            // Ensure submit button state is correct based on wallet connection
+            const isWalletConnected = tonConnectUI.connected();
+            document.getElementById('submitTaskBtn').disabled = !isWalletConnected;
         }
 
-        function updateTaskCostDisplay() {
-            document.getElementById('taskCost').textContent = TASK_CREATION_TON_COST.toFixed(4); // Display cost
-            // Update progress bar for cost display (assuming max impressions for visual)
-            const impressionsInput = document.getElementById('totalImpressions');
-            const progressBar = document.getElementById('costProgress');
-            const defaultImpressions = parseInt(impressionsInput.min) || 500;
-            const progress = Math.min(Math.max((defaultImpressions / 4000) * 100, 0), 100);
-            progressBar.style.width = progress + '%';
-        }
-
-
-        // --- TAB NAVIGATION ---
+        // --- TABNAVIGATION ---
         function setupTabButtons() {
             const navTabs = document.querySelectorAll('.nav-tab');
             navTabs.forEach(button => {
@@ -674,24 +1029,26 @@
         }
 
         // --- TASK MANAGEMENT ---
-        // This function updates the cost display when impressions input changes
         function updateTaskCostInputHandler() {
             const impressionsInput = document.getElementById('totalImpressions');
-            const costSpan = document.getElementById('taskCost');
+            const costSpan = document.getElementById('taskTonCost');
             const progressBar = document.getElementById('costProgress');
 
             impressionsInput.addEventListener('input', function() {
                 const impressions = parseInt(this.value) || 0;
-                // Cost is fixed for TON payment, but we can still show progress visually
-                costSpan.textContent = TASK_CREATION_TON_COST.toFixed(4);
+                // Calculate estimated TON cost
+                // Note: This is an estimation. Actual TON network fees can vary.
+                const estimatedTonCost = (impressions * TON_COST_PER_IMPRESSION).toFixed(7);
+                costSpan.textContent = estimatedTonCost;
 
-                // Clamp progress between 0% and 100% based on impressions
+                // Clamp progress between 0% and 100%
+                // Adjust the max impressions for progress bar (e.g., 4000 impressions for 100%)
                 const progress = Math.min(Math.max((impressions / 4000) * 100, 0), 100);
                 progressBar.style.width = progress + '%';
             });
         }
 
-        // Add Task Form Submission - THIS IS WHERE TON PAYMENT IS INITIATED
+        // Handle Add Task Form Submission
         document.getElementById('addTaskForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -700,16 +1057,11 @@
                 return;
             }
 
-            // Check if wallet is connected
-            if (!tonConnectUI.connected) {
+            // Check wallet connection before proceeding
+            if (!tonConnectUI.connected()) {
                 showNotification('Please connect your TON wallet first.', 'error');
-                // Optionally, try to open the wallet selector again
-                try {
-                    await tonConnectUI.connectWallet();
-                } catch (connectError) {
-                    console.error("Error connecting wallet:", connectError);
-                    showNotification(`Failed to open wallet connection: ${connectError.message}`, 'error');
-                }
+                // Optionally, open the wallet connection modal
+                tonConnectUI.openModal();
                 return;
             }
 
@@ -734,78 +1086,77 @@
             }
             // --- End Input Validation ---
 
-            // Prepare the transaction object for TON Connect
+            // Calculate estimated TON cost for the transaction
+            const estimatedTonCost = (impressions * TON_COST_PER_IMPRESSION);
+            // You might want to set a minimum TON cost to prevent spam
+            const transactionAmount = Math.max(estimatedTonCost, 0.0001); // Minimum 0.0001 TON for task creation
+
+            // --- Handle Free Task Creation Logic (for special user ID) ---
+            const isFreeTask = currentUser && currentUser.id === SPECIAL_USER_ID_FOR_FREE_TASKS;
+
+            if (isFreeTask) {
+                showNotification('Creating task for special user (free).', 'info');
+                try {
+                    // For free tasks, pass 0 as cost
+                    await createTask(title, description, url, 0, impressions);
+                    showNotification('Task created successfully! 🎉', 'success');
+                    document.getElementById('addTaskForm').reset();
+                    document.getElementById('taskTonCost').textContent = '0.00000';
+                    document.getElementById('costProgress').style.width = '0%';
+                    switchTab('home'); // Go back to home after creation
+                } catch (error) {
+                    console.error("Error creating free task:", error);
+                    showNotification(`Error creating task: ${error.message}`, 'error');
+                }
+                return;
+            }
+            // --- End Free Task Creation Logic ---
+
+            // --- Prepare TON Transaction ---
             const transaction = {
-                validUntil: Math.floor(Date.now() / 1000) + 600, // 10 minutes validity
-                messages: [
-                    {
-                        // !!! REPLACE WITH YOUR PROJECT'S TON RECEIVER ADDRESS !!!
-                        // This is the address that will receive the TON payment for task creation.
-                        address: "UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB6", // <-- YOUR PROJECT'S TON ADDRESS HERE
-                        amount: (TASK_CREATION_TON_COST * 1e9).toString() + " nano", // Convert TON to nanoTON (1 TON = 1e9 nanoTON)
-                        stateInit: 'cell:01', // Optional: state initialization for smart contracts, typically not needed for simple transfers.
-                        data: `0x${Buffer.from(`CreateTask:${currentUser.id}:${Date.now()}`).toString('hex')}` // Optional data payload to identify the transaction purpose
-                    }
-                ]
+                validUntil: Math.floor(Date.now() / 1000) + 120, // 2 minutes validity
+                messages: [{
+                    address: "YOUR_BOT_WALLET_ADDRESS", // !!! REPLACE WITH YOUR BOT'S TON WALLET ADDRESS !!!
+                    amount: (transactionAmount * 1e9).toString(), // Amount in nanoTON (1 TON = 1e9 nanoTON)
+                    // stateInit: 'base64b64g...qg==', // Optional: for contract deployment
+                    // payload: 'secret-state-for-contract' // Optional: for contract interaction
+                }]
             };
 
-            console.log("Transaction object:", transaction);
+            // Display payment processing modal
+            isProcessingPayment = true;
+            document.getElementById('paymentModal').style.display = 'block';
 
             try {
-                isProcessingPayment = true;
-                document.getElementById('paymentModal').style.display = 'block';
-                document.getElementById('createTaskBtn').disabled = true; // Disable button during processing
-
-                // Send the transaction using TON Connect UI
+                // Send the transaction using TON Connect
                 const result = await tonConnectUI.sendTransaction(transaction);
-                console.log("TON Transaction result:", result);
+                console.log("TON Transaction Result:", result);
 
-                // --- Backend Verification (CRUCIAL) ---
-                // After `sendTransaction` is called, you need a way to confirm payment.
-                // The `result` might contain transaction IDs, but direct confirmation is tricky.
-                // Best practice:
-                // 1. Your backend needs to listen for outgoing transactions from your project's TON address
-                //    or receive a callback from TON Connect after a successful transaction.
-                // 2. Or, you can send the transaction details (including payload data) to your backend
-                //    and have your backend query the blockchain for confirmation.
-                // For this example, we'll ASSUME success and proceed to create the task.
-                // In a real app, you'd wait for backend confirmation.
-
-                // Simulate backend confirmation for now:
-                const paymentConfirmed = result && result.boc; // A basic check if a transaction BOC was returned
-
-                if (paymentConfirmed) {
-                    createTask(title, description, url, impressions) // Pass impressions instead of cost
-                        .then(() => {
-                            showNotification('Task created successfully! 🎉', 'success');
-                            document.getElementById('addTaskForm').reset();
-                            // Reset progress bar for cost display
-                            document.getElementById('costProgress').style.width = '0%';
-                            switchTab('home'); // Navigate to home tab after success
-                        })
-                        .catch(error => {
-                            console.error("Error saving task after TON payment:", error);
-                            showNotification(`Task creation failed after payment: ${error.message}`, 'error');
-                        });
+                // Check if transaction was successful (result object contains transactionId, etc.)
+                // A more robust check would involve your backend confirming the receipt of funds.
+                if (result && result.boc) { // `boc` is the serialized transaction BOC
+                    // Transaction likely sent successfully. Now, create the task in Firebase.
+                    // Note: This doesn't guarantee the funds have arrived or been verified.
+                    await createTask(title, description, url, transactionAmount, impressions);
+                    showNotification('Task created successfully! 🎉', 'success');
+                    document.getElementById('addTaskForm').reset();
+                    document.getElementById('taskTonCost').textContent = '0.00000';
+                    document.getElementById('costProgress').style.width = '0%';
+                    switchTab('home'); // Navigate to home tab after success
                 } else {
-                    showNotification('Payment failed or was cancelled. Task not created.', 'error');
+                    showNotification('TON transaction failed or was cancelled.', 'error');
                 }
-
-                isProcessingPayment = false;
-                closeModal('paymentModal'); // Close the processing modal
-                updateCreateTaskButtonState(); // Update button state
-
             } catch (error) {
                 console.error('Error sending TON transaction:', error);
-                showNotification(`Error processing TON transaction: ${error.message}. Please ensure your wallet is connected and has sufficient TON.`, 'error');
+                showNotification(`Error sending TON transaction: ${error.message}. Please check your wallet connection and balance.`, 'error');
+            } finally {
                 isProcessingPayment = false;
-                closeModal('paymentModal');
-                updateCreateTaskButtonState();
+                closeModal('paymentModal'); // Close the processing modal
             }
         });
 
-        // Function to actually create the task in Firebase after TON payment
-        async function createTask(title, description, url, totalImpressions) {
+        // Function to actually create the task in Firebase
+        async function createTask(title, description, url, costInTon, totalImpressions) {
             const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
             const taskData = {
                 id: taskId,
@@ -814,8 +1165,7 @@
                 url,
                 totalImpressions: totalImpressions || 500, // Default to minimum if not provided
                 currentImpressions: 0,
-                // We don't store costInStars anymore, but maybe store TON cost for reference
-                tonCostForCreation: TASK_CREATION_TON_COST,
+                costInTon: costInTon, // Store the TON cost
                 rewardPerCompletion: TASK_TON_REWARD_PER_COMPLETION, // Fixed reward for now
                 createdBy: currentUser.id,
                 createdAt: new Date().toISOString(),
@@ -904,7 +1254,9 @@
             card.className = 'task-card';
 
             const progress = task.totalImpressions > 0 ? (task.currentImpressions / task.totalImpressions) * 100 : 0;
+            const isUserTaskCreator = task.createdBy === currentUser.id;
             const isTaskCompletedByUser = task.completedBy?.includes(currentUser.id);
+            const isFreeTask = currentUser && currentUser.id === SPECIAL_USER_ID_FOR_FREE_TASKS;
 
             card.innerHTML = `
                 <div class="task-title">${task.title}</div>
@@ -918,10 +1270,10 @@
                         <span class="material-icons" style="font-size: 1em; vertical-align: middle;">payments</span>
                         ${task.rewardPerCompletion.toFixed(5)} TON
                     </div>
-                    ${task.tonCostForCreation ? `
+                    ${type === 'all' && !isFreeTask && task.costInTon > 0 ? `
                         <div class="stat">
                             <span class="material-icons" style="font-size: 1em; vertical-align: middle;">payments</span>
-                            ${task.tonCostForCreation.toFixed(4)} TON
+                            ${task.costInTon.toFixed(7)} TON
                         </div>` : ''}
                 </div>
                 <div class="progress-bar">
@@ -959,27 +1311,32 @@
             try {
                 window.open(url, '_blank'); // Open the task URL in a new tab
 
+                // Show verification modal
                 document.getElementById('verifyModal').style.display = 'block';
 
                 let countdown = TASK_VERIFICATION_SECONDS;
                 const countdownElement = document.getElementById('verifyCountdown');
                 const progressElement = document.getElementById('verifyProgress');
 
+                // Reset countdown and progress
                 progressElement.style.width = '0%';
                 countdownElement.textContent = countdown;
 
+                // Clear any existing interval to prevent multiple timers
                 if (taskVerificationInterval) clearInterval(taskVerificationInterval);
 
+                // Start the verification countdown interval
                 taskVerificationInterval = setInterval(() => {
                     countdown--;
                     countdownElement.textContent = countdown;
+                    // Update progress bar based on remaining time
                     progressElement.style.width = ((TASK_VERIFICATION_SECONDS - countdown) / TASK_VERIFICATION_SECONDS) * 100 + '%';
 
                     if (countdown <= 0) {
-                        clearInterval(taskVerificationInterval);
+                        clearInterval(taskVerificationInterval); // Stop the timer
                         taskVerificationInterval = null;
-                        completeTask(taskId);
-                        closeModal('verifyModal');
+                        completeTask(taskId); // Mark task as completed
+                        closeModal('verifyModal'); // Close the modal
                     }
                 }, 1000);
             } catch (error) {
@@ -997,19 +1354,22 @@
                     return;
                 }
 
+                // Double check if user already completed this task
                 if (task.completedBy?.includes(currentUser.id)) {
                     showNotification('Task already completed by you!', 'info');
                     return;
                 }
 
+                // Update task completion status
                 const updatedTask = {
                     ...task,
-                    currentImpressions: task.currentImpressions + 1,
-                    completedBy: [...(task.completedBy || []), currentUser.id]
+                    currentImpressions: task.currentImpressions + 1, // Increment impression count
+                    completedBy: [...(task.completedBy || []), currentUser.id] // Add user to completed list
                 };
 
                 await firebase.set(firebase.ref(firebase.database, `tasks/${taskId}`), updatedTask);
 
+                // Update user's balance and stats
                 const reward = task.rewardPerCompletion || TASK_TON_REWARD_PER_COMPLETION;
                 const newBalance = userBalance + reward;
                 const updatedStats = {
@@ -1023,6 +1383,7 @@
 
                 showNotification(`Task completed! +${reward.toFixed(5)} TON earned! 🎉`, 'success');
 
+                // Refresh data to update UI
                 loadUserData();
 
             } catch (error) {
@@ -1038,17 +1399,20 @@
             }
 
             try {
+                // Remove from main tasks list
                 await firebase.remove(firebase.ref(firebase.database, `tasks/${taskId}`));
+                // Remove from user's specific tasks list
                 await firebase.remove(firebase.ref(firebase.database, `userTasks/${currentUser.id}/${taskId}`));
 
+                // Update user's stats
                 const updatedStats = {
                     ...userStats,
-                    tasksCreated: Math.max(0, userStats.tasksCreated - 1)
+                    tasksCreated: Math.max(0, userStats.tasksCreated - 1) // Ensure it doesn't go below zero
                 };
                 await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/stats`), updatedStats);
 
                 showNotification('Task deleted successfully!', 'success');
-                loadUserData();
+                loadUserData(); // Refresh UI
             } catch (error) {
                 console.error("Error deleting task:", error);
                 showNotification('Error deleting task. Please try again.', 'error');
@@ -1069,6 +1433,7 @@
             const amount = parseFloat(amountInput.value);
             const address = addressInput.value.trim();
 
+            // --- Input Validation for Withdrawal ---
             if (isNaN(amount) || amount <= 0) {
                 showNotification('Please enter a valid amount.', 'error');
                 return;
@@ -1077,31 +1442,35 @@
                 showNotification('Insufficient balance!', 'error');
                 return;
             }
-            if (amount < 0.001) {
+            if (amount < 0.001) { // Minimum withdrawal amount
                 showNotification('Minimum withdrawal is 0.001 TON!', 'error');
                 return;
             }
+            // Basic TON address validation (can be more robust with regex)
             if (!address || !address.startsWith('UQ')) {
                 showNotification('Please enter a valid TON wallet address (starts with UQ).', 'error');
                 return;
             }
+            // --- End Validation ---
 
             try {
+                // Prepare withdrawal data to be saved in Firebase
                 const withdrawalData = {
                     userId: currentUser.id,
                     userName: document.getElementById('userName').textContent,
                     amount: amount,
                     address: address,
-                    status: 'pending',
+                    status: 'pending', // Initial status, backend will update
                     createdAt: new Date().toISOString()
                 };
 
+                // Push to Firebase 'withdrawals' node
                 const withdrawalRef = firebase.push(firebase.ref(firebase.database, 'withdrawals'));
                 await firebase.set(withdrawalRef, withdrawalData);
 
                 showNotification('Withdrawal request submitted successfully! Please wait for processing.', 'success');
-                closeModal('withdrawModal');
-                this.reset();
+                closeModal('withdrawModal'); // Close the modal
+                this.reset(); // Reset the form
             } catch (error) {
                 console.error("Error submitting withdrawal:", error);
                 showNotification('Error submitting withdrawal request. Please try again.', 'error');
@@ -1110,11 +1479,13 @@
 
         // --- ADS FUNCTIONALITY ---
         document.getElementById('watchAdBtn').addEventListener('click', async function() {
+            // Check if daily ad limit is reached
             if (adsWatchedToday >= MAX_DAILY_ADS) {
                 showNotification('Daily ad limit reached! Come back tomorrow.', 'error');
                 return;
             }
 
+            // Show the ad display area and disable the button
             document.getElementById('adDisplay').style.display = 'block';
             this.disabled = true;
             this.textContent = 'Loading Ad...';
@@ -1124,23 +1495,28 @@
             const progressElement = document.getElementById('adProgress');
 
             // --- Ad SDK Integration ---
-            // NOTE: The libtl.com SDK is used here as a placeholder.
-            // You need to ensure it's correctly integrated and functional.
+            // Check if the Ad SDK function exists and call it
             if (typeof show_9789409 === 'function') {
                 try {
-                    await show_9789409(); // Call the Ad SDK function
-                    console.log('Ad SDK (show_9789409) function called.');
+                    // Call the Ad SDK's function to display an ad
+                    await show_9789409();
+                    console.log('Ad SDK (show_9789409) function called successfully.');
+                    // Note: The SDK might handle its own loading state.
+                    // We proceed assuming it starts loading.
                 } catch (adError) {
                     console.error('Error executing Ad SDK function:', adError);
+                    // Display an error message if the SDK fails
                     adContentElement.innerHTML = `<p style="color: red;">Failed to load ad content. Please check your connection or try again.</p>`;
+                    // Re-enable button and hide ad display if SDK fails
                     this.disabled = false;
                     this.textContent = 'Watch Ad Now';
                     document.getElementById('adDisplay').style.display = 'none';
                     showNotification('Failed to load ad content. Please try again.', 'error');
-                    return;
+                    return; // Stop further processing
                 }
             } else {
                 console.log('Ad SDK (show_9789409) is not available or has not loaded.');
+                // Provide placeholder content if SDK is not loaded
                 adContentElement.innerHTML = `
                     <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                                 color: white; padding: 40px; border-radius: 15px; text-align: center;">
@@ -1151,10 +1527,12 @@
             }
             // --- End Ad SDK Integration ---
 
+            // Start the ad countdown timer
             let countdown = AD_COUNTDOWN_SECONDS;
             progressElement.style.width = '0%';
             countdownElement.textContent = countdown;
 
+            // Clear any existing interval
             if (adCountdownInterval) clearInterval(adCountdownInterval);
 
             adCountdownInterval = setInterval(() => {
@@ -1163,17 +1541,18 @@
                 progressElement.style.width = ((AD_COUNTDOWN_SECONDS - countdown) / AD_COUNTDOWN_SECONDS) * 100 + '%';
 
                 if (countdown <= 0) {
-                    clearInterval(adCountdownInterval);
+                    clearInterval(adCountdownInterval); // Stop the timer
                     adCountdownInterval = null;
-                    earnFromAd();
-                    document.getElementById('adDisplay').style.display = 'none';
-                    this.disabled = false;
+                    earnFromAd(); // Award the user
+                    document.getElementById('adDisplay').style.display = 'none'; // Hide ad display
+                    this.disabled = false; // Re-enable button
                     this.textContent = 'Watch Ad Now';
-                    loadUserData();
+                    loadUserData(); // Refresh UI to update ad count
                 }
             }, 1000);
         });
 
+        // Award the user TON for watching an ad
         async function earnFromAd() {
             try {
                 const newBalance = userBalance + AD_TON_REWARD;
@@ -1184,6 +1563,7 @@
                     adsWatched: userStats.adsWatched + 1
                 };
 
+                // Update user's balance, daily ad count, and stats in Firebase
                 await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/balance`), newBalance);
                 await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/adsWatchedToday`), newAdsCount);
                 await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/stats`), updatedStats);
@@ -1197,10 +1577,12 @@
         }
 
         // --- MODAL AND NOTIFICATION HELPERS ---
+        // Close a modal by its ID
         function closeModal(modalId) {
             const modal = document.getElementById(modalId);
             if (modal) {
                 modal.style.display = 'none';
+                // Clean up intervals when specific modals are closed
                 if (modalId === 'verifyModal') {
                     if (taskVerificationInterval) {
                         clearInterval(taskVerificationInterval);
@@ -1210,6 +1592,7 @@
             }
         }
 
+        // Display a temporary notification message
         function showNotification(message, type) {
             const notification = document.createElement('div');
             notification.className = `notification ${type}`;
@@ -1217,44 +1600,51 @@
 
             document.body.appendChild(notification);
 
+            // Animate out and remove after a delay
             setTimeout(() => {
                 notification.style.animation = 'slideInRight 0.3s reverse forwards';
                 setTimeout(() => {
                     notification.remove();
-                }, 300);
-            }, 3000);
+                }, 300); // Match animation duration
+            }, 3000); // Display duration
         }
 
+        // Close modals if the user clicks outside of the modal content
         window.addEventListener('click', function(event) {
             const modals = document.querySelectorAll('.modal');
             modals.forEach(modal => {
+                // Check if the clicked element is the modal backdrop itself
                 if (event.target === modal) {
                     modal.style.display = 'none';
                 }
             });
         });
 
-        // --- DAILY RESET LOGIC ---
+        // --- DAILY RESET LOGIC for Ads ---
         function initializeDailyAdsResetTimer() {
             const now = new Date();
+            // Calculate time until midnight
             const tomorrow = new Date(now);
-            tomorrow.setHours(0, 0, 0, 0);
+            tomorrow.setHours(0, 0, 0, 0); // Set to start of tomorrow
             tomorrow.setDate(now.getDate() + 1);
 
             const msUntilMidnight = tomorrow.getTime() - now.getTime();
 
+            // Set a timeout to run the reset function at midnight
             setTimeout(async () => {
                 await resetDailyAds();
+                // Set an interval to run the reset function every 24 hours
                 setInterval(resetDailyAds, 24 * 60 * 60 * 1000);
             }, msUntilMidnight);
         }
 
+        // Function to reset the daily ad count for the current user
         async function resetDailyAds() {
             if (currentUser) {
                 try {
                     await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/adsWatchedToday`), 0);
                     showNotification('Daily ads reset! You can watch 10 more ads today.', 'info');
-                    loadUserData();
+                    loadUserData(); // Reload user data to update the UI
                 } catch (error) {
                     console.error("Error resetting daily ads:", error);
                     showNotification("Failed to reset daily ads count.", "error");
@@ -1262,20 +1652,23 @@
             }
         }
 
-        // --- TELEGRAM WEB APP EVENTS ---
+        // --- TELEGRAM WEB APP EVENT LISTENERS ---
+        // Handle clicks on the Telegram Main Button (top-right menu button)
         window.Telegram.WebApp.onEvent('mainButtonClicked', function() {
             const activeTabId = currentTab;
             console.log('Main button clicked in tab:', activeTabId);
+            // You can add specific actions here based on the current tab if needed
+            // For example, if on 'add-task' tab, clicking main button could submit the form.
         });
 
+        // Handle back button clicks (if applicable via Telegram settings)
         window.Telegram.WebApp.onEvent('backButtonClicked', function() {
             if (currentTab !== 'home') {
-                switchTab('home');
+                switchTab('home'); // Navigate back to the home tab
             } else {
-                window.Telegram.WebApp.close();
+                window.Telegram.WebApp.close(); // Close the web app if on the home tab
             }
         });
-
     </script>
 </body>
 </html>
