@@ -6,7 +6,7 @@ from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, Callb
 
 # ---------------- CONFIG ----------------
 BOT_TOKEN = "8335385877:AAFtL0x8596BmDvBHe4IpaOLDHEfBKUx2-Q"
-FIREBASE_DB_URL = "https://pixelfrog-5eddd-default-rtdb.firebaseio.com"
+FIREBASE_DB_URL = "https://skytasktonbot-default-rtdb.firebaseio.com"
 REFERRAL_EARNING_AMOUNT = 0.01
 DAILY_BONUS = 0.001
 MIN_WITHDRAW = 0.01
