@@ -31,7 +31,7 @@ def referral_link(chat_id: str):
     return f"https://t.me/{BOT_USERNAME}?start={chat_id}"
 
 def number_format(num):
-    return f"{num:,}" if num else "0"
+    return f"{num:,.4f}" if num else "0"
 
 def get_top_users(limit=10):
     all_users = users_ref.get() or {}
@@ -55,7 +55,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user = {
             "chatId": chat_id,
             "username": update.effective_user.username or update.effective_user.first_name,
-            "balance": 0,
+            "balance": 0.0,
             "referrals": 0,
             "referredBy": None,
             "wallet": None,
@@ -78,13 +78,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # Welcome message with buttons
     keyboard = [
-      [InlineKeyboardButton("Owner  ", url="https://t.me/Cryptoairdropgiveaway1")],
-        [InlineKeyboardButton("Devlopper ", url="https://t.me/ABstudioseo")],
+        [InlineKeyboardButton("Owner", url="https://t.me/Cryptoairdropgiveaway1")],
+        [InlineKeyboardButton("Developer", url="https://t.me/ABstudioseo")],
         [InlineKeyboardButton("🌐 Community", url="https://t.me/CryptoAirDrop384")],
         [InlineKeyboardButton("📊 Main Menu", callback_data="main_menu")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    welcome_text = f"🐸 Welcome to <b>Ton</b>, @{update.effective_user.username or 'User'}!\n\nEarn and play with Ton coins!\n\nInvite friends using your referral link:\n{referral_link(chat_id)}"
+    welcome_text = f"🐸 Welcome to <b>Sky Task Ton</b>, @{update.effective_user.username or 'User'}!\n\nEarn and play with Ton coins!\n\nInvite friends using your referral link:\n{referral_link(chat_id)}"
     await context.bot.send_photo(chat_id=chat_id, photo=BANNER_URL, caption=welcome_text, parse_mode="HTML", reply_markup=reply_markup)
 
 # ---------------- MAIN MENU ----------------
@@ -93,9 +93,9 @@ async def main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         [InlineKeyboardButton("👤 Profile", callback_data="profile")],
         [InlineKeyboardButton("💸 Withdraw", callback_data="withdraw")],
-        
         [InlineKeyboardButton("📣 Refer", callback_data="refer")],
-        [InlineKeyboardButton("🏆 Leaderboard", callback_data="leaderboard")]
+        [InlineKeyboardButton("🏆 Leaderboard", callback_data="leaderboard")],
+        [InlineKeyboardButton("📜 History", callback_data="history")]
     ]
     await context.bot.send_message(chat_id, "🔹 Main Menu:", reply_markup=InlineKeyboardMarkup(keyboard))
 
@@ -135,9 +135,8 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             msg = "📜 No withdrawal history found."
         else:
             msg = "📜 Withdraw History:\n\n"
-            # Sort history by timestamp descending
             sorted_history = sorted(history.values(), key=lambda x: x["timestamp"], reverse=True)
-            for h in sorted_history[:10]:  # last 10 records
+            for h in sorted_history[:10]:
                 status_icon = "✅" if h["status"]=="COMPLETED" else "⏳"
                 msg += f"{status_icon} {h['amount']} Ton → {h['wallet']}\n"
         keyboard = [[InlineKeyboardButton("🔙 Back", callback_data="main_menu")]]
@@ -173,7 +172,7 @@ async def withdraw_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # Withdraw amount
     try:
-        amount = int(arg)
+        amount = float(arg)
     except ValueError:
         return await update.message.reply_text("❌ Invalid input.")
 
@@ -197,14 +196,34 @@ async def withdraw_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     })
     await update.message.reply_text(f"💸 Withdrawal submitted!\nAmount: {amount} Ton\nWallet: {user['wallet']}\nStatus: PENDING")
 
+# ---------------- /PROFILE COMMAND ----------------
+async def profile_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = str(update.effective_chat.id)
+    user = get_user(chat_id)
+    if not user:
+        return await update.message.reply_text("❌ Please /start first.")
+    text = (
+        f"👤 User: @{user.get('username', 'N/A')}\n"
+        f"🆔 ID: {user.get('chatId', chat_id)}\n\n"
+        f"💰 Balance: {number_format(user.get('balance', 0))} Ton\n"
+        f"🤝 Referrals: {number_format(user.get('referrals', 0))}\n\n"
+        f"🔗 Referral Link:\n{referral_link(chat_id)}"
+    )
+    await update.message.reply_text(text)
+
+# ---------------- /REFER COMMAND ----------------
+async def refer_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = str(update.effective_chat.id)
+    await update.message.reply_text(f"📣 Invite friends and earn {REFERRAL_EARNING_AMOUNT} Ton!\nYour link: {referral_link(chat_id)}")
+
 # ---------------- /HELP COMMAND ----------------
 async def help_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "Skt ton Commands:\n"
-        "/start - Start bot with welcome\n"
+        "SkyTaskTon Commands:\n"
+        "/start - Start bot\n"
         "/profile - Show profile\n"
         "/refer - Get referral link\n"
-        
+        "/withdraw - Withdraw balance / set wallet\n"
         "/help - Show this help\n"
     )
 
@@ -213,7 +232,9 @@ app = ApplicationBuilder().token(BOT_TOKEN).build()
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("withdraw", withdraw_cmd))
 app.add_handler(CommandHandler("help", help_cmd))
+app.add_handler(CommandHandler("profile", profile_cmd))
+app.add_handler(CommandHandler("refer", refer_cmd))
 app.add_handler(CallbackQueryHandler(button_handler))
 
-print("🚀 skyton")
+print("🚀 SkyTaskTon bot running...")
 app.run_polling()
