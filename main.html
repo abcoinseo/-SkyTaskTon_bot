@@ -1,1496 +1,1526 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>SkyTaskTon - Earn TON</title><script src="https://telegram.org/js/telegram-web-app.js"></script><!-- Ad SDK - Ensure this script is correctly integrated or replaced if needed --><script src='//libtl.com/sdk.js' data-zone='9789409' data-sdk='show_9789409'></script><script type="module">import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';import { getDatabase, ref, push, set, get, onValue, remove, update } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js'; code Codedownloadcontent_copyexpand_less    // --- FIREBASE CONFIG ---
-// !!! REPLACE WITH YOUR ACTUAL FIREBASE CONFIG !!!
-const firebaseConfig = {
-    apiKey: "AIzaSyBSj3t2ClyafHRgpN__cCnbDarhTfse3aA", // Example, replace!
-    authDomain: "skytasktonbot.firebaseapp.com",
-    projectId: "skytasktonbot",
-    storageBucket: "skytasktonbot.firebasestorage.app",
-    messagingSenderId: "1078897344814",
-    appId: "1:1078897344814:web:166f4341b884d877d97abf"
-};
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
-window.firebase = { database, ref, push, set, get, onValue, remove, update };
-// --- END FIREBASE CONFIG ---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyTaskTon - Earn TON</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getDatabase, ref, push, set, get, onValue, remove, update } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyBSj3t2ClyafHRgpN__cCnbDarhTfse3aA",
+            authDomain: "skytasktonbot.firebaseapp.com",
+            projectId: "skytasktonbot",
+            storageBucket: "skytasktonbot.firebasestorage.app",
+            messagingSenderId: "1078897344814",
+            appId: "1:1078897344814:web:166f4341b884d877d97abf"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        window.firebase = { database, ref, push, set, get, onValue, remove, update };
+    </script>
+    
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --text-color: #1f2937;
+            --text-secondary: #6b7280;
+            --background: #f8fafc;
+            --card-bg: #ffffff;
+            --border-color: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
 
-</script>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"><style>    /* Global Styles */    :root {        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);        --primary-color: #667eea;        --secondary-color: #764ba2;        --text-color: #333;        --light-text-color: #666;        --background-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);        --card-background: rgba(255,255,255,0.98);        --card-shadow: 0 8px 32px rgba(0,0,0,0.08);        --card-hover-shadow: 0 16px 48px rgba(0,0,0,0.12);        --input-border: #e1e5e9;        --modal-backdrop: rgba(0,0,0,0.6);        --modal-shadow: 0 20px 60px rgba(0,0,0,0.3);    } code Codedownloadcontent_copyexpand_lessIGNORE_WHEN_COPYING_STARTIGNORE_WHEN_COPYING_END    * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: var(--background-gradient);
-    color: var(--text-color);
-    overflow-x: hidden;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--background);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding-bottom: 80px;
+        }
 
-.container {
-    max-width: 100vw;
-    min-height: 100vh;
-    position: relative;
-    background: var(--card-background);
-    backdrop-filter: blur(20px);
-    display: flex;
-    flex-direction: column;
-}
+        .container {
+            max-width: 100%;
+            min-height: 100vh;
+        }
 
-.header {
-    background: var(--primary-gradient);
-    padding: 25px 20px;
-    text-align: center;
-    color: white;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-    position: relative;
-    overflow: hidden;
-}
+        .header {
+            background: var(--primary-gradient);
+            padding: 24px 20px 32px;
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
 
-.header::before { /* Subtle background grain effect */
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-    opacity: 0.3;
-}
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.1) 0%, transparent 50%);
+        }
 
-.header h1 {
-    font-size: 2.5em;
-    font-weight: 700;
-    margin-bottom: 8px;
-    text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
-    position: relative;
-    z-index: 1;
-}
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
 
-.balance {
-    font-size: 1.3em;
-    margin-top: 15px;
-    background: rgba(255,255,255,0.25);
-    padding: 15px 20px;
-    border-radius: 20px;
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(255,255,255,0.2);
-    position: relative;
-    z-index: 1;
-    font-weight: 600;
-}
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
 
-.nav-tabs {
-    display: flex;
-    background: white;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    border-bottom: 1px solid #f0f0f0;
-}
+        .balance-card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-top: 16px;
+            display: inline-block;
+            min-width: 200px;
+        }
 
-.nav-tab {
-    flex: 1;
-    padding: 18px 8px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border: none;
-    background: none;
-    font-size: 11px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    font-weight: 500;
-    position: relative;
-    color: var(--light-text-color);
-}
+        .balance-amount {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
 
-.nav-tab::before {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 3px;
-    background: var(--primary-gradient);
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-}
+        .wallet-status {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-top: 12px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
 
-.nav-tab.active {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-    color: var(--primary-color);
-}
-.nav-tab.active::before {
-    transform: scaleX(1);
-}
+        .content {
+            padding: 20px;
+            padding-bottom: 100px;
+        }
 
-.nav-tab:hover {
-    background: rgba(102, 126, 234, 0.05);
-    transform: translateY(-1px);
-}
+        .tab-content {
+            display: none;
+        }
 
-.nav-tab .material-icons {
-    font-size: 20px;
-}
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
 
-.tab-content {
-    display: none;
-    padding: 25px 20px;
-    flex-grow: 1; /* Allow content to fill remaining space */
-    animation: fadeIn 0.3s ease;
-}
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-.tab-content.active {
-    display: block;
-}
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-/* Task Card Styles */
-.task-card {
-    background: white;
-    border-radius: 20px;
-    padding: 25px;
-    margin: 20px 0;
-    box-shadow: var(--card-shadow);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid rgba(0,0,0,0.05);
-    position: relative;
-    overflow: hidden;
-}
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
 
-.task-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 4px;
-    background: var(--primary-gradient);
-}
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 4px;
+        }
 
-.task-card:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--card-hover-shadow);
-}
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
 
-.task-title {
-    font-size: 1.4em;
-    font-weight: 600;
-    color: var(--text-color);
-    margin-bottom: 12px;
-    line-height: 1.3;
-}
+        .task-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
 
-.task-description {
-    color: var(--light-text-color);
-    margin-bottom: 20px;
-    line-height: 1.6;
-    font-size: 0.95em;
-}
+        .task-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
 
-.task-stats {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 20px;
-}
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+        }
 
-.stat {
-    background: var(--primary-gradient);
-    color: white;
-    padding: 10px 16px;
-    border-radius: 25px;
-    font-size: 0.85em;
-    font-weight: 600;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
+        .task-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
 
-/* Button Styles */
-.btn {
-    padding: 14px 28px;
-    border: none;
-    border-radius: 30px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    font-size: 1em;
-    position: relative;
-    overflow: hidden;
-}
+        .task-description {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
 
-.btn::before {
-    content: '';
-    position: absolute;
-    top: 0; left: -100%;
-    width: 100%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    transition: left 0.5s;
-}
+        .task-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
 
-.btn:hover::before {
-    left: 100%;
-}
+        .task-stat {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
 
-.btn-primary { background: var(--primary-gradient); color: white; box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4); }
-.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5); }
-.btn-success { background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4); }
-.btn-success:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(76, 175, 80, 0.5); }
-.btn-warning { background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); color: white; box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4); }
-.btn-warning:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(255, 152, 0, 0.5); }
-.btn-danger { background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%); color: white; box-shadow: 0 6px 20px rgba(244, 67, 54, 0.4); }
-.btn-danger:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(244, 67, 54, 0.5); }
-.btn-info { background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white; box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4); }
-.btn-info:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(33, 150, 243, 0.5); }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 16px 0;
+        }
 
-/* Form Styles */
-.form-group {
-    margin-bottom: 25px;
-}
-.form-group label {
-    display: block;
-    margin-bottom: 10px;
-    font-weight: 600;
-    color: var(--text-color);
-    font-size: 0.95em;
-}
-.form-control {
-    width: 100%;
-    padding: 16px 20px;
-    border: 2px solid var(--input-border);
-    border-radius: 15px;
-    font-size: 1em;
-    transition: all 0.3s ease;
-    background: white;
-    font-family: inherit;
-    color: var(--text-color);
-}
-.form-control:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    transform: translateY(-1px);
-}
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-gradient);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
 
-/* Profile Card */
-.profile-card {
-    background: white;
-    border-radius: 25px;
-    padding: 35px;
-    text-align: center;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.1);
-    margin-bottom: 25px;
-    position: relative;
-    overflow: hidden;
-}
-.profile-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 6px;
-    background: var(--primary-gradient);
-}
-.profile-avatar {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background: var(--primary-gradient);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 25px;
-    color: white;
-    font-size: 3.5em;
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-}
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
 
-/* Modal Styles */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 2000;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
-    background-color: var(--modal-backdrop);
-    backdrop-filter: blur(8px);
-    animation: modalFadeIn 0.3s ease;
-}
-@keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
-.modal-content {
-    background-color: white;
-    margin: 50px auto;
-    padding: 35px;
-    border-radius: 25px;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: var(--modal-shadow);
-    animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-}
-@keyframes modalSlideIn { from { transform: translateY(-50px) scale(0.9); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 32px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    line-height: 1;
-}
-.close:hover { color: var(--primary-color); transform: scale(1.1); }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
 
-/* Progress Bar */
-.progress-bar {
-    width: 100%;
-    height: 12px;
-    background-color: #f0f0f0;
-    border-radius: 10px;
-    overflow: hidden;
-    margin: 15px 0;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-}
-.progress-fill {
-    height: 100%;
-    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-    width: 0%;
-    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-}
-.progress-fill::after { /* Shimmer effect */
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-    animation: shimmer 2s infinite;
-}
-@keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
 
-/* Ad Container */
-.ad-container {
-    background: white;
-    border-radius: 20px;
-    padding: 30px;
-    margin: 20px 0;
-    text-align: center;
-    box-shadow: var(--card-shadow);
-    border: 1px solid rgba(0,0,0,0.05);
-}
-.ads-remaining {
-    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-    color: white;
-    padding: 15px 25px;
-    border-radius: 25px;
-    display: inline-block;
-    margin: 15px 0;
-    font-weight: 600;
-    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-}
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
 
-/* Countdown */
-.countdown {
-    font-size: 3em;
-    font-weight: 700;
-    color: var(--primary-color);
-    margin: 25px 0;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-}
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
 
-/* Notification */
-.notification {
-    position: fixed;
-    top: 25px;
-    right: 25px;
-    padding: 18px 25px;
-    border-radius: 15px;
-    color: white;
-    font-weight: 600;
-    z-index: 3000;
-    animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-    max-width: 300px;
-    text-align: center;
-}
-.notification.success { background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); }
-.notification.error { background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%); }
-.notification.info { background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); }
-@keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
 
-/* Stats Grid */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 20px;
-    margin: 25px 0;
-}
-.stat-card {
-    background: white;
-    padding: 25px;
-    border-radius: 20px;
-    text-align: center;
-    box-shadow: var(--card-shadow);
-    transition: transform 0.3s ease;
-    border: 1px solid rgba(0,0,0,0.05);
-}
-.stat-card:hover { transform: translateY(-5px); }
-.stat-number {
-    font-size: 2.2em;
-    font-weight: 700;
-    color: var(--primary-color);
-    margin-bottom: 8px;
-}
-.stat-label {
-    font-size: 0.9em;
-    color: var(--light-text-color);
-    font-weight: 500;
-}
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-color), #d97706);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
 
-/* Cost Display */
-.cost-display {
-    background: var(--primary-gradient);
-    color: white;
-    padding: 20px;
-    border-radius: 15px;
-    margin: 20px 0;
-    text-align: center;
-    font-size: 1.2em;
-    font-weight: 600;
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
-}
+        .btn-danger {
+            background: linear-gradient(135deg, var(--error-color), #dc2626);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
 
-/* Loading Spinner */
-.loading-spinner {
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid var(--primary-color);
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    animation: spin 1s linear infinite;
-    margin: 20px auto;
-}
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .btn-outline {
+            background: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
 
-/* Empty State */
-.empty-state {
-    text-align: center;
-    padding: 50px 20px;
-    color: var(--light-text-color);
-}
-.empty-state .material-icons {
-    font-size: 4em;
-    color: #ddd;
-    margin-bottom: 20px;
-}
+        .btn-outline:hover:not(:disabled) {
+            background: var(--primary-color);
+            color: white;
+        }
 
-/* Pulse Animation */
-.pulse {
-    animation: pulse 2s infinite;
-}
-@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        .form-group {
+            margin-bottom: 20px;
+        }
 
-/* Media Queries */
-@media (max-width: 768px) {
-    .header h1 { font-size: 2em; }
-    .nav-tab { font-size: 10px; padding: 15px 5px; }
-    .task-stats { flex-direction: column; align-items: stretch; }
-    .stat { margin: 5px 0; }
-    .modal-content { margin: 20px auto; width: 95%; padding: 25px; }
-    .stats-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
-}
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
 
-/* Specific Tab Styles */
-#home { padding-top: 15px; }
-#home h2 { margin-top: 30px; margin-bottom: 20px; }
-#ads .ad-container > .material-icons { font-size: 4em; color: var(--primary-color); margin-bottom: 20px; }
-#ads p strong { color: var(--primary-color); }
-#ads h3 { margin-bottom: 15px; color: var(--text-color); }
-#adDisplay { min-height: 350px; }
-#adContent { /* Placeholder styling */ }
-#paymentModal .modal-content { background: var(--primary-gradient); color: white; }
-#paymentModal .modal-content h2, #paymentModal .modal-content p { color: white !important; }
-#paymentModal .loading-spinner { border-top-color: white; border-color: rgba(255,255,255,0.5); }
-#verifyModal .modal-content .material-icons { color: var(--primary-color); }
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
 
-/* Developer Info Footer */
-.developer-info {
-    margin-top: 30px;
-    padding: 20px;
-    text-align: center;
-    color: var(--light-text-color);
-    font-size: 0.9em;
-    border-top: 1px solid #eee;
-}
-.developer-info a {
-    color: var(--primary-color);
-    font-weight: 600;
-    text-decoration: none;
-}
-.developer-info a:hover {
-    text-decoration: underline;
-}
-  </style></head><body>    <div class="container">        <div class="header">            <h1>🌟 SkyTaskTon</h1>            <div class="balance">                💎 Balance: <span id="userBalance">0.00000</span> TON            </div>        </div> code Codedownloadcontent_copyexpand_lessIGNORE_WHEN_COPYING_STARTIGNORE_WHEN_COPYING_END    <div class="nav-tabs">
-        <button class="nav-tab active" onclick="switchTab('home')">
-            <span class="material-icons">home</span>
-            <span>Home</span>
-        </button>
-        <button class="nav-tab" onclick="switchTab('tasks')">
-            <span class="material-icons">assignment</span>
-            <span>My Tasks</span>
-        </button>
-        <button class="nav-tab" onclick="switchTab('add-task')">
-            <span class="material-icons">add_circle</span>
-            <span>Add Task</span>
-        </button>
-        <button class="nav-tab" onclick="switchTab('ads')">
-            <span class="material-icons">ads_click</span>
-            <span>Ads</span>
-        </button>
-        <button class="nav-tab" onclick="switchTab('profile')">
-            <span class="material-icons">person</span>
-            <span>Profile</span>
-        </button>
-    </div>
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
 
-    <!-- Home Tab -->
-    <div id="home" class="tab-content active">
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number" id="totalTasks">0</div>
-                <div class="stat-label">Total Tasks</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="completedTasks">0</div>
-                <div class="stat-label">Completed</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="totalEarnings">0.00000</div>
-                <div class="stat-label">Total Earned</div>
+        .cost-display {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 16px 0;
+            font-weight: 600;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            margin: 10% auto;
+            padding: 24px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow-xl);
+            animation: slideUp 0.3s ease;
+            position: relative;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close {
+            position: absolute;
+            right: 16px;
+            top: 16px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: var(--error-color);
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            padding: 8px 0;
+            z-index: 100;
+            box-shadow: 0 -4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+            text-decoration: none;
+            position: relative;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 3px;
+            background: var(--primary-gradient);
+            border-radius: 0 0 2px 2px;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .nav-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            z-index: 2000;
+            max-width: 300px;
+            animation: slideInRight 0.3s ease;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .notification.success { background: var(--success-color); }
+        .notification.error { background: var(--error-color); }
+        .notification.info { background: var(--primary-color); }
+        .notification.warning { background: var(--warning-color); }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            margin: 20px auto;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state .material-icons {
+            font-size: 3rem;
+            color: var(--border-color);
+            margin-bottom: 16px;
+        }
+
+        .ad-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            margin-bottom: 16px;
+        }
+
+        .wallet-connect-btn {
+            width: 100%;
+            margin: 16px 0;
+        }
+
+        .countdown {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 16px 0;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 24px 0 16px;
+            color: var(--text-color);
+        }
+
+        .profile-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            margin-bottom: 16px;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            color: white;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .ton-connect-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        #ton-connect {
+            display: flex;
+            justify-content: center;
+            margin: 16px 0;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .task-stats { flex-direction: column; }
+            .modal-content { margin: 5% auto; width: 95%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <h1>🌟 SkyTaskTon</h1>
+                <div class="balance-card">
+                    💎 Balance: <span id="userBalance">0.00000</span> TON
+                </div>
+                <div class="wallet-status" id="walletStatus">
+                    <span class="material-icons">account_balance_wallet</span>
+                    <span id="walletStatusText">Connect Wallet</span>
+                </div>
             </div>
         </div>
-        <h2 style="margin-top: 30px; margin-bottom: 20px; font-size: 1.8em; color: var(--text-color);">🚀 Available Tasks</h2>
-        <div id="allTasksList">
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Home Tab -->
+            <div id="home" class="tab-content active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalTasks">0</div>
+                        <div class="stat-label">Total Tasks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="completedTasks">0</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalEarnings">0.00000</div>
+                        <div class="stat-label">Total Earned</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="adsWatchedStat">0</div>
+                        <div class="stat-label">Ads Watched</div>
+                    </div>
+                </div>
+                
+                <h2 class="section-title">🚀 Available Tasks</h2>
+                <div id="allTasksList">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+
+            <!-- Tasks Tab -->
+            <div id="tasks" class="tab-content">
+                <h2 class="section-title">📝 My Tasks</h2>
+                <div id="myTasksList">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+
+            <!-- Add Task Tab -->
+            <div id="add-task" class="tab-content">
+                <h2 class="section-title">➕ Create New Task</h2>
+                
+                <div class="ton-connect-container">
+                    <p style="margin-bottom: 16px; color: var(--text-secondary);">Connect your TON wallet to create tasks</p>
+                    <div id="ton-connect"></div>
+                </div>
+
+                <form id="addTaskForm">
+                    <div class="form-group">
+                        <label class="form-label" for="taskTitle">Task Title *</label>
+                        <input type="text" id="taskTitle" class="form-control" placeholder="Enter an engaging task title" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="taskDescription">Task Description *</label>
+                        <textarea id="taskDescription" class="form-control" rows="4" placeholder="Describe what users need to do" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="taskUrl">Task URL *</label>
+                        <input type="url" id="taskUrl" class="form-control" placeholder="https://example.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="totalImpressions">Total Impressions *</label>
+                        <input type="number" id="totalImpressions" class="form-control" min="500" step="100" placeholder="Minimum 500 impressions" required>
+                    </div>
+                    
+                    <div class="cost-display">
+                        💰 Total Cost: <span id="taskCost">0</span> TON
+                        <div style="font-size: 0.875rem; margin-top: 8px; opacity: 0.9;">
+                            Rate: 500 impressions = 0.5 TON
+                        </div>
+                    </div>
+                    
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="costProgress"></div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary wallet-connect-btn">
+                        <span class="material-icons">payments</span>
+                        Create Task & Pay with TON
+                    </button>
+                </form>
+            </div>
+
+            <!-- Ads Tab -->
+            <div id="ads" class="tab-content">
+                <h2 class="section-title">📺 Watch Ads & Earn</h2>
+                
+                <div class="ad-container">
+                    <div class="material-icons" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 16px;">play_circle_filled</div>
+                    <h3 style="margin-bottom: 12px;">Daily Ads Available</h3>
+                    <div style="background: var(--success-color); color: white; padding: 12px 20px; border-radius: 20px; display: inline-block; margin: 12px 0; font-weight: 600;">
+                        <span id="adsRemaining">10</span> / 10 Ads Remaining
+                    </div>
+                    <p style="margin: 16px 0; color: var(--text-secondary);">
+                        Earn <strong>0.000001</strong> TON per ad watched!
+                    </p>
+                    <button id="watchAdBtn" class="btn btn-success">
+                        <span class="material-icons">play_arrow</span>
+                        Watch Ad Now
+                    </button>
+                </div>
+
+                <div id="adDisplay" style="display: none;" class="ad-container">
+                    <h3>Please wait while the ad loads...</h3>
+                    <div id="adContent" style="min-height: 200px; margin: 20px 0; background: #f3f4f6; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary);">
+                        Ad content will appear here
+                    </div>
+                    <div class="countdown" id="adCountdown">5</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="adProgress"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Tab -->
+            <div id="profile" class="tab-content">
+                <div class="profile-card">
+                    <div class="profile-avatar">
+                        <span class="material-icons">person</span>
+                    </div>
+                    <h2 id="userName" style="margin-bottom: 8px;">Loading...</h2>
+                    <p id="userId" style="color: var(--text-secondary); margin-bottom: 20px;">ID: Loading...</p>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="profileBalance">0.00000</div>
+                            <div class="stat-label">TON Balance</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="profileTasks">0</div>
+                            <div class="stat-label">Tasks Created</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="profileEarnings">0.00000</div>
+                            <div class="stat-label">Total Earned</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="profileAdsWatched">0</div>
+                            <div class="stat-label">Ads Watched</div>
+                        </div>
+                    </div>
+                    
+                    <button id="withdrawBtn" class="btn btn-warning" style="margin-top: 16px;">
+                        <span class="material-icons">account_balance_wallet</span>
+                        Withdraw TON
+                    </button>
+                </div>
+                
+                <div style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 0.875rem;">
+                    Bot Developer: <a href="https://t.me/abstudioseo" target="_blank" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">@abstudioseo</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="switchTab('home')">
+                <span class="material-icons nav-icon">home</span>
+                <span class="nav-label">Home</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('tasks')">
+                <span class="material-icons nav-icon">assignment</span>
+                <span class="nav-label">My Tasks</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('add-task')">
+                <span class="material-icons nav-icon">add_circle</span>
+                <span class="nav-label">Add Task</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('ads')">
+                <span class="material-icons nav-icon">ads_click</span>
+                <span class="nav-label">Ads</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('profile')">
+                <span class="material-icons nav-icon">person</span>
+                <span class="nav-label">Profile</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Withdraw Modal -->
+    <div id="withdrawModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('withdrawModal')">&times;</span>
+            <h2 style="margin-bottom: 20px;">💰 Withdraw TON</h2>
+            <form id="withdrawForm">
+                <div class="form-group">
+                    <label class="form-label" for="withdrawAmount">Amount (TON) *</label>
+                    <input type="number" id="withdrawAmount" class="form-control" step="0.00001" min="0.05" placeholder="Minimum 0.05 TON" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="tonAddress">TON Wallet Address *</label>
+                    <input type="text" id="tonAddress" class="form-control" placeholder="Enter your TON wallet address" required>
+                </div>
+                <button type="submit" class="btn btn-success" style="width: 100%;">
+                    <span class="material-icons">send</span>
+                    Submit Withdrawal Request
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Task Verification Modal -->
+    <div id="verifyModal" class="modal">
+        <div class="modal-content" style="text-align: center;">
+            <span class="close" onclick="closeModal('verifyModal')">&times;</span>
+            <div class="material-icons" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 16px;">hourglass_empty</div>
+            <h2 style="margin-bottom: 16px;">⏳ Task Verification</h2>
+            <p style="margin-bottom: 20px; color: var(--text-secondary);">Please wait while we verify your task completion...</p>
+            <div class="countdown" id="verifyCountdown">10</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="verifyProgress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Processing Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content" style="text-align: center;">
+            <div class="material-icons" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 16px;">payments</div>
+            <h2 style="margin-bottom: 16px;">💳 Processing Payment</h2>
+            <p style="margin-bottom: 20px; color: var(--text-secondary);">Please complete the TON payment to create your task...</p>
             <div class="loading-spinner"></div>
         </div>
     </div>
 
-    <!-- My Tasks Tab -->
-    <div id="tasks" class="tab-content">
-        <h2 style="margin-bottom: 25px; font-size: 1.8em; color: var(--text-color);">📝 My Tasks</h2>
-        <div id="myTasksList">
-            <div class="loading-spinner"></div>
-        </div>
-    </div>
+    <script>
+        // Global Variables
+        let currentUser = null;
+        let userTasks = {};
+        let allTasks = {};
+        let userBalance = 0;
+        let userStats = { tasksCreated: 0, tasksCompleted: 0, totalEarnings: 0, adsWatched: 0 };
+        let adsWatchedToday = 0;
+        let isProcessingPayment = false;
+        let currentTab = 'home';
+        let taskVerificationInterval = null;
+        let adCountdownInterval = null;
+        let tonConnectUI = null;
 
-    <!-- Add Task Tab -->
-    <div id="add-task" class="tab-content">
-        <h2 style="margin-bottom: 25px; font-size: 1.8em; color: var(--text-color);">➕ Create New Task</h2>
-        <form id="addTaskForm">
-            <div class="form-group">
-                <label for="taskTitle">Task Title *</label>
-                <input type="text" id="taskTitle" class="form-control" placeholder="Enter an engaging task title" required>
-            </div>
-            <div class="form-group">
-                <label for="taskDescription">Task Description *</label>
-                <textarea id="taskDescription" class="form-control" rows="4" placeholder="Describe what users need to do" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="taskUrl">Task URL *</label>
-                <input type="url" id="taskUrl" class="form-control" placeholder="https://example.com" required>
-            </div>
-            <div class="form-group">
-                <label for="totalImpressions">Total Impressions *</label>
-                <!-- Minimum impressions set to 500. Change min="50" if 50 is desired -->
-                <input type="number" id="totalImpressions" class="form-control" min="500" step="100" placeholder="Minimum 500 impressions" required>
-            </div>
-            <div class="cost-display">
-                💰 Total Cost: <span id="taskCost">0</span> Telegram Stars
-                <div style="font-size: 0.9em; margin-top: 8px; opacity: 0.9;">
-                    Rate: 500 impressions = 100 Stars
-                </div>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="costProgress"></div>
-            </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
-                <span class="material-icons">payment</span>
-                Create Task & Pay with Stars
-            </button>
-        </form>
-    </div>
+        // Constants
+        const TASK_TON_RATE_PER_500_IMPRESSIONS = 0.5; // TON needed for every 500 impressions
+        const TASK_TON_REWARD_PER_COMPLETION = 0.00005; // TON reward for completing a task
+        const AD_TON_REWARD = 0.000001; // TON reward per watched ad
+        const MAX_DAILY_ADS = 10;
+        const AD_COUNTDOWN_SECONDS = 5;
+        const TASK_VERIFICATION_SECONDS = 10;
+        const SPECIAL_USER_ID_FOR_FREE_TASKS = 8101021767;
 
-    <!-- Ads Tab -->
-    <div id="ads" class="tab-content">
-        <h2 style="margin-bottom: 25px; font-size: 1.8em; color: var(--text-color);">📺 Watch Ads & Earn</h2>
-        <div class="ad-container">
-            <div class="material-icons" style="font-size: 4em; color: var(--primary-color); margin-bottom: 20px;">play_circle_filled</div>
-            <h3 style="margin-bottom: 15px;">Daily Ads Available</h3>
-            <div class="ads-remaining">
-                <span id="adsRemaining">10</span> / 10 Ads Remaining
-            </div>
-            <p style="margin: 20px 0; color: var(--light-text-color); font-size: 1.1em;">
-                Earn <strong>0.000001</strong> TON per ad watched!
-            </p>
-            <button id="watchAdBtn" class="btn btn-success" style="font-size: 1.1em;">
-                <span class="material-icons">play_arrow</span>
-                Watch Ad Now
-            </button>
-            <div style="margin-top: 20px; font-size: 0.9em; color: #888;">
-                Ads reset daily at midnight
-            </div>
-        </div>
-        <div id="adDisplay" style="display: none;" class="ad-container">
-            <h3>Please wait while the ad loads...</h3>
-            <div id="adContent" style="min-height: 200px; margin: 20px 0;"></div>
-            <div class="countdown" id="adCountdown">5</div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="adProgress"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Profile Tab -->
-    <div id="profile" class="tab-content">
-        <div class="profile-card">
-            <div class="profile-avatar">
-                <span class="material-icons">person</span>
-            </div>
-            <h2 id="userName" style="margin-bottom: 8px; font-size: 1.8em;">Loading...</h2>
-            <p id="userId" style="color: var(--light-text-color); margin-bottom: 25px;">ID: Loading...</p>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number" id="profileBalance">0.00000</div>
-                    <div class="stat-label">TON Balance</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="profileTasks">0</div>
-                    <div class="stat-label">Tasks Created</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="profileEarnings">0.00000</div>
-                    <div class="stat-label">Total Earned</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="profileAdsWatched">0</div>
-                    <div class="stat-label">Ads Watched</div>
-                </div>
-            </div>
-            <button id="withdrawBtn" class="btn btn-warning" style="margin-top: 20px; font-size: 1.1em;">
-                <span class="material-icons">account_balance_wallet</span>
-                Withdraw TON
-            </button>
-        </div>
-        <div class="developer-info">
-            Bot Developer: <a href="https://t.me/abstudioseo" target="_blank">@abstudioseo</a>
-        </div>
-    </div>
-</div>
-
-<!-- Withdraw Modal -->
-<div id="withdrawModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('withdrawModal')">&times;</span>
-        <h2 style="margin-bottom: 25px; color: var(--text-color);">💰 Withdraw TON</h2>
-        <form id="withdrawForm">
-            <div class="form-group">
-                <label for="withdrawAmount">Amount (TON) *</label>
-                <input type="number" id="withdrawAmount" class="form-control" step="0.00001" min="0.001" placeholder="Minimum 0.001 TON" required>
-            </div>
-            <div class="form-group">
-                <label for="tonAddress">TON Wallet Address *</label>
-                <input type="text" id="tonAddress" class="form-control" placeholder="Enter your TON wallet address (starts with UQ)" required>
-            </div>
-            <button type="submit" class="btn btn-success" style="width: 100%;">
-                <span class="material-icons">send</span>
-                Submit Withdrawal Request
-            </button>
-        </form>
-    </div>
-</div>
-
-<!-- Task Verification Modal -->
-<div id="verifyModal" class="modal">
-    <div class="modal-content" style="text-align: center;">
-        <span class="close" onclick="closeModal('verifyModal')">&times;</span>
-        <div class="material-icons" style="font-size: 4em; color: var(--primary-color); margin-bottom: 20px;">hourglass_empty</div>
-        <h2 style="margin-bottom: 20px; color: var(--text-color);">⏳ Task Verification</h2>
-        <p style="margin-bottom: 25px; color: var(--light-text-color);">Please wait while we verify your task completion...</p>
-        <div class="countdown" id="verifyCountdown">10</div>
-        <div class="progress-bar">
-            <div class="progress-fill" id="verifyProgress"></div>
-        </div>
-    </div>
-</div>
-
-<!-- Payment Processing Modal -->
-<div id="paymentModal" class="modal">
-    <div class="modal-content" style="text-align: center; background: var(--primary-gradient); color: white;">
-        <div class="material-icons pulse" style="font-size: 4em; color: white; margin-bottom: 20px;">payment</div>
-        <h2 style="margin-bottom: 20px;">💳 Processing Payment</h2>
-        <p style="margin-bottom: 25px; opacity: 0.9;">Please complete the payment to create your task...</p>
-        <div class="loading-spinner" style="border-top-color: white; border-color: rgba(255,255,255,0.5);"></div>
-    </div>
-</div>
-
-<script>
-    // --- GLOBAL VARIABLES ---
-    let currentUser = null;
-    let userTasks = {}; // Tasks created by the current user
-    let allTasks = {}; // All available tasks from Firebase
-    let userBalance = 0;
-    let userStats = { tasksCreated: 0, tasksCompleted: 0, totalEarnings: 0, adsWatched: 0 };
-    let adsWatchedToday = 0;
-    let isProcessingPayment = false; // Prevent multiple payment requests
-    let currentTab = 'home'; // Track the current active tab
-    let taskVerificationInterval = null; // To clear interval when modal closes
-    let adCountdownInterval = null; // To clear interval when ad completes or modal closes
-
-    // !!! IMPORTANT: REPLACE WITH YOUR ACTUAL TELEGRAM BOT USERNAME !!!
-    // This username is used to construct the payment initiation URL.
-    // Your bot backend MUST be configured to handle `start` commands with specific payloads
-    // and use createInvoiceLink to generate a REAL Telegram invoice URL.
-    const BOT_USERNAME = 'SkyTaskTonBot'; // <-- CHANGE THIS TO YOUR BOT'S USERNAME
-
-    // --- CONSTANTS ---
-    const TASK_STARS_RATE_PER_500_IMPRESSIONS = 100; // Stars needed for every 500 impressions
-    const TASK_TON_REWARD_PER_COMPLETION = 0.00005; // TON reward for completing a task
-    const AD_TON_REWARD = 0.000001; // TON reward per watched ad
-    const MAX_DAILY_ADS = 10;
-    const AD_COUNTDOWN_SECONDS = 5;
-    const TASK_VERIFICATION_SECONDS = 10;
-    const SPECIAL_USER_ID_FOR_FREE_TASKS = 8101021767; // User ID for free task creation
-
-    // --- INITIALIZATION ---
-    window.Telegram.WebApp.ready();
-    window.Telegram.WebApp.expand();
-    window.Telegram.WebApp.enableClosingConfirmation();
-
-    document.addEventListener('DOMContentLoaded', function() {
-        initializeUser();
-        loadUserData();
-        updateTaskCostInputHandler();
-        initializeDailyAdsResetTimer();
-        setupTabButtons();
-        updateMainButton('home');
-    });
-
-    // --- USER MANAGEMENT ---
-    function initializeUser() {
-        if (window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
-            currentUser = window.Telegram.WebApp.initDataUnsafe.user;
-            const displayName = (currentUser.first_name || '') + (currentUser.last_name ? ' ' + currentUser.last_name : '');
-            document.getElementById('userName').textContent = displayName.trim() || 'User';
-            document.getElementById('userId').textContent = 'ID: ' + currentUser.id;
-            const avatarElement = document.querySelector('.profile-avatar');
-            if (avatarElement) {
-                avatarElement.textContent = displayName.charAt(0).toUpperCase();
-            }
-        } else {
-            // Fallback for testing outside Telegram environment
-            currentUser = {
-                id: Date.now(),
-                first_name: 'TestUser',
-                username: 'testbotuser' + Math.floor(Math.random() * 1000)
-            };
-            document.getElementById('userName').textContent = 'Test User';
-            document.getElementById('userId').textContent = 'ID: ' + currentUser.id;
-            showNotification('Running in test mode. Some features might be simulated.', 'info');
-        }
-    }
-
-    // --- DATA LOADING AND UI UPDATING ---
-    function loadUserData() {
-        if (!currentUser) {
-            console.error("No current user found. Cannot load user data.");
-            return;
-        }
-
-        document.getElementById('allTasksList').innerHTML = '<div class="loading-spinner"></div>';
-        document.getElementById('myTasksList').innerHTML = '<div class="loading-spinner"></div>';
-
-        const userRef = firebase.ref(firebase.database, `users/${currentUser.id}`);
-        firebase.onValue(userRef, (snapshot) => {
-            const userData = snapshot.val() || {};
-            userBalance = userData.balance || 0;
-            userStats = userData.stats || { tasksCreated: 0, tasksCompleted: 0, totalEarnings: 0, adsWatched: 0 };
-            adsWatchedToday = userData.adsWatchedToday || 0;
-            updateUI();
-        }, (error) => {
-            console.error("Error fetching user data:", error);
-            showNotification("Failed to load user data.", "error");
-        });
-
-        const tasksRef = firebase.ref(firebase.database, 'tasks');
-        firebase.onValue(tasksRef, (snapshot) => {
-            allTasks = snapshot.val() || {};
-            displayAllTasks();
-        }, (error) => {
-            console.error("Error fetching all tasks:", error);
-            showNotification("Failed to load tasks.", "error");
-        });
-
-        const userTasksRef = firebase.ref(firebase.database, `userTasks/${currentUser.id}`);
-        firebase.onValue(userTasksRef, (snapshot) => {
-            userTasks = snapshot.val() || {};
-            displayMyTasks();
-        }, (error) => {
-            console.error("Error fetching user tasks:", error);
-            showNotification("Failed to load your tasks.", "error");
-        });
-    }
-
-    function updateUI() {
-        document.getElementById('userBalance').textContent = userBalance.toFixed(5);
-        document.getElementById('profileBalance').textContent = userBalance.toFixed(5);
-        document.getElementById('profileTasks').textContent = userStats.tasksCreated;
-        document.getElementById('profileEarnings').textContent = userStats.totalEarnings.toFixed(5);
-        document.getElementById('profileAdsWatched').textContent = userStats.adsWatched;
-
-        const activeTasksCount = Object.values(allTasks).filter(task => task.status === 'active').length;
-        document.getElementById('totalTasks').textContent = activeTasksCount;
-        document.getElementById('completedTasks').textContent = userStats.tasksCompleted;
-        document.getElementById('totalEarnings').textContent = userStats.totalEarnings.toFixed(5);
-
-        document.getElementById('adsRemaining').textContent = Math.max(0, MAX_DAILY_ADS - adsWatchedToday);
-
-        const watchAdBtn = document.getElementById('watchAdBtn');
-        if (adsWatchedToday >= MAX_DAILY_ADS) {
-            watchAdBtn.disabled = true;
-            watchAdBtn.innerHTML = '<span class="material-icons">block</span>Daily Limit Reached';
-            watchAdBtn.style.opacity = '0.6';
-        } else {
-            watchAdBtn.disabled = false;
-            watchAdBtn.innerHTML = '<span class="material-icons">play_arrow</span>Watch Ad Now';
-            watchAdBtn.style.opacity = '1';
-        }
-    }
-
-    // --- TAB NAVIGATION ---
-    function setupTabButtons() {
-        const navTabs = document.querySelectorAll('.nav-tab');
-        navTabs.forEach(button => {
-            button.addEventListener('click', function() {
-                const tabId = this.getAttribute('onclick').match(/switchTab\('([^']+)'\)/)[1];
-                switchTab(tabId);
+        // Initialize TonConnect
+        function initializeTonConnect() {
+            tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+                manifestUrl: 'https://sky-task-ton-bot-compleat.vercel.app/tonconnect-manifest.json',
+                buttonRootId: 'ton-connect'
             });
-        });
-    }
 
-    function switchTab(tabName) {
-        const tabs = document.querySelectorAll('.tab-content');
-        tabs.forEach(tab => tab.classList.remove('active'));
-
-        const navTabs = document.querySelectorAll('.nav-tab');
-        navTabs.forEach(tab => tab.classList.remove('active'));
-
-        document.getElementById(tabName).classList.add('active');
-        document.querySelector(`.nav-tab[onclick="switchTab('${tabName}')"]`).classList.add('active');
-        currentTab = tabName;
-        updateMainButton(tabName);
-    }
-
-    function updateMainButton(tabName) {
-        let buttonText = '';
-        switch (tabName) {
-            case 'home': buttonText = 'Home'; break;
-            case 'tasks': buttonText = 'My Tasks'; break;
-            case 'add-task': buttonText = 'Create Task'; break;
-            case 'ads': buttonText = 'Watch Ads'; break;
-            case 'profile': buttonText = 'My Profile'; break;
-            default: buttonText = 'Back';
-        }
-        window.Telegram.WebApp.MainButton.setText(buttonText);
-        window.Telegram.WebApp.MainButton.show();
-    }
-
-    // --- TASK MANAGEMENT ---
-    function updateTaskCostInputHandler() {
-        const impressionsInput = document.getElementById('totalImpressions');
-        const costSpan = document.getElementById('taskCost');
-        const progressBar = document.getElementById('costProgress');
-
-        impressionsInput.addEventListener('input', function() {
-            const impressions = parseInt(this.value) || 0;
-            const cost = Math.ceil((impressions / 500) * TASK_STARS_RATE_PER_500_IMPRESSIONS);
-            costSpan.textContent = cost;
-
-            const progress = Math.min((impressions / 4000) * 100, 100);
-            progressBar.style.width = progress + '%';
-        });
-    }
-
-    // Add Task Form Submission
-    document.getElementById('addTaskForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-
-        if (isProcessingPayment) {
-            showNotification('Payment already in progress...', 'info');
-            return;
-        }
-
-        const title = document.getElementById('taskTitle').value.trim();
-        const description = document.getElementById('taskDescription').value.trim();
-        const url = document.getElementById('taskUrl').value.trim();
-        const impressionsInput = document.getElementById('totalImpressions');
-        const impressions = parseInt(impressionsInput.value);
-
-        // Validation
-        if (!title || !description || !url) {
-            showNotification('Please fill in all required fields.', 'error');
-            return;
-        }
-        if (impressions < 500) { // Minimum impressions check
-            showNotification('Minimum 500 impressions required!', 'error');
-            return;
-        }
-        if (!url.startsWith('http')) {
-             showNotification('Please enter a valid URL.', 'error');
-             return;
-        }
-
-        const costInStars = Math.ceil((impressions / 500) * TASK_STARS_RATE_PER_500_IMPRESSIONS);
-
-        // --- Handle Free Task Creation Logic ---
-        const isFreeTask = currentUser && currentUser.id === SPECIAL_USER_ID_FOR_FREE_TASKS;
-
-        if (isFreeTask) {
-            showNotification('Creating task for special user (free).', 'info');
-            try {
-                await createTask(title, description, url, 0, impressions); // Pass 0 for cost, and impressions
-                showNotification('Task created successfully! 🎉', 'success');
-                document.getElementById('addTaskForm').reset();
-                document.getElementById('taskCost').textContent = '0';
-                document.getElementById('costProgress').style.width = '0%';
-            } catch (error) {
-                console.error("Error creating free task:", error);
-                showNotification(`Error creating task: ${error.message}`, 'error');
-            }
-            return; // Exit after creating the free task
-        }
-        // --- End Free Task Creation Logic ---
-
-        // --- Stars Payment Initiation ---
-        // Construct the simulated invoice URL.
-        // THIS URL MUST BE GENERATED BY YOUR BOT BACKEND for the payment to work.
-        // The web app only displays what the bot backend provides.
-        const invoiceAmountUnits = costInStars * 100; // Telegram uses smallest units (e.g., 100 units per Star)
-        const uniqueInvoiceId = `skytaskton_task_pay_${currentUser.id}_${Date.now()}`;
-        const invoiceDescription = `SkyTaskTon Task: ${title} (${impressions} impressions)`;
-        const payload = `${uniqueInvoiceId}:${invoiceAmountUnits}:${encodeURIComponent(invoiceDescription)}`;
-        const simulatedInvoiceUrl = `https://t.me/${BOT_USERNAME}?start=${encodeURIComponent(payload)}`; // THIS IS A SIMULATED URL
-
-        console.warn("Attempting to open PAYMENT invoice. This requires your bot backend to generate a REAL Telegram invoice URL. The current URL is simulated.");
-        console.log("Simulated Invoice URL for openInvoice:", simulatedInvoiceUrl);
-
-        try {
-            isProcessingPayment = true;
-            document.getElementById('paymentModal').style.display = 'block';
-
-            window.Telegram.WebApp.openInvoice(simulatedInvoiceUrl, (status) => {
-                console.log("Invoice callback status:", status); // Log the result from Telegram
-                if (status === 'paid') {
-                    // The 'paid' status here from openInvoice *might* mean Telegram confirmed the payment,
-                    // but your bot backend MUST still verify this via successfulPayment updates.
-                    // For now, we proceed assuming the payment was successful.
-                    createTask(title, description, url, costInStars, impressions)
-                        .then(() => {
-                            showNotification('Task created successfully! 🎉', 'success');
-                            document.getElementById('addTaskForm').reset();
-                            document.getElementById('taskCost').textContent = '0';
-                            document.getElementById('costProgress').style.width = '0%';
-                            switchTab('home');
-                        })
-                        .catch(error => {
-                            console.error("Error saving task after payment:", error);
-                            showNotification(`Task creation failed after payment: ${error.message}`, 'error');
-                        });
-                } else if (status === 'cancelled') {
-                    showNotification('Payment cancelled. Task not created.', 'info');
-                } else {
-                    // This catches 'invalid_url', 'failed', etc.
-                    showNotification(`Payment process failed or was cancelled. Status: ${status}`, 'error');
+            tonConnectUI.uiOptions = {
+                actionsConfiguration: {
+                    twaReturnUrl: 'https://t.me/SkyTaskTon_bot'
                 }
+            };
+
+            // Listen for wallet connection status
+            tonConnectUI.onStatusChange((wallet) => {
+                updateWalletStatus(wallet);
+            });
+        }
+
+        function updateWalletStatus(wallet) {
+            const statusElement = document.getElementById('walletStatusText');
+            const statusContainer = document.getElementById('walletStatus');
+            
+            if (wallet) {
+                statusElement.textContent = `Connected: ${wallet.account.address.slice(0, 8)}...`;
+                statusContainer.style.background = 'rgba(16, 185, 129, 0.2)';
+                statusContainer.style.color = 'white';
+            } else {
+                statusElement.textContent = 'Connect Wallet';
+                statusContainer.style.background = 'rgba(255,255,255,0.1)';
+                statusContainer.style.color = 'white';
+            }
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.ready();
+                window.Telegram.WebApp.expand();
+                window.Telegram.WebApp.enableClosingConfirmation();
+            }
+            
+            initializeUser();
+            initializeTonConnect();
+            loadUserData();
+            updateTaskCostInputHandler();
+            initializeDailyAdsResetTimer();
+        });
+
+        // User Management
+        function initializeUser() {
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
+                currentUser = window.Telegram.WebApp.initDataUnsafe.user;
+                const displayName = (currentUser.first_name || '') + (currentUser.last_name ? ' ' + currentUser.last_name : '');
+                document.getElementById('userName').textContent = displayName.trim() || 'User';
+                document.getElementById('userId').textContent = 'ID: ' + currentUser.id;
+                
+                const avatarElement = document.querySelector('.profile-avatar');
+                if (avatarElement) {
+                    avatarElement.textContent = displayName.charAt(0).toUpperCase();
+                }
+            } else {
+                // Fallback for testing
+                currentUser = {
+                    id: Date.now(),
+                    first_name: 'TestUser',
+                    username: 'testuser' + Math.floor(Math.random() * 1000)
+                };
+                document.getElementById('userName').textContent = 'Test User';
+                document.getElementById('userId').textContent = 'ID: ' + currentUser.id;
+                showNotification('Running in test mode', 'info');
+            }
+        }
+
+        // Data Loading
+        function loadUserData() {
+            if (!currentUser) {
+                console.error("No current user found");
+                return;
+            }
+
+            const userRef = firebase.ref(firebase.database, `users/${currentUser.id}`);
+            firebase.onValue(userRef, (snapshot) => {
+                const userData = snapshot.val() || {};
+                userBalance = userData.balance || 0;
+                userStats = userData.stats || { tasksCreated: 0, tasksCompleted: 0, totalEarnings: 0, adsWatched: 0 };
+                adsWatchedToday = userData.adsWatchedToday || 0;
+                updateUI();
+            }, (error) => {
+                console.error("Error fetching user data:", error);
+                showNotification("Failed to load user data", "error");
+            });
+
+            const tasksRef = firebase.ref(firebase.database, 'tasks');
+            firebase.onValue(tasksRef, (snapshot) => {
+                allTasks = snapshot.val() || {};
+                displayAllTasks();
+            });
+
+            const userTasksRef = firebase.ref(firebase.database, `userTasks/${currentUser.id}`);
+            firebase.onValue(userTasksRef, (snapshot) => {
+                userTasks = snapshot.val() || {};
+                displayMyTasks();
+            });
+        }
+
+        function updateUI() {
+            document.getElementById('userBalance').textContent = userBalance.toFixed(5);
+            document.getElementById('profileBalance').textContent = userBalance.toFixed(5);
+            document.getElementById('profileTasks').textContent = userStats.tasksCreated;
+            document.getElementById('profileEarnings').textContent = userStats.totalEarnings.toFixed(5);
+            document.getElementById('profileAdsWatched').textContent = userStats.adsWatched;
+            document.getElementById('adsWatchedStat').textContent = userStats.adsWatched;
+
+            const activeTasksCount = Object.values(allTasks).filter(task => task.status === 'active').length;
+            document.getElementById('totalTasks').textContent = activeTasksCount;
+            document.getElementById('completedTasks').textContent = userStats.tasksCompleted;
+            document.getElementById('totalEarnings').textContent = userStats.totalEarnings.toFixed(5);
+            document.getElementById('adsRemaining').textContent = Math.max(0, MAX_DAILY_ADS - adsWatchedToday);
+
+            const watchAdBtn = document.getElementById('watchAdBtn');
+            if (adsWatchedToday >= MAX_DAILY_ADS) {
+                watchAdBtn.disabled = true;
+                watchAdBtn.innerHTML = '<span class="material-icons">block</span>Daily Limit Reached';
+            } else {
+                watchAdBtn.disabled = false;
+                watchAdBtn.innerHTML = '<span class="material-icons">play_arrow</span>Watch Ad Now';
+            }
+        }
+
+        // Tab Navigation
+        function switchTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            document.querySelector(`.nav-item[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            
+            currentTab = tabName;
+        }
+
+        // Task Cost Calculator
+        function updateTaskCostInputHandler() {
+            const impressionsInput = document.getElementById('totalImpressions');
+            const costSpan = document.getElementById('taskCost');
+            const progressBar = document.getElementById('costProgress');
+            
+            impressionsInput.addEventListener('input', function() {
+                const impressions = parseInt(this.value) || 0;
+                const cost = (impressions / 500) * TASK_TON_RATE_PER_500_IMPRESSIONS;
+                costSpan.textContent = cost.toFixed(3);
+                
+                const progress = Math.min((impressions / 2000) * 100, 100);
+                progressBar.style.width = progress + '%';
+            });
+        }
+
+        // Add Task Form
+        document.getElementById('addTaskForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (isProcessingPayment) {
+                showNotification('Payment already in progress...', 'info');
+                return;
+            }
+
+            const title = document.getElementById('taskTitle').value.trim();
+            const description = document.getElementById('taskDescription').value.trim();
+            const url = document.getElementById('taskUrl').value.trim();
+            const impressions = parseInt(document.getElementById('totalImpressions').value);
+
+            // Validation
+            if (!title || !description || !url) {
+                showNotification('Please fill in all required fields', 'error');
+                return;
+            }
+
+            if (impressions < 500) {
+                showNotification('Minimum 500 impressions required!', 'error');
+                return;
+            }
+
+            if (!url.startsWith('http')) {
+                showNotification('Please enter a valid URL', 'error');
+                return;
+            }
+
+            const costInTON = (impressions / 500) * TASK_TON_RATE_PER_500_IMPRESSIONS;
+
+            // Check for special user (free tasks)
+            const isFreeTask = currentUser && currentUser.id === SPECIAL_USER_ID_FOR_FREE_TASKS;
+            
+            if (isFreeTask) {
+                try {
+                    await createTask(title, description, url, 0, impressions);
+                    showNotification('Task created successfully! 🎉', 'success');
+                    resetForm();
+                } catch (error) {
+                    console.error("Error creating free task:", error);
+                    showNotification(`Error creating task: ${error.message}`, 'error');
+                }
+                return;
+            }
+
+            // TON Payment Processing
+            try {
+                const wallet = tonConnectUI.wallet;
+                if (!wallet) {
+                    showNotification('Please connect your TON wallet first', 'warning');
+                    return;
+                }
+
+                isProcessingPayment = true;
+                document.getElementById('paymentModal').style.display = 'block';
+
+                const transaction = {
+                    validUntil: Math.floor(Date.now() / 1000) + 60,
+                    messages: [{
+                        address: "UQBXm789tcbrI25ulxURJKuForDWn1kbVCq95lYWdIblGdb2",
+                        amount: (costInTON * 1000000000).toString() // Convert to nanotons
+                    }]
+                };
+
+                const result = await tonConnectUI.sendTransaction(transaction);
+                
+                if (result) {
+                    await createTask(title, description, url, costInTON, impressions);
+                    showNotification('Task created successfully! 🎉', 'success');
+                    resetForm();
+                    switchTab('home');
+                } else {
+                    showNotification('Payment cancelled', 'info');
+                }
+
+            } catch (error) {
+                console.error('Error processing TON payment:', error);
+                showNotification(`Payment failed: ${error.message}`, 'error');
+            } finally {
                 isProcessingPayment = false;
                 closeModal('paymentModal');
-            });
-        } catch (error) {
-            console.error('Error initiating Stars payment:', error);
-            if (error.message === 'WebAppInvoiceUrlInvalid') {
-                showNotification('Invalid payment link generated. Please check your bot configuration and ensure your bot backend correctly creates invoice URLs.', 'error');
-            } else {
-                showNotification(`Error initiating payment: ${error.message}. Please try again.`, 'error');
             }
-            isProcessingPayment = false;
-            closeModal('paymentModal');
+        });
+
+        function resetForm() {
+            document.getElementById('addTaskForm').reset();
+            document.getElementById('taskCost').textContent = '0';
+            document.getElementById('costProgress').style.width = '0%';
         }
-    });
 
-    async function createTask(title, description, url, costInStars, totalImpressions) {
-        const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        const taskData = {
-            id: taskId,
-            title,
-            description,
-            url,
-            totalImpressions: totalImpressions || parseInt(document.getElementById('totalImpressions').value),
-            currentImpressions: 0,
-            costInStars: costInStars,
-            rewardPerCompletion: TASK_TON_REWARD_PER_COMPLETION,
-            createdBy: currentUser.id,
-            createdAt: new Date().toISOString(),
-            status: 'active',
-            completedBy: []
-        };
-
-        try {
-            await firebase.set(firebase.ref(firebase.database, `tasks/${taskId}`), taskData);
-            await firebase.set(firebase.ref(firebase.database, `userTasks/${currentUser.id}/${taskId}`), taskData);
-
-            const updatedStats = {
-                ...userStats,
-                tasksCreated: userStats.tasksCreated + 1
+        // Task Management
+        async function createTask(title, description, url, costInTON, totalImpressions) {
+            const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            const taskData = {
+                id: taskId,
+                title,
+                description,
+                url,
+                totalImpressions,
+                currentImpressions: 0,
+                costInTON: costInTON,
+                rewardPerCompletion: TASK_TON_REWARD_PER_COMPLETION,
+                createdBy: currentUser.id,
+                createdAt: new Date().toISOString(),
+                status: 'active',
+                completedBy: []
             };
-            await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/stats`), updatedStats);
 
-        } catch (error) {
-            console.error("Error saving task to Firebase:", error);
-            throw error;
+            try {
+                await firebase.set(firebase.ref(firebase.database, `tasks/${taskId}`), taskData);
+                await firebase.set(firebase.ref(firebase.database, `userTasks/${currentUser.id}/${taskId}`), taskData);
+                
+                const updatedStats = {
+                    ...userStats,
+                    tasksCreated: userStats.tasksCreated + 1
+                };
+                await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/stats`), updatedStats);
+            } catch (error) {
+                console.error("Error saving task:", error);
+                throw error;
+            }
         }
-    }
 
-    function displayAllTasks() {
-        const container = document.getElementById('allTasksList');
-        container.innerHTML = '';
+        function displayAllTasks() {
+            const container = document.getElementById('allTasksList');
+            container.innerHTML = '';
+            
+            const availableTasks = Object.values(allTasks)
+                .filter(task => 
+                    task.status === 'active' && 
+                    task.currentImpressions < task.totalImpressions && 
+                    !task.completedBy?.includes(currentUser.id)
+                );
 
-        const availableTasks = Object.values(allTasks)
-            .filter(task =>
-                task.status === 'active' &&
-                task.currentImpressions < task.totalImpressions &&
-                !task.completedBy?.includes(currentUser.id)
-            );
+            if (availableTasks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <span class="material-icons">assignment</span>
+                        <h3>No tasks available</h3>
+                        <p>Check back later for new tasks!</p>
+                    </div>
+                `;
+                return;
+            }
 
-        if (availableTasks.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <span class="material-icons">assignment</span>
-                    <h3>No tasks available</h3>
-                    <p>Check back later for new tasks to complete!</p>
+            availableTasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            availableTasks.forEach(task => {
+                container.appendChild(createTaskCard(task, 'all'));
+            });
+        }
+
+        function displayMyTasks() {
+            const container = document.getElementById('myTasksList');
+            container.innerHTML = '';
+            
+            const myTasksList = Object.values(userTasks);
+            if (myTasksList.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <span class="material-icons">add_circle_outline</span>
+                        <h3>No tasks created yet</h3>
+                        <p>Create your first task to get started!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            myTasksList.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            myTasksList.forEach(task => {
+                container.appendChild(createTaskCard(task, 'my'));
+            });
+        }
+
+        function createTaskCard(task, type) {
+            const card = document.createElement('div');
+            card.className = 'task-card';
+            
+            const progress = task.totalImpressions > 0 ? (task.currentImpressions / task.totalImpressions) * 100 : 0;
+            const isTaskCompletedByUser = task.completedBy?.includes(currentUser.id);
+
+            card.innerHTML = `
+                <div class="task-title">${task.title}</div>
+                <div class="task-description">${task.description}</div>
+                <div class="task-stats">
+                    <div class="task-stat">
+                        <span class="material-icons">visibility</span>
+                        ${task.currentImpressions}/${task.totalImpressions}
+                    </div>
+                    <div class="task-stat">
+                        <span class="material-icons">payments</span>
+                        ${task.rewardPerCompletion.toFixed(5)} TON
+                    </div>
+                    ${type === 'my' && task.costInTON > 0 ? `
+                        <div class="task-stat">
+                            <span class="material-icons">account_balance</span>
+                            ${task.costInTON.toFixed(3)} TON
+                        </div>` : ''}
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${progress}%;"></div>
+                </div>
+                <div style="margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap;">
+                    ${type === 'all' && !isTaskCompletedByUser ? 
+                        `<button class="btn btn-primary" onclick="startTask('${task.id}', '${task.url}')" style="flex: 1;">
+                            <span class="material-icons">play_arrow</span>
+                            Start Task
+                        </button>` : ''}
+                    ${type === 'my' ? 
+                        `<button class="btn btn-danger" onclick="deleteTask('${task.id}')" style="flex: 1;">
+                            <span class="material-icons">delete</span>
+                            Delete
+                        </button>` : ''}
+                    ${isTaskCompletedByUser ? 
+                        `<div class="btn btn-success" style="cursor: default; flex: 1;">
+                            <span class="material-icons">check_circle</span>
+                            Completed
+                        </div>` : ''}
                 </div>
             `;
-            return;
+            
+            return card;
         }
 
-        availableTasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        // Task Operations
+        async function startTask(taskId, url) {
+            try {
+                window.open(url, '_blank');
+                document.getElementById('verifyModal').style.display = 'block';
+                
+                let countdown = TASK_VERIFICATION_SECONDS;
+                const countdownElement = document.getElementById('verifyCountdown');
+                const progressElement = document.getElementById('verifyProgress');
+                
+                progressElement.style.width = '0%';
+                countdownElement.textContent = countdown;
+                
+                if (taskVerificationInterval) clearInterval(taskVerificationInterval);
+                
+                taskVerificationInterval = setInterval(() => {
+                    countdown--;
+                    countdownElement.textContent = countdown;
+                    progressElement.style.width = ((TASK_VERIFICATION_SECONDS - countdown) / TASK_VERIFICATION_SECONDS) * 100 + '%';
+                    
+                    if (countdown <= 0) {
+                        clearInterval(taskVerificationInterval);
+                        completeTask(taskId);
+                        closeModal('verifyModal');
+                    }
+                }, 1000);
+            } catch (error) {
+                console.error("Error starting task:", error);
+                showNotification('Error starting task', 'error');
+            }
+        }
 
-        availableTasks.forEach(task => {
-            container.appendChild(createTaskCard(task, 'all'));
-        });
-    }
+        async function completeTask(taskId) {
+            try {
+                const task = allTasks[taskId];
+                if (!task) {
+                    showNotification('Task not found!', 'error');
+                    return;
+                }
 
-    function displayMyTasks() {
-        const container = document.getElementById('myTasksList');
-        container.innerHTML = '';
+                if (task.completedBy?.includes(currentUser.id)) {
+                    showNotification('Task already completed!', 'info');
+                    return;
+                }
 
-        const myTasksList = Object.values(userTasks);
+                const updatedTask = {
+                    ...task,
+                    currentImpressions: task.currentImpressions + 1,
+                    completedBy: [...(task.completedBy || []), currentUser.id]
+                };
 
-        if (myTasksList.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <span class="material-icons">add_circle_outline</span>
-                    <h3>No tasks created yet</h3>
-                    <p>Create your first task to get started!</p>
+                await firebase.set(firebase.ref(firebase.database, `tasks/${taskId}`), updatedTask);
+
+                const reward = task.rewardPerCompletion || TASK_TON_REWARD_PER_COMPLETION;
+                const newBalance = userBalance + reward;
+                const updatedStats = {
+                    ...userStats,
+                    tasksCompleted: userStats.tasksCompleted + 1,
+                    totalEarnings: userStats.totalEarnings + reward
+                };
+
+                await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/balance`), newBalance);
+                await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/stats`), updatedStats);
+
+                showNotification(`Task completed! +${reward.toFixed(5)} TON earned! 🎉`, 'success');
+                loadUserData();
+            } catch (error) {
+                console.error('Error completing task:', error);
+                showNotification('Error completing task', 'error');
+            }
+        }
+
+        async function deleteTask(taskId) {
+            if (!confirm('Are you sure you want to delete this task?')) {
+                return;
+            }
+
+            try {
+                await firebase.remove(firebase.ref(firebase.database, `tasks/${taskId}`));
+                await firebase.remove(firebase.ref(firebase.database, `userTasks/${currentUser.id}/${taskId}`));
+                
+                const updatedStats = {
+                    ...userStats,
+                    tasksCreated: Math.max(0, userStats.tasksCreated - 1)
+                };
+                await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/stats`), updatedStats);
+
+                showNotification('Task deleted successfully!', 'success');
+                loadUserData();
+            } catch (error) {
+                console.error("Error deleting task:", error);
+                showNotification('Error deleting task', 'error');
+            }
+        }
+
+        // Ads System
+        document.getElementById('watchAdBtn').addEventListener('click', async function() {
+            if (adsWatchedToday >= MAX_DAILY_ADS) {
+                showNotification('Daily ad limit reached!', 'error');
+                return;
+            }
+
+            document.getElementById('adDisplay').style.display = 'block';
+            this.disabled = true;
+            this.innerHTML = '<span class="material-icons">hourglass_empty</span>Loading Ad...';
+
+            const adContentElement = document.getElementById('adContent');
+            const countdownElement = document.getElementById('adCountdown');
+            const progressElement = document.getElementById('adProgress');
+
+            // Simulate ad content
+            adContentElement.innerHTML = `
+                <div style="background: var(--primary-gradient); color: white; padding: 30px; border-radius: 12px;">
+                    <h3>Sample Advertisement</h3>
+                    <p>Watch this ad to earn TON rewards!</p>
                 </div>
             `;
-            return;
-        }
 
-        myTasksList.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-        myTasksList.forEach(task => {
-            container.appendChild(createTaskCard(task, 'my'));
-        });
-    }
-
-    function createTaskCard(task, type) {
-        const card = document.createElement('div');
-        card.className = 'task-card';
-
-        const progress = task.totalImpressions > 0 ? (task.currentImpressions / task.totalImpressions) * 100 : 0;
-        const isUserTaskCreator = task.createdBy === currentUser.id;
-        const isTaskCompletedByUser = task.completedBy?.includes(currentUser.id);
-        const isFreeTask = currentUser && currentUser.id === SPECIAL_USER_ID_FOR_FREE_TASKS;
-
-        card.innerHTML = `
-            <div class="task-title">${task.title}</div>
-            <div class="task-description">${task.description}</div>
-            <div class="task-stats">
-                <div class="stat">
-                    <span class="material-icons" style="font-size: 1em; vertical-align: middle;">visibility</span>
-                    ${task.currentImpressions}/${task.totalImpressions}
-                </div>
-                <div class="stat">
-                    <span class="material-icons" style="font-size: 1em; vertical-align: middle;">payments</span>
-                    ${task.rewardPerCompletion.toFixed(5)} TON
-                </div>
-                ${type === 'all' && !isFreeTask && task.costInStars > 0 ? `
-                    <div class="stat">
-                        <span class="material-icons" style="font-size: 1em; vertical-align: middle;">star</span>
-                        ${task.costInStars} Stars
-                    </div>` : ''}
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" style="width: ${progress.toFixed(2)}%;"></div>
-            </div>
-            <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-                ${type === 'all' && !isTaskCompletedByUser ?
-                    `<button class="btn btn-primary" onclick="startTask('${task.id}', '${task.url}')" style="flex: 1;">
-                        <span class="material-icons">play_arrow</span>
-                        Start Task
-                    </button>` : ''}
-                ${type === 'my' ?
-                    `<button class="btn btn-danger" onclick="deleteTask('${task.id}')" style="flex: 1;">
-                        <span class="material-icons">delete</span>
-                        Delete Task
-                    </button>` : ''}
-                ${isTaskCompletedByUser ?
-                    `<div class="btn btn-success" style="cursor: default; flex: 1;">
-                        <span class="material-icons">check_circle</span>
-                        Completed
-                    </div>` : ''}
-                ${type === 'all' && isTaskCompletedByUser ?
-                    `<div class="btn btn-info" style="cursor: default; flex: 1;">
-                        <span class="material-icons">task_alt</span>
-                        Your Task Done
-                    </div>` : ''}
-            </div>
-        `;
-
-        return card;
-    }
-
-    async function startTask(taskId, url) {
-        try {
-            window.open(url, '_blank');
-
-            document.getElementById('verifyModal').style.display = 'block';
-
-            let countdown = TASK_VERIFICATION_SECONDS;
-            const countdownElement = document.getElementById('verifyCountdown');
-            const progressElement = document.getElementById('verifyProgress');
-
+            let countdown = AD_COUNTDOWN_SECONDS;
             progressElement.style.width = '0%';
             countdownElement.textContent = countdown;
 
-            if (taskVerificationInterval) clearInterval(taskVerificationInterval);
+            if (adCountdownInterval) clearInterval(adCountdownInterval);
 
-            taskVerificationInterval = setInterval(() => {
+            adCountdownInterval = setInterval(() => {
                 countdown--;
                 countdownElement.textContent = countdown;
-                progressElement.style.width = ((TASK_VERIFICATION_SECONDS - countdown) / TASK_VERIFICATION_SECONDS) * 100 + '%';
+                progressElement.style.width = ((AD_COUNTDOWN_SECONDS - countdown) / AD_COUNTDOWN_SECONDS) * 100 + '%';
 
                 if (countdown <= 0) {
-                    clearInterval(taskVerificationInterval);
-                    completeTask(taskId);
-                    closeModal('verifyModal');
+                    clearInterval(adCountdownInterval);
+                    earnFromAd();
+                    document.getElementById('adDisplay').style.display = 'none';
+                    this.disabled = false;
+                    this.innerHTML = '<span class="material-icons">play_arrow</span>Watch Ad Now';
+                    loadUserData();
                 }
             }, 1000);
-        } catch (error) {
-            console.error("Error starting task:", error);
-            showNotification('Error starting task. Please try again.', 'error');
-        }
-    }
+        });
 
-    async function completeTask(taskId) {
-        try {
-            const task = allTasks[taskId];
-            if (!task) {
-                showNotification('Task not found!', 'error');
-                return;
-            }
-
-            if (task.completedBy?.includes(currentUser.id)) {
-                showNotification('Task already completed by you!', 'info');
-                return;
-            }
-
-            const updatedTask = {
-                ...task,
-                currentImpressions: task.currentImpressions + 1,
-                completedBy: [...(task.completedBy || []), currentUser.id]
-            };
-
-            await firebase.set(firebase.ref(firebase.database, `tasks/${taskId}`), updatedTask);
-
-            const reward = task.rewardPerCompletion || TASK_TON_REWARD_PER_COMPLETION;
-            const newBalance = userBalance + reward;
-            const updatedStats = {
-                ...userStats,
-                tasksCompleted: userStats.tasksCompleted + 1,
-                totalEarnings: userStats.totalEarnings + reward
-            };
-
-            await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/balance`), newBalance);
-            await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/stats`), updatedStats);
-
-            showNotification(`Task completed! +${reward.toFixed(5)} TON earned! 🎉`, 'success');
-
-            loadUserData();
-
-        } catch (error) {
-            console.error('Error completing task:', error);
-            showNotification('Error completing task. Please try again.', 'error');
-        }
-    }
-
-    async function deleteTask(taskId) {
-        if (!confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
-            return;
-        }
-
-        try {
-            await firebase.remove(firebase.ref(firebase.database, `tasks/${taskId}`));
-            await firebase.remove(firebase.ref(firebase.database, `userTasks/${currentUser.id}/${taskId}`));
-
-            const updatedStats = {
-                ...userStats,
-                tasksCreated: Math.max(0, userStats.tasksCreated - 1)
-            };
-            await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/stats`), updatedStats);
-
-            showNotification('Task deleted successfully!', 'success');
-            loadUserData();
-        } catch (error) {
-            console.error("Error deleting task:", error);
-            showNotification('Error deleting task. Please try again.', 'error');
-        }
-    }
-
-    // --- WITHDRAWAL SYSTEM ---
-    document.getElementById('withdrawBtn').addEventListener('click', function() {
-        document.getElementById('withdrawModal').style.display = 'block';
-    });
-
-    document.getElementById('withdrawForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-
-        const amount = parseFloat(document.getElementById('withdrawAmount').value);
-        const address = document.getElementById('tonAddress').value.trim();
-
-        if (isNaN(amount) || amount <= 0) {
-            showNotification('Please enter a valid amount.', 'error');
-            return;
-        }
-        if (amount > userBalance) {
-            showNotification('Insufficient balance!', 'error');
-            return;
-        }
-        if (amount < 0.001) {
-            showNotification('Minimum withdrawal is 0.001 TON!', 'error');
-            return;
-        }
-        if (!address || !address.startsWith('UQ')) {
-            showNotification('Please enter a valid TON wallet address (starts with UQ).', 'error');
-            return;
-        }
-
-        try {
-            const withdrawalData = {
-                userId: currentUser.id,
-                userName: document.getElementById('userName').textContent,
-                amount: amount,
-                address: address,
-                status: 'pending',
-                createdAt: new Date().toISOString()
-            };
-
-            const withdrawalRef = firebase.push(firebase.ref(firebase.database, 'withdrawals'));
-            await firebase.set(withdrawalRef, withdrawalData);
-
-            showNotification('Withdrawal request submitted successfully! Please wait for processing.', 'success');
-            closeModal('withdrawModal');
-            this.reset();
-        } catch (error) {
-            console.error("Error submitting withdrawal:", error);
-            showNotification('Error submitting withdrawal request. Please try again.', 'error');
-        }
-    });
-
-    // --- ADS FUNCTIONALITY ---
-    document.getElementById('watchAdBtn').addEventListener('click', async function() {
-        if (adsWatchedToday >= MAX_DAILY_ADS) {
-            showNotification('Daily ad limit reached! Come back tomorrow.', 'error');
-            return;
-        }
-
-        document.getElementById('adDisplay').style.display = 'block';
-        this.disabled = true;
-        this.textContent = 'Loading Ad...';
-
-        const adContentElement = document.getElementById('adContent');
-        const countdownElement = document.getElementById('adCountdown');
-        const progressElement = document.getElementById('adProgress');
-
-        // --- Ad SDK Integration ---
-        if (typeof show_9789409 === 'function') {
+        async function earnFromAd() {
             try {
-                await show_9789409();
-                console.log('Ad SDK (show_9789409) function called.');
-            } catch (adError) {
-                console.log('Error executing Ad SDK function:', adError);
-                adContentElement.innerHTML = `<p style="color: red;">Failed to load ad content. Please check your connection or try again.</p>`;
-                this.disabled = false;
-                this.textContent = 'Watch Ad Now';
-                document.getElementById('adDisplay').style.display = 'none';
-                showNotification('Failed to load ad content. Please try again.', 'error');
+                const newBalance = userBalance + AD_TON_REWARD;
+                const newAdsCount = adsWatchedToday + 1;
+                const updatedStats = {
+                    ...userStats,
+                    totalEarnings: userStats.totalEarnings + AD_TON_REWARD,
+                    adsWatched: userStats.adsWatched + 1
+                };
+
+                await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/balance`), newBalance);
+                await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/adsWatchedToday`), newAdsCount);
+                await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/stats`), updatedStats);
+
+                showNotification(`Ad completed! +${AD_TON_REWARD.toFixed(6)} TON earned! 🎉`, 'success');
+            } catch (error) {
+                console.error('Error earning from ad:', error);
+                showNotification('Error processing ad reward', 'error');
+            }
+        }
+
+        // Withdrawal System
+        document.getElementById('withdrawBtn').addEventListener('click', function() {
+            document.getElementById('withdrawModal').style.display = 'block';
+        });
+
+        document.getElementById('withdrawForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const address = document.getElementById('tonAddress').value.trim();
+
+            if (isNaN(amount) || amount <= 0) {
+                showNotification('Please enter a valid amount', 'error');
                 return;
             }
-        } else {
-            console.log('Ad SDK (show_9789409) is not available or has not loaded.');
-            adContentElement.innerHTML = `
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                            color: white; padding: 40px; border-radius: 15px; text-align: center;">
-                    <h3>Placeholder Ad Content</h3>
-                    <p>This is where ads from the SDK would appear.</p>
-                </div>
-            `;
-        }
-        // --- End Ad SDK Integration ---
 
-        let countdown = AD_COUNTDOWN_SECONDS;
-        progressElement.style.width = '0%';
-        countdownElement.textContent = countdown;
-
-        if (adCountdownInterval) clearInterval(adCountdownInterval);
-
-        adCountdownInterval = setInterval(() => {
-            countdown--;
-            countdownElement.textContent = countdown;
-            progressElement.style.width = ((AD_COUNTDOWN_SECONDS - countdown) / AD_COUNTDOWN_SECONDS) * 100 + '%';
-
-            if (countdown <= 0) {
-                clearInterval(adCountdownInterval);
-                earnFromAd();
-                document.getElementById('adDisplay').style.display = 'none';
-                this.disabled = false;
-                this.textContent = 'Watch Ad Now';
-                loadUserData();
+            if (amount > userBalance) {
+                showNotification('Insufficient balance!', 'error');
+                return;
             }
-        }, 1000);
-    });
 
-    async function earnFromAd() {
-        try {
-            const newBalance = userBalance + AD_TON_REWARD;
-            const newAdsCount = adsWatchedToday + 1;
-            const updatedStats = {
-                ...userStats,
-                totalEarnings: userStats.totalEarnings + AD_TON_REWARD,
-                adsWatched: userStats.adsWatched + 1
-            };
+            if (amount < 0.05) {
+                showNotification('Minimum withdrawal is 0.005 TON!', 'error');
+                return;
+            }
 
-            await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/balance`), newBalance);
-            await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/adsWatchedToday`), newAdsCount);
-            await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/stats`), updatedStats);
+            if (!address) {
+                showNotification('Please enter a valid TON wallet address', 'error');
+                return;
+            }
 
-            showNotification(`Ad completed! +${AD_TON_REWARD.toFixed(6)} TON earned! 🎉`, 'success');
+            try {
+                const withdrawalData = {
+                    userId: currentUser.id,
+                    userName: document.getElementById('userName').textContent,
+                    amount: amount,
+                    address: address,
+                    status: 'pending',
+                    createdAt: new Date().toISOString()
+                };
 
-        } catch (error) {
-            console.error('Error earning from ad:', error);
-            showNotification('Error processing ad reward. Please try again.', 'error');
-        }
-    }
+                const withdrawalRef = firebase.push(firebase.ref(firebase.database, 'withdrawals'));
+                await firebase.set(withdrawalRef, withdrawalData);
 
-    // --- MODAL AND NOTIFICATION HELPERS ---
-    function closeModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.style.display = 'none';
-            if (modalId === 'verifyModal') {
-                if (taskVerificationInterval) {
+                showNotification('Withdrawal request submitted successfully!', 'success');
+                closeModal('withdrawModal');
+                this.reset();
+            } catch (error) {
+                console.error("Error submitting withdrawal:", error);
+                showNotification('Error submitting withdrawal request', 'error');
+            }
+        });
+
+        // Modal Management
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+                if (modalId === 'verifyModal' && taskVerificationInterval) {
                     clearInterval(taskVerificationInterval);
                     taskVerificationInterval = null;
                 }
             }
         }
-    }
 
-    function showNotification(message, type) {
-        const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
-        notification.textContent = message;
+        // Notification System
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
 
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-            notification.style.animation = 'slideInRight 0.3s reverse forwards';
             setTimeout(() => {
-                notification.remove();
-            }, 300);
-        }, 3000);
-    }
+                notification.style.animation = 'slideInRight 0.3s reverse forwards';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
 
-    window.addEventListener('click', function(event) {
-        const modals = document.querySelectorAll('.modal');
-        modals.forEach(modal => {
-            if (event.target === modal) {
-                modal.style.display = 'none';
+        // Daily Reset
+        function initializeDailyAdsResetTimer() {
+            const now = new Date();
+            const tomorrow = new Date(now);
+            tomorrow.setHours(0, 0, 0, 0);
+            tomorrow.setDate(now.getDate() + 1);
+            
+            const msUntilMidnight = tomorrow.getTime() - now.getTime();
+            
+            setTimeout(async () => {
+                await resetDailyAds();
+                setInterval(resetDailyAds, 24 * 60 * 60 * 1000);
+            }, msUntilMidnight);
+        }
+
+        async function resetDailyAds() {
+            if (currentUser) {
+                try {
+                    await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/adsWatchedToday`), 0);
+                    showNotification('Daily ads reset!', 'info');
+                    loadUserData();
+                } catch (error) {
+                    console.error("Error resetting daily ads:", error);
+                }
             }
+        }
+
+        // Event Listeners
+        window.addEventListener('click', function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
         });
-    });
 
-    // --- DAILY RESET LOGIC ---
-    function initializeDailyAdsResetTimer() {
-        const now = new Date();
-        const tomorrow = new Date(now);
-        tomorrow.setHours(0, 0, 0, 0);
-        tomorrow.setDate(now.getDate() + 1);
-
-        const msUntilMidnight = tomorrow.getTime() - now.getTime();
-
-        setTimeout(async () => {
-            await resetDailyAds();
-            setInterval(resetDailyAds, 24 * 60 * 60 * 1000);
-        }, msUntilMidnight);
-    }
-
-    async function resetDailyAds() {
-        if (currentUser) {
-            try {
-                await firebase.set(firebase.ref(firebase.database, `users/${currentUser.id}/adsWatchedToday`), 0);
-                showNotification('Daily ads reset! You can watch 10 more ads today.', 'info');
-                loadUserData();
-            } catch (error) {
-                console.error("Error resetting daily ads:", error);
-                showNotification("Failed to reset daily ads count.", "error");
-            }
+        // Telegram WebApp Events
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.onEvent('backButtonClicked', function() {
+                if (currentTab !== 'home') {
+                    switchTab('home');
+                } else {
+                    window.Telegram.WebApp.close();
+                }
+            });
         }
-    }
-
-    // --- TELEGRAM WEB APP EVENTS ---
-    window.Telegram.WebApp.onEvent('mainButtonClicked', function() {
-        const activeTabId = currentTab;
-        console.log('Main button clicked in tab:', activeTabId);
-    });
-
-    window.Telegram.WebApp.onEvent('backButtonClicked', function() {
-        if (currentTab !== 'home') {
-            switchTab('home');
-            updateMainButton('home');
-        } else {
-            window.Telegram.WebApp.close();
-        }
-    });
-
-</script>
-  </body></html>
+    </script>
+</body>
+</html>
