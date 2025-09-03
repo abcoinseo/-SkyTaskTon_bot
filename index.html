@@ -1454,7 +1454,7 @@
             
             impressionsInput.addEventListener('input', function() {
                 const impressions = parseInt(this.value) || 0;
-                const cost = (impressions / 500) * TASK_TON_RATE_PER_500_IMPRESSIONS;
+                const cost = (impressions / 100) * TASK_TON_RATE_PER_500_IMPRESSIONS;
                 costSpan.textContent = cost.toFixed(3);
                 
                 const progress = Math.min((impressions / 2000) * 100, 100);
