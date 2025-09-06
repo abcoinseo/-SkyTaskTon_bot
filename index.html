@@ -1737,14 +1737,24 @@ body::before {
 
     <script>
         // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyA3SqCHzN3kLj7DC8Cyu9OzxPFtIlyyii4", // Replace with your actual API key
-            authDomain: "maneybux-clone.firebaseapp.com",
-            projectId: "maneybux-clone",
-            storageBucket: "maneybux-clone.firebasestorage.app",
-            messagingSenderId: "153207109623",
-            appId: "1:153207109623:web:4cd48633c49c2ba3c1a0f2"
-        };
+        // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBSj3t2ClyafHRgpN__cCnbDarhTfse3aA",
+  authDomain: "skytasktonbot.firebaseapp.com",
+  databaseURL: "https://skytasktonbot-default-rtdb.firebaseio.com",
+  projectId: "skytasktonbot",
+  storageBucket: "skytasktonbot.firebasestorage.app",
+  messagingSenderId: "1078897344814",
+  appId: "1:1078897344814:web:166f4341b884d877d97abf"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 
         // Initialize Firebase
         try {
@@ -1760,7 +1770,7 @@ body::before {
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: 'https://moneybuc-clone-clint-1.vercel.app/tonconnect-manifest.json', // Ensure this manifest is correctly configured
             actionsConfiguration: {
-                twaReturnUrl: 'https://t.me/adflareprobot' // Your bot's username
+                twaReturnUrl: 'https://t.me/SkyTaskTon' // Your bot's username
             }
         });
 
@@ -1788,7 +1798,7 @@ body::before {
         const AD_REWARD_POINTS = 10;
         const CHECKIN_REWARD_POINTS = 20;
         const TASK_SPIN_REWARD = 1;
-        const TELEGRAM_BOT_TOKEN = '7829924006:AAFIOCnga8v6yOw08dCzvKDC8wS7Fuad_II'; // Replace with your actual bot token
+        const TELEGRAM_BOT_TOKEN = '8418101664:AAGGo8z3XClfcCSULnWduKQTXIqqpwCR2FQ'; // Replace with your actual bot token
         const AD_CLAIM_COOLDOWN = 3000; // 15 seconds cooldown after ad completion before reward is claimable/button active
         const POST_AD_COOLDOWN = 3000;  // 3 seconds delay between claiming reward and being able to start the *next* ad
         const MAX_DAILY_ADS = 50;
@@ -3197,7 +3207,7 @@ body::before {
 
         // Copy referral link to clipboard
         function copyReferralLink() {
-            const botUsername = 'adflareprobot'; // Use your actual bot username
+            const botUsername = 'SkyTaskTon'; // Use your actual bot username
             const link = `https://t.me/${botUsername}/app?startapp=ref_${currentUser.id}`;
             navigator.clipboard.writeText(link).then(() => {
                 showAlert('Referral link copied to clipboard!', 'success');
